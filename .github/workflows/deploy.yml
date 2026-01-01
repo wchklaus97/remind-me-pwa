@@ -131,12 +131,18 @@ jobs:
           
           # LCP Optimization: Optimize WASM bundle with wasm-opt
           # This reduces WASM file size by 10-30% and improves loading performance
+          # Note: If wasm-opt fails, we continue with unoptimized WASM (non-critical optimization)
           if command -v wasm-opt &> /dev/null; then
             echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
             find docs -name "*.wasm" -type f | while read wasm_file; do
               echo "  Optimizing: $(basename "$wasm_file")"
-              wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz --strip-debug
-              mv "$wasm_file.tmp" "$wasm_file"
+              if wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz --strip-debug 2>&1; then
+                mv "$wasm_file.tmp" "$wasm_file"
+                echo "    ✅ Optimized successfully"
+              else
+                echo "    ⚠️  Optimization failed, using original file"
+                rm -f "$wasm_file.tmp"
+              fi
             done
             echo "✅ WASM optimization complete"
           else

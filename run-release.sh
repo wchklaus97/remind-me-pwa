@@ -47,17 +47,18 @@ if [ $? -eq 0 ]; then
         
         # LCP Optimization: Optimize WASM bundle with wasm-opt (if available)
         # This can reduce WASM file size by 10-30% and improve LCP significantly
+        # Note: If wasm-opt fails, we continue with unoptimized WASM (non-critical optimization)
         if command -v wasm-opt &> /dev/null; then
             echo ""
             echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
-            wasm-opt "$WASM_FILE" -o "$WASM_FILE.tmp" -Oz --strip-debug
-            if [ $? -eq 0 ]; then
+            if wasm-opt "$WASM_FILE" -o "$WASM_FILE.tmp" -Oz --strip-debug 2>&1; then
                 mv "$WASM_FILE.tmp" "$WASM_FILE"
                 OPTIMIZED_SIZE=$(ls -lh "$WASM_FILE" | awk '{print $5}')
                 echo "✅ WASM optimization complete!"
                 echo "📦 Optimized WASM file size: $OPTIMIZED_SIZE (reduced from $ORIGINAL_SIZE)"
             else
                 echo "⚠️  wasm-opt optimization failed, using original file"
+                echo "   This is non-critical - the app will work without optimization"
                 rm -f "$WASM_FILE.tmp"
             fi
         else
