@@ -1,7 +1,10 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy to GitHub Pages
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -18,204 +21,93 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Rust
+      - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
+          targets: wasm32-unknown-unknown
 
-      - name: Cache Rust toolchain
+      - name: Cache dependencies
         uses: actions/cache@v4
-        with:
-          path: |
-            ~/.rustup/toolchains/
-            ~/.cargo/bin/
-          key: ${{ runner.os }}-rust-${{ hashFiles('**/rust-toolchain', '**/rust-toolchain.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-
-
-      - name: Cache Cargo registry
-        uses: actions/cache@v4
+        id: cache
         with:
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Cache Cargo build artifacts
-        uses: actions/cache@v4
-        with:
-          path: |
-            target/
-          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}-
-            ${{ runner.os }}-cargo-target-
-          
-      - name: Cache Dioxus CLI binary
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/bin/dx
-            ~/.cargo/bin/dioxus
-          key: ${{ runner.os }}-dioxus-cli-0.6
-          restore-keys: |
-            ${{ runner.os }}-dioxus-cli-
-
-      - name: Install cargo-binstall (faster binary installer)
+      - name: Install cargo-binstall
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          if ! command -v cargo-binstall &> /dev/null; then
-            curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          else
-            echo "cargo-binstall already installed"
-          fi
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Dioxus CLI
+        if: steps.cache.outputs.cache-hit != 'true' || !hashFiles('~/.cargo/bin/dx')
         run: |
           if ! command -v dx &> /dev/null; then
-            # Try cargo-binstall first (much faster - downloads pre-built binary)
-            echo "Attempting fast installation with cargo-binstall..."
-            cargo binstall dioxus-cli --version 0.6 --no-confirm 2>&1 || {
-              echo "cargo-binstall failed, falling back to cargo install..."
-              # Fallback: optimized cargo install with parallel jobs
-              cargo install dioxus-cli --version 0.6 --locked \
-                --jobs $(nproc) 2>&1 | tail -30
-            }
-          else
-            echo "✅ Dioxus CLI already installed (from cache)"
-            dx --version
+            cargo binstall dioxus-cli --version 0.6 --no-confirm 2>&1 || \
+            cargo install dioxus-cli --version 0.6 --locked --jobs $(nproc)
           fi
+          dx --version
 
       - name: Configure base_path for GitHub Pages
         run: |
-          # Update Dioxus.toml to set base_path for production
-          # This ensures all asset paths are correct for GitHub Pages subdirectory
           sed -i 's|base_path = ""|base_path = "/remind-me-pwa"|' Dioxus.toml
           echo "✅ Updated base_path to /remind-me-pwa"
-          cat Dioxus.toml | grep base_path
 
-      - name: Install wasm32 target
-        run: |
-          rustup target add wasm32-unknown-unknown || true
-          echo "✅ wasm32-unknown-unknown target ready"
-
-      - name: Build
+      - name: Build web pages
         env:
           CARGO_BUILD_JOBS: $(nproc)
           CARGO_NET_GIT_FETCH_WITH_CLI: true
           CARGO_NET_RETRY: 3
         run: |
           echo "Building with $(nproc) parallel jobs..."
-          echo "Rust version: $(rustc --version)"
-          echo "Dioxus CLI version: $(dx --version || echo 'unknown')"
-          echo "wasm32 target: $(rustup target list --installed | grep wasm32 || echo 'not installed')"
+          dx build --release --platform web
           
-          # Build using dx build --release
-          # Capture both stdout and stderr for debugging
-          echo "Building web app with dx build --release..."
-          set +e  # Don't exit on error immediately
-          dx build --release --platform web 2>&1 | tee build.log
-          BUILD_EXIT_CODE=${PIPESTATUS[0]}
-          set -e
-          
-          # Check if build succeeded
-          if [ $BUILD_EXIT_CODE -ne 0 ]; then
-            echo "❌ Build failed with exit code $BUILD_EXIT_CODE"
-            echo "Build log (last 50 lines):"
-            tail -50 build.log || true
-            echo ""
-            echo "Checking for partial build output..."
-          fi
-          
-          # Dioxus outputs to target/dx/{package-name}/{profile}/web/public/
-          # Check the actual output location
-          echo "Searching for build output..."
-          
+          # Find and copy build output
           OUTPUT_DIR=""
           if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/release/web/public"
-            echo "✅ Found release build output"
           elif [ -d "target/dx/remind-me-pwa/wasm-release/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/wasm-release/web/public"
-            echo "✅ Found wasm-release build output"
           elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/debug/web/public"
-            echo "⚠️  Using debug build (release may have failed)"
           fi
           
           if [ -n "$OUTPUT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
             echo "✅ Found build output at: $OUTPUT_DIR"
-            echo "Contents:"
-            ls -la "$OUTPUT_DIR" | head -10
             mkdir -p docs
-            # Copy all files, preserving structure
-            cp -r "$OUTPUT_DIR"/* docs/ 2>&1 || true
-            # Also copy any subdirectories
-            if [ -d "$OUTPUT_DIR/assets" ]; then
-              cp -r "$OUTPUT_DIR/assets" docs/ 2>&1 || true
-            fi
-            if [ -d "$OUTPUT_DIR/wasm" ]; then
-              cp -r "$OUTPUT_DIR/wasm" docs/ 2>&1 || true
-            fi
+            cp -r "$OUTPUT_DIR"/* docs/
             echo "✅ Files copied to docs/"
-            echo "docs/ directory contents:"
-            ls -la docs/ | head -15
-            echo ""
-            echo "Checking for index.html:"
-            ls -la docs/index.html 2>&1 || echo "⚠️  index.html not found!"
           else
-            echo "❌ Error: Build output directory not found"
-            echo "Build exit code: $BUILD_EXIT_CODE"
-            echo ""
-            echo "Searching for any build artifacts..."
-            find target -type f \( -name "*.html" -o -name "*.wasm" -o -name "*.js" \) 2>/dev/null | head -20 || true
-            echo ""
-            echo "Target directory structure:"
-            find target/dx -type d 2>/dev/null | head -20 || true
-            echo ""
-            echo "Cargo build artifacts:"
-            find target/wasm32-unknown-unknown -name "*.wasm" 2>/dev/null | head -10 || true
+            echo "❌ Error: Build output not found"
+            find target -name "*.html" -o -name "*.wasm" 2>/dev/null | head -10
             exit 1
           fi
 
-      - name: Move files to docs root (if needed)
+      - name: Prepare deployment
         run: |
+          # Move files if needed
           if [ -d "docs/public" ]; then
             mv docs/public/* docs/
             rmdir docs/public
           fi
-
-      - name: Create 404.html for client-side routing
-        run: |
+          # Create 404.html for client-side routing
           if [ -f "docs/index.html" ]; then
             cp docs/index.html docs/404.html
             echo "✅ Created 404.html"
-          else
-            echo "❌ Error: docs/index.html not found!"
-            echo "docs/ directory contents:"
-            ls -la docs/ || true
-            exit 1
           fi
-
-      - name: Verify deployment files
-        run: |
-          echo "Verifying deployment files..."
-          echo "Required files check:"
-          [ -f "docs/index.html" ] && echo "✅ index.html exists" || echo "❌ index.html missing"
-          [ -f "docs/404.html" ] && echo "✅ 404.html exists" || echo "❌ 404.html missing"
-          [ -d "docs/assets" ] && echo "✅ assets/ directory exists" || echo "⚠️  assets/ directory missing"
-          [ -d "docs/wasm" ] || [ -f "docs"/*.wasm ] && echo "✅ WASM files exist" || echo "⚠️  WASM files missing"
-          echo ""
-          echo "docs/ directory structure:"
-          find docs -type f -name "*.html" -o -name "*.wasm" -o -name "*.js" | head -20 || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -231,8 +123,8 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
