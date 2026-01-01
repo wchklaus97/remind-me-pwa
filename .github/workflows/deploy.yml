@@ -106,7 +106,31 @@ jobs:
           CARGO_NET_RETRY: 3
         run: |
           echo "Building with $(nproc) parallel jobs..."
-          time dx bundle --release --out-dir docs
+          # Try dx bundle first (works in some Dioxus versions)
+          # If it fails, fall back to dx build + manual copy
+          if dx bundle --release --out-dir docs 2>&1; then
+            echo "✅ Build completed with dx bundle"
+          else
+            echo "⚠️  dx bundle failed, trying dx build..."
+            # Build using dx build
+            dx build --release --platform web
+            
+            # Find and copy the output
+            if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
+              echo "Copying from target/dx/remind-me-pwa/release/web/public..."
+              mkdir -p docs
+              cp -r target/dx/remind-me-pwa/release/web/public/* docs/
+            elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
+              echo "Copying from target/dx/remind-me-pwa/debug/web/public..."
+              mkdir -p docs
+              cp -r target/dx/remind-me-pwa/debug/web/public/* docs/
+            else
+              echo "❌ Error: Build output not found"
+              echo "Searching for output..."
+              find target/dx -name "*.html" -o -name "*.wasm" 2>/dev/null | head -10 || true
+              exit 1
+            fi
+          fi
 
       - name: Move files to docs root (if needed)
         run: |
