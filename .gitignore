@@ -33,3 +33,8 @@ node_modules
 #.idea/
 
 .tmp-skills/
+
+# Lighthouse reports
+lighthouse-reports/
+*.report.json
+*.report.html

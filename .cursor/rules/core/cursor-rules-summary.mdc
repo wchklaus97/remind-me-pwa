@@ -38,6 +38,8 @@ This directory is the **authoritative operating manual** for this repo: how the 
 | `project-structure.mdc` | Directory layout & naming conventions | ⭐⭐⭐ |
 | `code-formatting.mdc` | Code style, formatting standards | ⭐⭐⭐ |
 | `rust-best-practices.mdc` | Rust code best practices & patterns | ⭐⭐⭐⭐ |
+| `lighthouse-100-standards.mdc` | Strict standards for 100% Lighthouse scores | ⭐⭐⭐⭐⭐ |
+| `code-standards-100.mdc` | Code standards enforcement for 100% scores | ⭐⭐⭐⭐⭐ |
 | `cursor-rules-summary.mdc` | This file - rule overview | ⭐⭐⭐ |
 
 ### Feature Rules (`.cursor/rules/features/`)
@@ -51,6 +53,8 @@ This directory is the **authoritative operating manual** for this repo: how the 
 | `error-handling.mdc` | Error handling patterns | ⭐⭐⭐⭐ |
 | `changelog-management.mdc` | Changelog and development plan management | ⭐⭐ |
 | `lighthouse-optimization.mdc` | Lighthouse optimization to achieve 95%+ scores | ⭐⭐⭐⭐⭐ |
+| `lighthouse-100-standards.mdc` | Strict standards for 100% Lighthouse scores | ⭐⭐⭐⭐⭐ |
+| `code-standards-100.mdc` | Code standards enforcement for 100% scores | ⭐⭐⭐⭐⭐ |
 
 ### Skills Document
 

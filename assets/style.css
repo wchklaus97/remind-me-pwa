@@ -17,12 +17,15 @@
     --border-color: #e2e8f0;
     --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    /* Lighthouse optimization: Touch target standards */
-    --touch-target-min: 48px;
-    --touch-target-spacing: 8px;
+        /* WCAG 2.2 AA: Touch target standards (minimum 24x24px with spacing) */
+        /* We use 48x48px for better UX, but ensure at least 24x24px with 8px spacing */
+        --touch-target-min: 24px;  /* WCAG 2.2 AA minimum */
+        --touch-target-min-preferred: 48px;  /* Better UX (Lighthouse recommendation) */
+        --touch-target-spacing: 8px;  /* Minimum spacing between targets */
 }
 
 body {
+    /* Performance: Use system fonts for instant rendering (no external font loading) */
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
@@ -30,6 +33,10 @@ body {
     color: var(--text-primary);
     line-height: 1.6;
     min-height: 100vh;
+    /* Performance: Optimize font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .app-container {
@@ -55,9 +62,11 @@ body {
 }
 
 .btn {
-    /* Lighthouse: Ensure touch targets are at least 48x48px */
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
     padding: 12px 20px;
     margin: var(--touch-target-spacing);
     border: none;
@@ -71,6 +80,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;  /* Ensure padding is included in size */
 }
 
 .btn:hover {
@@ -94,19 +104,25 @@ body {
 
 .btn-danger {
     background: var(--danger-color);
-    /* Lighthouse: Small buttons still need large touch area */
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+    /* Lighthouse 100%: MANDATORY - small buttons still need large touch area */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
     padding: 12px;
     margin: var(--touch-target-spacing);
+    box-sizing: border-box;  /* Ensure padding is included in size */
 }
 
 .btn-small {
-    /* Lighthouse: Small buttons still need large touch area */
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+    /* Lighthouse 100%: MANDATORY - small buttons still need large touch area */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
     padding: 12px;
     font-size: 0.875rem;
+    box-sizing: border-box;  /* Ensure padding is included in size */
 }
 
 .btn-large {
@@ -128,9 +144,11 @@ body {
 
 .tab {
     flex: 1;
-    /* Lighthouse: Ensure touch targets are at least 48x48px */
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
     padding: 12px 20px;
     margin: 0 var(--touch-target-spacing);
     border: none;
@@ -143,6 +161,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;  /* Ensure padding is included in size */
 }
 
 .tab:hover {
@@ -227,11 +246,15 @@ textarea.form-input {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    /* Lighthouse: Ensure touch targets are at least 48x48px */
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 12px;  /* Ensures total size is at least 48px */
     cursor: pointer;
     margin: var(--touch-target-spacing);
+    box-sizing: border-box;  /* Ensure padding is included in size */
 }
 
 .checkbox {
