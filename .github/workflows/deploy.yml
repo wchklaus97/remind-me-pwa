@@ -1,0 +1,70 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install Dioxus CLI
+        run: cargo install dioxus-cli --locked
+
+      - name: Configure base_path for GitHub Pages
+        run: |
+          # Update Dioxus.toml to set base_path for production
+          sed -i 's|base_path = ""|base_path = "remind-me-pwa"|' Dioxus.toml
+
+      - name: Build
+        run: dx bundle --release --out-dir docs
+
+      - name: Move files to docs root (if needed)
+        run: |
+          if [ -d "docs/public" ]; then
+            mv docs/public/* docs/
+            rmdir docs/public
+          fi
+
+      - name: Create 404.html for client-side routing
+        run: |
+          if [ -f "docs/index.html" ]; then
+            cp docs/index.html docs/404.html
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+

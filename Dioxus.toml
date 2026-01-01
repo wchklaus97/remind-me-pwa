@@ -1,0 +1,16 @@
+[application]
+name = "Remind Me PWA"
+default_platform = "web"
+
+[web.app]
+base_path = ""
+out_dir = "docs"
+
+[web.watcher]
+watch_path = ["src", "assets"]
+
+[web.pwa]
+enabled = true
+manifest = "assets/manifest.json"
+service_worker = "assets/sw.js"
+
