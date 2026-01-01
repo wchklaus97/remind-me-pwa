@@ -113,11 +113,24 @@ jobs:
           echo "Building with $(nproc) parallel jobs..."
           echo "Rust version: $(rustc --version)"
           echo "Dioxus CLI version: $(dx --version || echo 'unknown')"
+          echo "wasm32 target: $(rustup target list --installed | grep wasm32 || echo 'not installed')"
           
           # Build using dx build --release
-          # Dioxus 0.6 uses wasm-dev profile by default for web builds
+          # Capture both stdout and stderr for debugging
           echo "Building web app with dx build --release..."
-          dx build --release --platform web
+          set +e  # Don't exit on error immediately
+          dx build --release --platform web 2>&1 | tee build.log
+          BUILD_EXIT_CODE=${PIPESTATUS[0]}
+          set -e
+          
+          # Check if build succeeded
+          if [ $BUILD_EXIT_CODE -ne 0 ]; then
+            echo "❌ Build failed with exit code $BUILD_EXIT_CODE"
+            echo "Build log (last 50 lines):"
+            tail -50 build.log || true
+            echo ""
+            echo "Checking for partial build output..."
+          fi
           
           # Dioxus outputs to target/dx/{package-name}/{profile}/web/public/
           # Check the actual output location
@@ -126,8 +139,10 @@ jobs:
           OUTPUT_DIR=""
           if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/release/web/public"
+            echo "✅ Found release build output"
           elif [ -d "target/dx/remind-me-pwa/wasm-release/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/wasm-release/web/public"
+            echo "✅ Found wasm-release build output"
           elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
             OUTPUT_DIR="target/dx/remind-me-pwa/debug/web/public"
             echo "⚠️  Using debug build (release may have failed)"
@@ -140,13 +155,19 @@ jobs:
             mkdir -p docs
             cp -r "$OUTPUT_DIR"/* docs/
             echo "✅ Files copied to docs/"
+            ls -la docs/ | head -10
           else
             echo "❌ Error: Build output directory not found"
+            echo "Build exit code: $BUILD_EXIT_CODE"
+            echo ""
             echo "Searching for any build artifacts..."
             find target -type f \( -name "*.html" -o -name "*.wasm" -o -name "*.js" \) 2>/dev/null | head -20 || true
             echo ""
             echo "Target directory structure:"
             find target/dx -type d 2>/dev/null | head -20 || true
+            echo ""
+            echo "Cargo build artifacts:"
+            find target/wasm32-unknown-unknown -name "*.wasm" 2>/dev/null | head -10 || true
             exit 1
           fi
 

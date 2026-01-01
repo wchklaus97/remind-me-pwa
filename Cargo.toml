@@ -12,7 +12,7 @@ web-sys = { version = "0.3", features = ["Window", "Storage", "StorageEvent"] }
 
 [profile.release]
 opt-level = "z"
-lto = true
+lto = "thin"  # Use thin LTO instead of full LTO for faster builds and WASM compatibility
 codegen-units = 1
 panic = "abort"
 # Note: strip is disabled for WASM builds (handled by wasm-release profile)
