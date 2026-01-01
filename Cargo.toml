@@ -15,7 +15,8 @@ opt-level = "z"
 lto = true
 codegen-units = 1
 panic = "abort"
-strip = true
+# Note: strip is disabled for WASM builds (handled by wasm-release profile)
+# strip = true  # Disabled - WASM doesn't support strip the same way
 
 [profile.dev]
 incremental = true

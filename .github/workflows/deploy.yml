@@ -99,6 +99,11 @@ jobs:
           # Update Dioxus.toml to set base_path for production
           sed -i 's|base_path = ""|base_path = "remind-me-pwa"|' Dioxus.toml
 
+      - name: Install wasm32 target
+        run: |
+          rustup target add wasm32-unknown-unknown || true
+          echo "✅ wasm32-unknown-unknown target ready"
+
       - name: Build
         env:
           CARGO_BUILD_JOBS: $(nproc)
@@ -106,30 +111,43 @@ jobs:
           CARGO_NET_RETRY: 3
         run: |
           echo "Building with $(nproc) parallel jobs..."
-          # Try dx bundle first (works in some Dioxus versions)
-          # If it fails, fall back to dx build + manual copy
-          if dx bundle --release --out-dir docs 2>&1; then
-            echo "✅ Build completed with dx bundle"
+          echo "Rust version: $(rustc --version)"
+          echo "Dioxus CLI version: $(dx --version || echo 'unknown')"
+          
+          # Build using dx build --release
+          # Dioxus 0.6 uses wasm-dev profile by default for web builds
+          echo "Building web app with dx build --release..."
+          dx build --release --platform web
+          
+          # Dioxus outputs to target/dx/{package-name}/{profile}/web/public/
+          # Check the actual output location
+          echo "Searching for build output..."
+          
+          OUTPUT_DIR=""
+          if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
+            OUTPUT_DIR="target/dx/remind-me-pwa/release/web/public"
+          elif [ -d "target/dx/remind-me-pwa/wasm-release/web/public" ]; then
+            OUTPUT_DIR="target/dx/remind-me-pwa/wasm-release/web/public"
+          elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
+            OUTPUT_DIR="target/dx/remind-me-pwa/debug/web/public"
+            echo "⚠️  Using debug build (release may have failed)"
+          fi
+          
+          if [ -n "$OUTPUT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
+            echo "✅ Found build output at: $OUTPUT_DIR"
+            echo "Contents:"
+            ls -la "$OUTPUT_DIR" | head -10
+            mkdir -p docs
+            cp -r "$OUTPUT_DIR"/* docs/
+            echo "✅ Files copied to docs/"
           else
-            echo "⚠️  dx bundle failed, trying dx build..."
-            # Build using dx build
-            dx build --release --platform web
-            
-            # Find and copy the output
-            if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
-              echo "Copying from target/dx/remind-me-pwa/release/web/public..."
-              mkdir -p docs
-              cp -r target/dx/remind-me-pwa/release/web/public/* docs/
-            elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
-              echo "Copying from target/dx/remind-me-pwa/debug/web/public..."
-              mkdir -p docs
-              cp -r target/dx/remind-me-pwa/debug/web/public/* docs/
-            else
-              echo "❌ Error: Build output not found"
-              echo "Searching for output..."
-              find target/dx -name "*.html" -o -name "*.wasm" 2>/dev/null | head -10 || true
-              exit 1
-            fi
+            echo "❌ Error: Build output directory not found"
+            echo "Searching for any build artifacts..."
+            find target -type f \( -name "*.html" -o -name "*.wasm" -o -name "*.js" \) 2>/dev/null | head -20 || true
+            echo ""
+            echo "Target directory structure:"
+            find target/dx -type d 2>/dev/null | head -20 || true
+            exit 1
           fi
 
       - name: Move files to docs root (if needed)
