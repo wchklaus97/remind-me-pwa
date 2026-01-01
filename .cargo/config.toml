@@ -1,0 +1,25 @@
+# Cargo configuration for faster builds
+
+[build]
+# Use more jobs for parallel compilation (defaults to number of CPU cores)
+# jobs = 4  # Uncomment and set if you want to limit jobs
+
+# Incremental compilation is enabled by default in dev profile
+# This speeds up rebuilds by only recompiling changed code
+
+[target.wasm32-unknown-unknown]
+# For WASM builds, we rely on wasm-ld which is already optimized
+# No special linker needed for WASM
+
+[target.'cfg(target_os = "macos")']
+# On macOS, you can use zld for faster linking (optional, requires: cargo install cargo-zld)
+# Uncomment the following if you have zld installed:
+# rustflags = ["-C", "link-arg=-fuse-ld=/path/to/zld"]
+
+# Alternative: Use lld if available (faster than default linker)
+# rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+# For development builds, reduce optimization to speed up compilation
+[profile.dev]
+# Already configured in Cargo.toml
+
