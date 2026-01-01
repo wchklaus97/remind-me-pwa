@@ -1,0 +1,338 @@
+---
+alwaysApply: true
+description: Error handling patterns for Dioxus PWA and WASM applications
+---
+# Error Handling Patterns
+
+## 🎯 Error Handling Strategy
+
+### Error Types
+
+1. **Storage Errors**: localStorage unavailable, quota exceeded
+2. **Serialization Errors**: Invalid JSON, data corruption
+3. **User Input Errors**: Invalid dates, empty required fields
+4. **Runtime Errors**: WASM panics, browser API failures
+
+## Storage Error Handling
+
+### Load Errors
+
+**Pattern**: Return safe default on error
+
+```rust
+fn load_reminders() -> Vec<Reminder> {
+    if let Some(window) = web_sys::window() {
+        if let Some(storage) = window.local_storage().ok().flatten() {
+            if let Ok(Some(data)) = storage.get_item("reminders") {
+                if let Ok(reminders) = serde_json::from_str::<Vec<Reminder>>(&data) {
+                    return reminders;
+                }
+                // Invalid JSON - log and return empty
+                log::warn!("Failed to parse reminders from storage");
+            }
+        }
+    }
+    // Storage unavailable or empty - return safe default
+    Vec::new()
+}
+```
+
+### Save Errors
+
+**Pattern**: Silent failure (non-critical)
+
+```rust
+fn save_reminders(reminders: &[Reminder]) {
+    if let Some(window) = web_sys::window() {
+        if let Some(storage) = window.local_storage().ok().flatten() {
+            if let Ok(json) = serde_json::to_string(reminders) {
+                if let Err(e) = storage.set_item("reminders", &json) {
+                    // Log error but don't panic
+                    log::error!("Failed to save reminders: {:?}", e);
+                }
+            } else {
+                log::error!("Failed to serialize reminders");
+            }
+        }
+    }
+}
+```
+
+### Quota Exceeded Handling
+
+```rust
+fn save_reminders(reminders: &[Reminder]) -> Result<(), StorageError> {
+    if let Some(window) = web_sys::window() {
+        if let Some(storage) = window.local_storage().ok().flatten() {
+            if let Ok(json) = serde_json::to_string(reminders) {
+                if let Err(e) = storage.set_item("reminders", &json) {
+                    // Check if quota exceeded
+                    if e.name() == "QuotaExceededError" {
+                        return Err(StorageError::QuotaExceeded);
+                    }
+                    return Err(StorageError::SaveFailed);
+                }
+                return Ok(());
+            }
+        }
+    }
+    Err(StorageError::StorageUnavailable)
+}
+```
+
+## Serialization Error Handling
+
+### Parse Errors
+
+```rust
+fn load_reminders() -> Vec<Reminder> {
+    if let Some(window) = web_sys::window() {
+        if let Some(storage) = window.local_storage().ok().flatten() {
+            if let Ok(Some(data)) = storage.get_item("reminders") {
+                match serde_json::from_str::<Vec<Reminder>>(&data) {
+                    Ok(reminders) => return reminders,
+                    Err(e) => {
+                        log::error!("Failed to parse reminders: {}", e);
+                        // Try to recover or return empty
+                        return Vec::new();
+                    }
+                }
+            }
+        }
+    }
+    Vec::new()
+}
+```
+
+### Data Migration on Parse Error
+
+```rust
+fn load_reminders() -> Vec<Reminder> {
+    // Try current format
+    if let Ok(Some(data)) = get_storage_item("reminders") {
+        if let Ok(reminders) = serde_json::from_str::<Vec<Reminder>>(&data) {
+            return reminders;
+        }
+        
+        // Try old format and migrate
+        if let Ok(old_reminders) = serde_json::from_str::<Vec<OldReminder>>(&data) {
+            log::info!("Migrating reminders from old format");
+            let migrated = migrate_reminders(old_reminders);
+            save_reminders(&migrated);
+            return migrated;
+        }
+        
+        log::warn!("Invalid reminder data, clearing storage");
+        clear_storage("reminders");
+    }
+    
+    Vec::new()
+}
+```
+
+## User Input Error Handling
+
+### Date Parsing
+
+```rust
+fn parse_due_date(date_str: &str) -> Result<DateTime<Utc>, ParseError> {
+    // Try RFC3339 first
+    if let Ok(dt) = DateTime::parse_from_rfc3339(date_str) {
+        return Ok(dt.with_timezone(&Utc));
+    }
+    
+    // Try local datetime format
+    if let Ok(naive) = NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+        if let Some(local) = Local.from_local_datetime(&naive).single() {
+            return Ok(local.with_timezone(&Utc));
+        }
+    }
+    
+    Err(ParseError::InvalidFormat)
+}
+```
+
+### Validation Pattern
+
+```rust
+#[component]
+fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
+    let mut title = use_signal(|| String::new());
+    let mut error = use_signal(|| None::<String>);
+    
+    rsx! {
+        div {
+            input {
+                value: "{title()}",
+                oninput: move |e| {
+                    let value = e.value();
+                    title.set(value.clone());
+                    
+                    // Validate
+                    if value.is_empty() {
+                        error.set(Some("Title is required".to_string()));
+                    } else if value.len() > 100 {
+                        error.set(Some("Title must be less than 100 characters".to_string()));
+                    } else {
+                        error.set(None);
+                    }
+                }
+            }
+            if let Some(err) = error() {
+                span { class: "error", "{err}" }
+            }
+        }
+    }
+}
+```
+
+## Runtime Error Handling
+
+### WASM Panic Handling
+
+```rust
+// Use Result instead of panicking
+fn process_reminder(reminder: &Reminder) -> Result<(), ProcessError> {
+    if reminder.title.is_empty() {
+        return Err(ProcessError::InvalidTitle);
+    }
+    
+    // Process...
+    Ok(())
+}
+```
+
+### Browser API Errors
+
+```rust
+fn get_window() -> Option<web_sys::Window> {
+    web_sys::window()
+}
+
+fn get_storage() -> Option<web_sys::Storage> {
+    web_sys::window()?
+        .local_storage()
+        .ok()?
+        .flatten()
+}
+```
+
+## Error Display Patterns
+
+### User-Friendly Messages
+
+```rust
+enum AppError {
+    StorageUnavailable,
+    QuotaExceeded,
+    InvalidData,
+    NetworkError,
+}
+
+impl AppError {
+    fn user_message(&self) -> &str {
+        match self {
+            AppError::StorageUnavailable => "Storage is not available. Some features may not work.",
+            AppError::QuotaExceeded => "Storage quota exceeded. Please clear some data.",
+            AppError::InvalidData => "Data is corrupted. Resetting to default.",
+            AppError::NetworkError => "Network error. Please check your connection.",
+        }
+    }
+}
+```
+
+### Error Display Component
+
+```rust
+#[component]
+fn ErrorDisplay(error: Option<String>) -> Element {
+    rsx! {
+        if let Some(err) = error {
+            div {
+                class: "error-banner",
+                "⚠️ {err}"
+            }
+        }
+    }
+}
+```
+
+## Logging Patterns
+
+### Error Logging
+
+```rust
+use web_sys::console;
+
+fn log_error(message: &str, error: &dyn std::fmt::Debug) {
+    console::error_1(&format!("{}: {:?}", message, error).into());
+}
+
+fn log_warn(message: &str) {
+    console::warn_1(&message.into());
+}
+
+fn log_info(message: &str) {
+    console::log_1(&message.into());
+}
+```
+
+## Best Practices
+
+### DO:
+- ✅ Always return safe defaults on load errors
+- ✅ Log errors for debugging
+- ✅ Provide user-friendly error messages
+- ✅ Validate user input before processing
+- ✅ Use Result for fallible operations
+- ✅ Handle all error cases explicitly
+- ✅ Test error scenarios
+
+### DON'T:
+- ❌ Don't panic on user input errors
+- ❌ Don't use `unwrap()` in production code
+- ❌ Don't ignore storage errors silently (log them)
+- ❌ Don't show technical error messages to users
+- ❌ Don't skip error handling
+- ❌ Don't assume storage is always available
+
+## Error Recovery Strategies
+
+### Graceful Degradation
+
+```rust
+// If storage fails, continue with in-memory state
+let mut reminders = use_signal(|| {
+    match load_reminders() {
+        Ok(reminders) => reminders,
+        Err(_) => {
+            log::warn!("Storage unavailable, using in-memory state");
+            Vec::new()
+        }
+    }
+});
+```
+
+### Retry Pattern
+
+```rust
+fn save_with_retry(reminders: &[Reminder], max_retries: u32) -> Result<(), StorageError> {
+    for attempt in 1..=max_retries {
+        match save_reminders(reminders) {
+            Ok(()) => return Ok(()),
+            Err(e) if attempt < max_retries => {
+                log::warn!("Save attempt {} failed, retrying...", attempt);
+                // Wait before retry (if async)
+            }
+            Err(e) => return Err(e),
+        }
+    }
+    Err(StorageError::MaxRetriesExceeded)
+}
+```
+
+## Resources
+
+- [Rust Error Handling](https://doc.rust-lang.org/book/ch09-00-error-handling.html)
+- [Result Type](https://doc.rust-lang.org/std/result/)
+- [Option Type](https://doc.rust-lang.org/std/option/)

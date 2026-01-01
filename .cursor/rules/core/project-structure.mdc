@@ -1,0 +1,198 @@
+---
+alwaysApply: true
+---
+# Project Structure and Organization
+
+## 📁 Directory Structure
+
+```
+remind-me-pwa/
+├── src/
+│   └── main.rs              # Main application code (all components in one file)
+├── assets/
+│   ├── style.css            # Application styles
+│   ├── manifest.json        # PWA manifest configuration
+│   └── sw.js                # Service worker for offline support
+├── .cursor/
+│   └── rules/               # Cursor AI rules and documentation
+│       ├── core/            # Core development rules
+│       ├── features/        # Feature-specific rules
+│       ├── templates/       # Code templates
+│       └── skills.md        # Skills and capabilities reference
+├── .github/
+│   └── workflows/
+│       └── deploy.yml        # GitHub Actions CI/CD
+├── .cargo/
+│   └── config.toml          # Cargo build configuration
+├── docs/                     # Build output directory (for GitHub Pages)
+├── Cargo.toml               # Rust dependencies and build profiles
+├── Cargo.lock               # Locked dependency versions
+├── Dioxus.toml              # Dioxus framework configuration
+├── run.sh                   # Local development server script
+├── deploy.sh                # Deployment script
+├── README.md                # Project documentation
+└── DEPLOYMENT.md            # Deployment guide
+```
+
+## 📝 File Naming Conventions
+
+### Source Files
+- `main.rs` - Main application entry point (contains all components)
+- `lib.rs` - Library code (if splitting into modules later)
+
+### Asset Files
+- `style.css` - Application styles
+- `manifest.json` - PWA manifest (JSON format)
+- `sw.js` - Service worker (JavaScript)
+
+### Configuration Files
+- `Cargo.toml` - Rust package configuration
+- `Dioxus.toml` - Dioxus framework configuration
+- `.cargo/config.toml` - Cargo build settings
+
+## 🎯 Code Organization in main.rs
+
+### Standard Structure
+
+```rust
+// 1. Imports
+use dioxus::prelude::*;
+use serde::{Deserialize, Serialize};
+use chrono::TimeZone;
+
+// 2. Main function
+fn main() {
+    dioxus::launch(App);
+}
+
+// 3. Data structures
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+struct Reminder {
+    // fields
+}
+
+// 4. Main App component
+#[component]
+fn App() -> Element {
+    // state and logic
+    rsx! { /* ... */ }
+}
+
+// 5. Sub-components
+#[component]
+fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
+    // component logic
+    rsx! { /* ... */ }
+}
+
+// 6. Utility functions
+fn load_reminders() -> Vec<Reminder> {
+    // implementation
+}
+
+fn save_reminders(reminders: &[Reminder]) {
+    // implementation
+}
+```
+
+## 🔧 Import Organization
+
+### Standard Import Order
+
+```rust
+// 1. Dioxus framework
+use dioxus::prelude::*;
+
+// 2. Serde for serialization
+use serde::{Deserialize, Serialize};
+
+// 3. Chrono for date/time
+use chrono::{Utc, Local, DateTime, NaiveDateTime, TimeZone};
+
+// 4. Web APIs (web-sys)
+use web_sys::{window, Storage};
+
+// 5. Standard library
+use std::collections::HashMap;
+```
+
+## 🎨 Naming Conventions
+
+### Components
+- `PascalCase` - `App`, `ReminderCard`, `AddReminderForm`
+- Descriptive names - `ReminderCard`, not `Card`
+
+### Functions
+- `snake_case` - `load_reminders`, `save_reminders`, `format_date`
+- Private helpers - `_helper_function` (if needed)
+
+### Variables
+- `snake_case` - `reminders`, `show_add_form`, `filter`
+- Signals - `use_signal(|| value)` pattern
+
+### Constants
+- `UPPER_CASE` - `CACHE_NAME`, `MAX_ITEMS`
+
+## 📋 Component Patterns
+
+### Component with State
+
+```rust
+#[component]
+fn ComponentName() -> Element {
+    let mut state = use_signal(|| initial_value);
+    
+    rsx! {
+        div {
+            // JSX-like syntax
+        }
+    }
+}
+```
+
+### Component with Props
+
+```rust
+#[component]
+fn ComponentName(
+    prop1: String,
+    prop2: i32,
+    on_action: EventHandler<String>,
+) -> Element {
+    rsx! {
+        div {
+            "{prop1}: {prop2}"
+            button {
+                onclick: move |_| on_action.call("value".to_string()),
+                "Click"
+            }
+        }
+    }
+}
+```
+
+## 🗂️ Asset Organization
+
+### CSS Structure
+- Global styles in `assets/style.css`
+- Component-specific styles using classes
+- Responsive design with media queries
+
+### PWA Files
+- `manifest.json`: App metadata, icons, display mode
+- `sw.js`: Service worker for caching and offline support
+
+## 🎯 Best Practices
+
+### DO:
+- ✅ Keep all components in `main.rs` for small projects
+- ✅ Use descriptive component names
+- ✅ Organize imports logically
+- ✅ Use `use_signal()` for reactive state
+- ✅ Follow Rust naming conventions
+
+### DON'T:
+- ❌ Don't create unnecessary files for small projects
+- ❌ Don't use abbreviations in component names
+- ❌ Don't mix concerns (keep components focused)
+- ❌ Don't forget to handle Option/Result types

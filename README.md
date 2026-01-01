@@ -119,7 +119,19 @@ You can create these using any image editor or online tool. The icons should rep
 
 MIT License - feel free to use this project for your own purposes!
 
+## Documentation
+
+- **[CHANGELOG.md](./CHANGELOG.md)**: Detailed change history with dates
+- **[DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)**: Roadmap and planned features
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)**: Deployment guide
+- **[.cursor/rules/](./.cursor/rules/)**: Development rules and patterns
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+Before contributing, please:
+1. Check [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) for planned features
+2. Follow the patterns in [.cursor/rules/](./.cursor/rules/)
+3. Update [CHANGELOG.md](./CHANGELOG.md) with your changes
 
