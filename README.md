@@ -1,6 +1,6 @@
 # Remind Me PWA 🔔
 
-![GitHub Actions Workflow](https://img.shields.io/github/actions/workflow/status/wchklaus97/remind-me-pwa/github-pages-deploy.yml?branch=main&label=build&logo=github)
+![GitHub Actions Workflow](https://github.com/wchklaus97/remind-me-pwa/actions/workflows/github-pages-deploy.yml/badge.svg?branch=main)
 ![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Rust](https://img.shields.io/badge/rust-stable-orange.svg?logo=rust)
