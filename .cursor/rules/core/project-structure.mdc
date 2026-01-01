@@ -28,7 +28,8 @@ remind-me-pwa/
 ├── Cargo.toml               # Rust dependencies and build profiles
 ├── Cargo.lock               # Locked dependency versions
 ├── Dioxus.toml              # Dioxus framework configuration
-├── run.sh                   # Local development server script
+├── run-dev.sh               # Local development server script (development mode)
+├── run-release.sh           # Production server script (for performance testing)
 ├── deploy.sh                # Deployment script
 ├── README.md                # Project documentation
 └── DEPLOYMENT.md            # Deployment guide

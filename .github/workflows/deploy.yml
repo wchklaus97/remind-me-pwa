@@ -61,6 +61,13 @@ jobs:
           fi
           dx --version
 
+      - name: Install binaryen (wasm-opt)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y binaryen
+          wasm-opt --version
+          echo "✅ binaryen (wasm-opt) installed"
+
       - name: Configure base_path for GitHub Pages
         run: |
           sed -i 's|base_path = ""|base_path = "/remind-me-pwa"|' Dioxus.toml
@@ -121,10 +128,35 @@ jobs:
             mv docs/public/* docs/
             rmdir docs/public
           fi
+          
+          # LCP Optimization: Optimize WASM bundle with wasm-opt
+          # This reduces WASM file size by 10-30% and improves loading performance
+          if command -v wasm-opt &> /dev/null; then
+            echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
+            find docs -name "*.wasm" -type f | while read wasm_file; do
+              echo "  Optimizing: $(basename "$wasm_file")"
+              wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz --strip-debug
+              mv "$wasm_file.tmp" "$wasm_file"
+            done
+            echo "✅ WASM optimization complete"
+          else
+            echo "⚠️  wasm-opt not found, skipping WASM optimization"
+          fi
+          
           # Create 404.html for client-side routing
           if [ -f "docs/index.html" ]; then
             cp docs/index.html docs/404.html
             echo "✅ Created 404.html"
+          fi
+          
+          # Copy robots.txt and sitemap.xml to root (SEO: must be at site root, not in assets/)
+          if [ -f "assets/robots.txt" ]; then
+            cp assets/robots.txt docs/robots.txt
+            echo "✅ Copied robots.txt to root"
+          fi
+          if [ -f "assets/sitemap.xml" ]; then
+            cp assets/sitemap.xml docs/sitemap.xml
+            echo "✅ Copied sitemap.xml to root"
           fi
 
       - name: Setup Pages
