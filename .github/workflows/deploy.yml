@@ -21,7 +21,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    # head_commit only exists on push events; for PRs we always run
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, '[skip ci]')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,11 +54,10 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Dioxus CLI
-        if: steps.cache.outputs.cache-hit != 'true' || !hashFiles('~/.cargo/bin/dx')
         run: |
           if ! command -v dx &> /dev/null; then
-            cargo binstall dioxus-cli --version 0.6 --no-confirm 2>&1 || \
-            cargo install dioxus-cli --version 0.6 --locked --jobs $(nproc)
+            cargo binstall dioxus-cli --version 0.6.3 --no-confirm 2>&1 || \
+            cargo install dioxus-cli --version 0.6.3 --locked --jobs "$(nproc)"
           fi
           dx --version
 
@@ -67,22 +67,37 @@ jobs:
           echo "✅ Updated base_path to /remind-me-pwa"
 
       - name: Build web pages
-        env:
-          CARGO_BUILD_JOBS: $(nproc)
-          CARGO_NET_GIT_FETCH_WITH_CLI: true
-          CARGO_NET_RETRY: 3
         run: |
-          echo "Building with $(nproc) parallel jobs..."
-          dx build --release --platform web
+          set -o pipefail
+          export CARGO_BUILD_JOBS="$(nproc)"
+          export CARGO_NET_GIT_FETCH_WITH_CLI=true
+          export CARGO_NET_RETRY=3
+
+          echo "Building with ${CARGO_BUILD_JOBS} parallel jobs..."
+          echo "Rust: $(rustc --version)"
+          echo "dx: $(dx --version || true)"
+          echo "wasm32 target: $(rustup target list --installed | grep wasm32 || echo 'not installed')"
+
+          # NOTE: In CI, dx can sometimes exit non-zero with:
+          # "Cargo build failed - no output location" / "Build did not return an executable"
+          # while still producing the static output directory. So we:
+          # - capture the exit code
+          # - proceed if output exists
+          set +e
+          dx build --release --platform web 2>&1 | tee build.log
+          DX_EXIT="${PIPESTATUS[0]}"
+          set -e
+          echo "dx exit code: ${DX_EXIT}"
           
           # Find and copy build output
+          # Use globbing so we don't depend on the exact app folder name
           OUTPUT_DIR=""
-          if [ -d "target/dx/remind-me-pwa/release/web/public" ]; then
-            OUTPUT_DIR="target/dx/remind-me-pwa/release/web/public"
-          elif [ -d "target/dx/remind-me-pwa/wasm-release/web/public" ]; then
-            OUTPUT_DIR="target/dx/remind-me-pwa/wasm-release/web/public"
-          elif [ -d "target/dx/remind-me-pwa/debug/web/public" ]; then
-            OUTPUT_DIR="target/dx/remind-me-pwa/debug/web/public"
+          OUTPUT_DIR="$(ls -d target/dx/*/release/web/public 2>/dev/null | head -1 || true)"
+          if [ -z "$OUTPUT_DIR" ]; then
+            OUTPUT_DIR="$(ls -d target/dx/*/wasm-release/web/public 2>/dev/null | head -1 || true)"
+          fi
+          if [ -z "$OUTPUT_DIR" ]; then
+            OUTPUT_DIR="$(ls -d target/dx/*/debug/web/public 2>/dev/null | head -1 || true)"
           fi
           
           if [ -n "$OUTPUT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
@@ -92,6 +107,9 @@ jobs:
             echo "✅ Files copied to docs/"
           else
             echo "❌ Error: Build output not found"
+            echo "---- dx build.log (last 80 lines) ----"
+            tail -80 build.log || true
+            echo "--------------------------------------"
             find target -name "*.html" -o -name "*.wasm" 2>/dev/null | head -10
             exit 1
           fi
