@@ -24,9 +24,75 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Cache Rust toolchain
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.rustup/toolchains/
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/rust-toolchain', '**/rust-toolchain.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-
+
+      - name: Cache Cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache Cargo build artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            target/
+          key: ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-target-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-target-
+          
+      - name: Cache Dioxus CLI binary
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/dx
+            ~/.cargo/bin/dioxus
+          key: ${{ runner.os }}-dioxus-cli-0.6
+          restore-keys: |
+            ${{ runner.os }}-dioxus-cli-
+
+      - name: Install cargo-binstall (faster binary installer)
+        run: |
+          if ! command -v cargo-binstall &> /dev/null; then
+            curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+            echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          else
+            echo "cargo-binstall already installed"
+          fi
 
       - name: Install Dioxus CLI
-        run: cargo install dioxus-cli --locked
+        run: |
+          if ! command -v dx &> /dev/null; then
+            # Try cargo-binstall first (much faster - downloads pre-built binary)
+            echo "Attempting fast installation with cargo-binstall..."
+            cargo binstall dioxus-cli --version 0.6 --no-confirm 2>&1 || {
+              echo "cargo-binstall failed, falling back to cargo install..."
+              # Fallback: optimized cargo install with parallel jobs
+              cargo install dioxus-cli --version 0.6 --locked \
+                --jobs $(nproc) 2>&1 | tail -30
+            }
+          else
+            echo "✅ Dioxus CLI already installed (from cache)"
+            dx --version
+          fi
 
       - name: Configure base_path for GitHub Pages
         run: |
@@ -34,7 +100,13 @@ jobs:
           sed -i 's|base_path = ""|base_path = "remind-me-pwa"|' Dioxus.toml
 
       - name: Build
-        run: dx bundle --release --out-dir docs
+        env:
+          CARGO_BUILD_JOBS: $(nproc)
+          CARGO_NET_GIT_FETCH_WITH_CLI: true
+          CARGO_NET_RETRY: 3
+        run: |
+          echo "Building with $(nproc) parallel jobs..."
+          time dx bundle --release --out-dir docs
 
       - name: Move files to docs root (if needed)
         run: |
