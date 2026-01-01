@@ -97,7 +97,10 @@ jobs:
       - name: Configure base_path for GitHub Pages
         run: |
           # Update Dioxus.toml to set base_path for production
-          sed -i 's|base_path = ""|base_path = "remind-me-pwa"|' Dioxus.toml
+          # This ensures all asset paths are correct for GitHub Pages subdirectory
+          sed -i 's|base_path = ""|base_path = "/remind-me-pwa"|' Dioxus.toml
+          echo "✅ Updated base_path to /remind-me-pwa"
+          cat Dioxus.toml | grep base_path
 
       - name: Install wasm32 target
         run: |
@@ -153,9 +156,21 @@ jobs:
             echo "Contents:"
             ls -la "$OUTPUT_DIR" | head -10
             mkdir -p docs
-            cp -r "$OUTPUT_DIR"/* docs/
+            # Copy all files, preserving structure
+            cp -r "$OUTPUT_DIR"/* docs/ 2>&1 || true
+            # Also copy any subdirectories
+            if [ -d "$OUTPUT_DIR/assets" ]; then
+              cp -r "$OUTPUT_DIR/assets" docs/ 2>&1 || true
+            fi
+            if [ -d "$OUTPUT_DIR/wasm" ]; then
+              cp -r "$OUTPUT_DIR/wasm" docs/ 2>&1 || true
+            fi
             echo "✅ Files copied to docs/"
-            ls -la docs/ | head -10
+            echo "docs/ directory contents:"
+            ls -la docs/ | head -15
+            echo ""
+            echo "Checking for index.html:"
+            ls -la docs/index.html 2>&1 || echo "⚠️  index.html not found!"
           else
             echo "❌ Error: Build output directory not found"
             echo "Build exit code: $BUILD_EXIT_CODE"
@@ -182,7 +197,25 @@ jobs:
         run: |
           if [ -f "docs/index.html" ]; then
             cp docs/index.html docs/404.html
+            echo "✅ Created 404.html"
+          else
+            echo "❌ Error: docs/index.html not found!"
+            echo "docs/ directory contents:"
+            ls -la docs/ || true
+            exit 1
           fi
+
+      - name: Verify deployment files
+        run: |
+          echo "Verifying deployment files..."
+          echo "Required files check:"
+          [ -f "docs/index.html" ] && echo "✅ index.html exists" || echo "❌ index.html missing"
+          [ -f "docs/404.html" ] && echo "✅ 404.html exists" || echo "❌ 404.html missing"
+          [ -d "docs/assets" ] && echo "✅ assets/ directory exists" || echo "⚠️  assets/ directory missing"
+          [ -d "docs/wasm" ] || [ -f "docs"/*.wasm ] && echo "✅ WASM files exist" || echo "⚠️  WASM files missing"
+          echo ""
+          echo "docs/ directory structure:"
+          find docs -type f -name "*.html" -o -name "*.wasm" -o -name "*.js" | head -20 || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
