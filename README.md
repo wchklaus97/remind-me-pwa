@@ -1,5 +1,11 @@
 # Remind Me PWA 🔔
 
+![GitHub Actions Workflow](https://img.shields.io/github/actions/workflow/status/wchklaus97/remind-me-pwa/github-pages-deploy.yml?branch=main&label=build&logo=github)
+![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Rust](https://img.shields.io/badge/rust-stable-orange.svg?logo=rust)
+![Dioxus](https://img.shields.io/badge/dioxus-0.6-purple.svg)
+
 A beautiful and functional Progressive Web App (PWA) built with Dioxus for managing reminders. Deploy it to GitHub Pages with ease!
 
 ## Features
@@ -69,7 +75,11 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
 
 ### Automatic Deployment (GitHub Actions)
 
-The included `.github/workflows/deploy.yml` will automatically build and deploy your app whenever you push to the `main` branch.
+The included `.github/workflows/github-pages-deploy.yml` will automatically build and deploy your app whenever you push to the `main` branch. The workflow:
+- Builds the project with Dioxus CLI
+- Optimizes WASM bundle with wasm-opt
+- Deploys to `gh-pages` branch for GitHub Pages
+- Creates/updates `release` branch for backup and reference
 
 ## Project Structure
 

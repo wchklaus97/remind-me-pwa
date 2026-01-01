@@ -10,12 +10,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: "pages-branches"
   cancel-in-progress: false
 
 jobs:
@@ -109,9 +109,9 @@ jobs:
           
           if [ -n "$OUTPUT_DIR" ] && [ -d "$OUTPUT_DIR" ]; then
             echo "✅ Found build output at: $OUTPUT_DIR"
-            mkdir -p docs
-            cp -r "$OUTPUT_DIR"/* docs/
-            echo "✅ Files copied to docs/"
+            mkdir -p dist
+            cp -r "$OUTPUT_DIR"/* dist/
+            echo "✅ Files copied to dist/"
           else
             echo "❌ Error: Build output not found"
             echo "---- dx build.log (last 80 lines) ----"
@@ -124,9 +124,9 @@ jobs:
       - name: Prepare deployment
         run: |
           # Move files if needed
-          if [ -d "docs/public" ]; then
-            mv docs/public/* docs/
-            rmdir docs/public
+          if [ -d "dist/public" ]; then
+            mv dist/public/* dist/
+            rmdir dist/public
           fi
           
           # LCP Optimization: Optimize WASM bundle with wasm-opt
@@ -134,7 +134,7 @@ jobs:
           # Note: If wasm-opt fails, we continue with unoptimized WASM (non-critical optimization)
           if command -v wasm-opt &> /dev/null; then
             echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
-            find docs -name "*.wasm" -type f | while read wasm_file; do
+            find dist -name "*.wasm" -type f | while read wasm_file; do
               echo "  Optimizing: $(basename "$wasm_file")"
               if wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz --strip-debug 2>&1; then
                 mv "$wasm_file.tmp" "$wasm_file"
@@ -150,38 +150,107 @@ jobs:
           fi
           
           # Create 404.html for client-side routing
-          if [ -f "docs/index.html" ]; then
-            cp docs/index.html docs/404.html
+          if [ -f "dist/index.html" ]; then
+            cp dist/index.html dist/404.html
             echo "✅ Created 404.html"
           fi
           
           # Copy robots.txt and sitemap.xml to root (SEO: must be at site root, not in assets/)
           if [ -f "assets/robots.txt" ]; then
-            cp assets/robots.txt docs/robots.txt
+            cp assets/robots.txt dist/robots.txt
             echo "✅ Copied robots.txt to root"
           fi
           if [ -f "assets/sitemap.xml" ]; then
-            cp assets/sitemap.xml docs/sitemap.xml
+            cp assets/sitemap.xml dist/sitemap.xml
             echo "✅ Copied sitemap.xml to root"
           fi
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
-          path: docs
+          name: dist
+          path: dist/
+          retention-days: 7
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy-gh-pages:
     runs-on: ubuntu-latest
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy: ${{ github.event.head_commit.message || github.sha }}'
+
+  deploy-release-branch:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create or update release branch
+        run: |
+          # Check if release branch exists remotely
+          if git ls-remote --heads origin release | grep -q release; then
+            echo "Release branch exists, fetching..."
+            git fetch origin release:release || true
+            git checkout release
+            # Remove all existing files except .git
+            git rm -rf . 2>/dev/null || find . -mindepth 1 ! -name '.git' -exec rm -rf {} + || true
+          else
+            echo "Release branch doesn't exist, creating orphan branch..."
+            git checkout --orphan release
+            git rm -rf . 2>/dev/null || true
+          fi
+          
+          # Copy dist contents to root
+          cp -r dist/* . 2>/dev/null || true
+          rm -rf dist
+          
+          # Create commit
+          git add -A
+          if ! git diff --staged --quiet; then
+            COMMIT_MSG="Release: ${{ github.event.head_commit.message || github.sha }}"
+            COMMIT_MSG="${COMMIT_MSG}"$'\n'$'\n'"Built from: ${{ github.sha }}"
+            COMMIT_MSG="${COMMIT_MSG}"$'\n'"Build date: $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+            git commit -m "$COMMIT_MSG"
+            git push origin release --force
+            echo "✅ Release branch updated"
+          else
+            echo "No changes to commit in release branch"
+          fi
 
