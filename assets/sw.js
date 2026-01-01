@@ -1,9 +1,10 @@
-const CACHE_NAME = 'remind-me-pwa-v1';
+const CACHE_NAME = 'remind-me-pwa-v2';
 const urlsToCache = [
   '/remind-me-pwa/',
   '/remind-me-pwa/index.html',
   '/remind-me-pwa/assets/style.css',
-  '/remind-me-pwa/assets/manifest.json'
+  '/remind-me-pwa/assets/manifest.json',
+  '/remind-me-pwa/app'
 ];
 
 // Install event - cache resources

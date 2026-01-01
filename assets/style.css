@@ -17,6 +17,9 @@
     --border-color: #e2e8f0;
     --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    /* Lighthouse optimization: Touch target standards */
+    --touch-target-min: 48px;
+    --touch-target-spacing: 8px;
 }
 
 body {
@@ -52,7 +55,11 @@ body {
 }
 
 .btn {
-    padding: 10px 20px;
+    /* Lighthouse: Ensure touch targets are at least 48x48px */
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 12px 20px;
+    margin: var(--touch-target-spacing);
     border: none;
     border-radius: 8px;
     font-size: 1rem;
@@ -61,6 +68,9 @@ body {
     transition: all 0.2s;
     background: var(--primary-color);
     color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:hover {
@@ -84,12 +94,26 @@ body {
 
 .btn-danger {
     background: var(--danger-color);
-    padding: 8px 12px;
+    /* Lighthouse: Small buttons still need large touch area */
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 12px;
+    margin: var(--touch-target-spacing);
 }
 
 .btn-small {
-    padding: 6px 10px;
+    /* Lighthouse: Small buttons still need large touch area */
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 12px;
     font-size: 0.875rem;
+}
+
+.btn-large {
+    min-width: 200px;
+    min-height: var(--touch-target-min);
+    padding: 16px 32px;
+    font-size: 1.125rem;
 }
 
 .filter-tabs {
@@ -104,7 +128,11 @@ body {
 
 .tab {
     flex: 1;
-    padding: 10px;
+    /* Lighthouse: Ensure touch targets are at least 48x48px */
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    padding: 12px 20px;
+    margin: 0 var(--touch-target-spacing);
     border: none;
     background: transparent;
     color: var(--text-secondary);
@@ -112,6 +140,9 @@ body {
     cursor: pointer;
     border-radius: 8px;
     transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .tab:hover {
@@ -192,11 +223,22 @@ textarea.form-input {
     gap: 15px;
 }
 
-.checkbox {
-    width: 20px;
-    height: 20px;
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Lighthouse: Ensure touch targets are at least 48x48px */
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
     cursor: pointer;
-    margin-top: 4px;
+    margin: var(--touch-target-spacing);
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    /* Lighthouse: Increase checkbox size for better accessibility */
 }
 
 .reminder-content {
@@ -246,6 +288,101 @@ textarea.form-input {
     font-size: 1.125rem;
 }
 
+/* Landing Page Styles */
+.landing-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+}
+
+.landing-header {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.landing-header h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.tagline {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.landing-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.hero h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.hero p {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    margin-bottom: 40px;
+    opacity: 0.95;
+}
+
+.features {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.feature {
+    text-align: center;
+    font-size: 1.125rem;
+    opacity: 0.95;
+    min-width: 150px;
+}
+
+.feature br {
+    display: block;
+    margin: 8px 0;
+}
+
+.cta {
+    margin-top: 40px;
+}
+
+/* Form Labels */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* Accessibility improvements */
+input[type="checkbox"] {
+    /* Lighthouse: Increase checkbox size */
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
 @media (max-width: 600px) {
     .app-container {
         padding: 10px;
@@ -264,6 +401,19 @@ textarea.form-input {
 
     .reminder-header {
         flex-wrap: wrap;
+    }
+
+    .landing-header h1 {
+        font-size: 2rem;
+    }
+
+    .hero h2 {
+        font-size: 1.75rem;
+    }
+
+    .features {
+        flex-direction: column;
+        gap: 20px;
     }
 }
 

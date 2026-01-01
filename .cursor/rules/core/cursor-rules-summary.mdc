@@ -50,6 +50,7 @@ This directory is the **authoritative operating manual** for this repo: how the 
 | `deployment.mdc` | Deployment patterns for GitHub Pages | ⭐⭐⭐ |
 | `error-handling.mdc` | Error handling patterns | ⭐⭐⭐⭐ |
 | `changelog-management.mdc` | Changelog and development plan management | ⭐⭐ |
+| `lighthouse-optimization.mdc` | Lighthouse optimization to achieve 95%+ scores | ⭐⭐⭐⭐⭐ |
 
 ### Skills Document
 
