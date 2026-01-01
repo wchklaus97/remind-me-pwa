@@ -1,0 +1,100 @@
+---
+alwaysApply: true
+description: High-signal entrypoint summary for this Dioxus PWA repo
+---
+# Cursor Rules Summary
+
+## 📊 System Overview
+
+This directory is the **authoritative operating manual** for this repo: how the Dioxus PWA is structured, how components are organized, and what patterns must be preserved.
+
+**Total Rules**: Core rules + skills document
+**Structure**:
+- `core/`: Foundational project rules
+- `features/`: Feature-specific implementation rules
+- `templates/`: Reusable templates for AI generation
+- `skills.md`: Dioxus PWA development skills documentation
+
+## ✅ Current Project Situation
+
+- **Runtime**: Dioxus 0.6 web application compiled to WASM
+- **Architecture**: Client-side only PWA with localStorage persistence
+- **Framework**: Dioxus (React-like UI framework for Rust)
+- **Target**: Web (WASM) via `wasm32-unknown-unknown`
+- **Deployment**: GitHub Pages (static hosting)
+- **Non-negotiables**:
+  - **Component-based**: All UI built with Dioxus components
+  - **Signal-based state**: Use `use_signal()` for reactive state
+  - **LocalStorage**: Persist data in browser localStorage
+  - **PWA features**: Service worker, manifest, offline support
+  - **WASM target**: All builds target `wasm32-unknown-unknown`
+
+## 📁 Rule Index
+
+### Core Rules (`.cursor/rules/core/`)
+
+| Rule File | Purpose | Priority |
+|-----------|---------|----------|
+| `project-structure.mdc` | Directory layout & naming conventions | ⭐⭐⭐ |
+| `code-formatting.mdc` | Code style, formatting standards | ⭐⭐⭐ |
+| `rust-best-practices.mdc` | Rust code best practices & patterns | ⭐⭐⭐⭐ |
+| `cursor-rules-summary.mdc` | This file - rule overview | ⭐⭐⭐ |
+
+### Feature Rules (`.cursor/rules/features/`)
+
+| Rule File | Purpose | Priority |
+|-----------|---------|----------|
+| `storage.mdc` | LocalStorage patterns & data persistence | ⭐⭐⭐⭐ |
+| `pwa-development.mdc` | PWA development patterns | ⭐⭐⭐ |
+| `testing.mdc` | Testing patterns for Dioxus PWA | ⭐⭐⭐ |
+| `deployment.mdc` | Deployment patterns for GitHub Pages | ⭐⭐⭐ |
+| `error-handling.mdc` | Error handling patterns | ⭐⭐⭐⭐ |
+| `changelog-management.mdc` | Changelog and development plan management | ⭐⭐ |
+
+### Skills Document
+
+| Document | Purpose | Priority |
+|----------|---------|----------|
+| `skills.md` | **MASTER REFERENCE** - Dioxus PWA development skills | ⭐⭐⭐⭐⭐ |
+
+## 🛠️ Usage Quick Guide
+
+- **New component**: Read `skills.md` → Component Development section
+- **State management**: Read `skills.md` → State Management section
+- **LocalStorage**: Read `skills.md` → Local Storage Integration section + `features/storage.mdc`
+- **PWA features**: Read `skills.md` → PWA Configuration section
+- **Build & deploy**: Check `DEPLOYMENT.md` and `.github/workflows/deploy.yml`
+
+## 🎯 Key Patterns
+
+### Component Pattern
+```rust
+#[component]
+fn ComponentName() -> Element {
+    let mut state = use_signal(|| initial_value);
+    rsx! { /* JSX */ }
+}
+```
+
+### State Management Pattern
+```rust
+let mut reminders = use_signal(|| load_reminders());
+reminders.set(new_reminders);
+save_reminders(&reminders());
+```
+
+### Event Handler Pattern
+```rust
+onclick: move |_| {
+    // action
+}
+```
+
+## 📚 Project Structure
+
+- **Single file architecture**: All components in `src/main.rs`
+- **Asset-based styling**: CSS in `assets/style.css`
+- **PWA configuration**: Manifest and service worker in `assets/`
+- **Build output**: `docs/` directory for GitHub Pages
+
+**Last Updated**: 2025-01-15

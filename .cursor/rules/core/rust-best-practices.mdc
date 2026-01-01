@@ -1,0 +1,619 @@
+---
+alwaysApply: true
+description: Rust code best practices for Dioxus PWA development
+---
+# Rust Code Best Practices
+
+## 🎯 Core Rust Principles
+
+### 1. Ownership and Borrowing
+
+**DO**:
+```rust
+// Prefer borrowing over cloning when possible
+fn process_reminder(reminder: &Reminder) {
+    // Use reference, not owned value
+}
+
+// Clone only when necessary
+let reminder_copy = reminder.clone(); // Only if needed
+```
+
+**DON'T**:
+```rust
+// Don't clone unnecessarily
+fn process_reminder(reminder: Reminder) { // Takes ownership
+    // Prefer &Reminder instead
+}
+```
+
+### 2. Error Handling
+
+**DO**:
+```rust
+// Use Result for fallible operations
+fn load_reminders() -> Result<Vec<Reminder>, StorageError> {
+    // Return Result, not Option
+}
+
+// Use Option for nullable values
+fn find_reminder(id: &str) -> Option<Reminder> {
+    // Return Option for "may not exist"
+}
+
+// Handle errors gracefully
+match load_reminders() {
+    Ok(reminders) => reminders,
+    Err(e) => {
+        log::error!("Failed to load: {}", e);
+        Vec::new() // Safe fallback
+    }
+}
+```
+
+**DON'T**:
+```rust
+// Don't use unwrap() in production code
+let reminders = load_reminders().unwrap(); // ❌
+
+// Don't ignore errors
+let _ = save_reminders(&reminders); // ❌ At least log it
+```
+
+### 3. Pattern Matching
+
+**DO**:
+```rust
+// Use match for exhaustive handling
+match storage.get_item("reminders") {
+    Ok(Some(data)) => parse_reminders(&data),
+    Ok(None) => Vec::new(),
+    Err(e) => {
+        log::warn!("Storage error: {}", e);
+        Vec::new()
+    }
+}
+
+// Use if let for single case
+if let Some(window) = web_sys::window() {
+    // Handle window
+}
+```
+
+**DON'T**:
+```rust
+// Don't use unwrap() after pattern matching
+let data = storage.get_item("reminders").unwrap().unwrap(); // ❌
+```
+
+---
+
+## 🦀 Rust-Specific Patterns
+
+### 1. String Handling
+
+**DO**:
+```rust
+// Use &str for function parameters when possible
+fn format_title(title: &str) -> String {
+    format!("Title: {}", title)
+}
+
+// Use String for owned values
+let mut title = String::new();
+title.push_str("New");
+
+// Use string slices for temporary views
+let slice = &title[0..5];
+```
+
+**DON'T**:
+```rust
+// Don't clone strings unnecessarily
+let title = reminder.title.clone(); // Only if you need ownership
+
+// Don't use String::new() + push_str when format! works
+let msg = String::new() + "Hello"; // ❌ Use format!("Hello")
+```
+
+### 2. Collections
+
+**DO**:
+```rust
+// Use Vec for dynamic arrays
+let mut reminders = Vec::new();
+reminders.push(reminder);
+
+// Use iterators for transformations
+let completed: Vec<_> = reminders
+    .iter()
+    .filter(|r| r.completed)
+    .collect();
+
+// Use retain for in-place filtering
+reminders.retain(|r| r.id != id);
+```
+
+**DON'T**:
+```rust
+// Don't use indices when iterators work
+for i in 0..reminders.len() {
+    if reminders[i].completed { // ❌ Use iter() instead
+    }
+}
+```
+
+### 3. Option and Result
+
+**DO**:
+```rust
+// Chain operations with and_then
+let result = storage
+    .get_item("reminders")
+    .ok()
+    .flatten()
+    .and_then(|data| serde_json::from_str(&data).ok());
+
+// Use map for transformations
+let count = reminders.map(|r| r.len()).unwrap_or(0);
+
+// Use unwrap_or for defaults
+let title = reminder.title.unwrap_or_default();
+```
+
+**DON'T**:
+```rust
+// Don't nest match statements
+match storage.get_item("key") {
+    Ok(Some(data)) => {
+        match serde_json::from_str(&data) {
+            Ok(value) => value,
+            Err(_) => default,
+        }
+    }
+    _ => default,
+}
+// Use and_then instead
+```
+
+---
+
+## ⚡ Performance Best Practices
+
+### 1. Avoid Unnecessary Allocations
+
+**DO**:
+```rust
+// Reuse allocations
+let mut buffer = String::with_capacity(100);
+buffer.push_str("prefix");
+
+// Use references in loops
+for reminder in reminders.iter() { // Not reminders.clone()
+    process(reminder);
+}
+```
+
+**DON'T**:
+```rust
+// Don't allocate in hot paths
+for reminder in reminders.clone() { // ❌ Unnecessary clone
+    process(reminder);
+}
+```
+
+### 2. WASM-Specific Optimizations
+
+**DO**:
+```rust
+// Use small types when possible
+struct Reminder {
+    id: String,        // Required for uniqueness
+    title: String,     // Required
+    completed: bool,   // Small type
+    // Avoid large types unless needed
+}
+
+// Minimize serialization overhead
+#[derive(Serialize, Deserialize)]
+struct Reminder {
+    // Use compact field names for JSON
+    #[serde(rename = "id")]
+    id: String,
+}
+```
+
+**DON'T**:
+```rust
+// Don't store large binary data in structs
+struct Reminder {
+    image_data: Vec<u8>, // ❌ Store URL instead
+}
+```
+
+### 3. Memory Management
+
+**DO**:
+```rust
+// Let Rust manage memory automatically
+let reminders = load_reminders(); // Automatically dropped when out of scope
+
+// Use Box<T> only when necessary (large types, recursive types)
+struct TreeNode {
+    value: i32,
+    children: Vec<Box<TreeNode>>, // Only if needed
+}
+```
+
+**DON'T**:
+```rust
+// Don't use Rc/Arc unless sharing ownership
+use std::rc::Rc; // ❌ Usually not needed in Dioxus
+```
+
+---
+
+## 🎨 Code Organization
+
+### 1. Module Structure
+
+**DO**:
+```rust
+// Group related functionality
+mod storage {
+    pub fn load_reminders() -> Vec<Reminder> { }
+    pub fn save_reminders(reminders: &[Reminder]) { }
+}
+
+mod components {
+    pub fn reminder_card() -> Element { }
+}
+```
+
+**DON'T**:
+```rust
+// Don't put everything in main.rs for large projects
+// Split into modules when > 500 lines
+```
+
+### 2. Function Design
+
+**DO**:
+```rust
+// Keep functions focused and small
+fn format_reminder_title(reminder: &Reminder) -> String {
+    format!("{} - {}", reminder.title, reminder.id)
+}
+
+// Use descriptive names
+fn find_reminder_by_id(reminders: &[Reminder], id: &str) -> Option<&Reminder> {
+    reminders.iter().find(|r| r.id == id)
+}
+```
+
+**DON'T**:
+```rust
+// Don't create overly generic functions
+fn process(data: &str) -> String { // ❌ Too generic
+    // What does it process?
+}
+```
+
+### 3. Type Safety
+
+**DO**:
+```rust
+// Use newtype pattern for type safety
+struct ReminderId(String);
+
+fn find_reminder(id: ReminderId) -> Option<Reminder> {
+    // Type-safe ID
+}
+
+// Use enums for state
+enum FilterState {
+    All,
+    Active,
+    Completed,
+}
+```
+
+**DON'T**:
+```rust
+// Don't use stringly-typed code
+fn filter_reminders(filter: &str) { // ❌ Use enum instead
+    match filter {
+        "all" => {},
+        "active" => {},
+        _ => {},
+    }
+}
+```
+
+---
+
+## 🔒 Safety and Correctness
+
+### 1. Unsafe Code
+
+**DO**:
+```rust
+// Avoid unsafe unless absolutely necessary
+// WASM bindings are already safe wrappers
+use web_sys::window; // Safe wrapper
+```
+
+**DON'T**:
+```rust
+// Don't use unsafe without good reason
+unsafe { /* ... */ } // ❌ Usually not needed
+```
+
+### 2. Panic Handling
+
+**DO**:
+```rust
+// Use Result for recoverable errors
+fn parse_date(date_str: &str) -> Result<DateTime<Utc>, ParseError> {
+    DateTime::parse_from_rfc3339(date_str)
+        .map(|dt| dt.with_timezone(&Utc))
+}
+
+// Use expect() only for programming errors
+let window = web_sys::window().expect("window should exist in browser");
+```
+
+**DON'T**:
+```rust
+// Don't panic on user input errors
+let date = parse_date(input).unwrap(); // ❌ User might enter invalid date
+```
+
+### 3. Bounds Checking
+
+**DO**:
+```rust
+// Rust automatically checks bounds
+let first = reminders.get(0); // Returns Option
+
+// Use get() for safe indexing
+if let Some(reminder) = reminders.get(index) {
+    // Safe access
+}
+```
+
+**DON'T**:
+```rust
+// Don't use unchecked indexing
+let reminder = reminders[index]; // ❌ May panic, use get() instead
+```
+
+---
+
+## 🧪 Testing Best Practices
+
+### 1. Unit Tests
+
+**DO**:
+```rust
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_load_empty_reminders() {
+        // Mock localStorage or use test environment
+        let reminders = load_reminders();
+        assert_eq!(reminders.len(), 0);
+    }
+}
+```
+
+### 2. Test Organization
+
+**DO**:
+```rust
+// Group tests by functionality
+#[cfg(test)]
+mod storage_tests {
+    // Storage-related tests
+}
+
+#[cfg(test)]
+mod component_tests {
+    // Component-related tests
+}
+```
+
+---
+
+## 📦 Dependencies Management
+
+### 1. Minimal Dependencies
+
+**DO**:
+```rust
+// Only include what you need
+[dependencies]
+dioxus = { version = "0.6", features = ["web"] } // Only web feature
+serde = { version = "1.0", features = ["derive"] } // Only derive
+```
+
+**DON'T**:
+```rust
+// Don't include unused features
+dioxus = { version = "0.6", features = ["web", "router", "ssr"] } // ❌ Only use what you need
+```
+
+### 2. Version Pinning
+
+**DO**:
+```rust
+// Pin versions in Cargo.toml
+dioxus = { version = "0.6", features = ["web"] }
+serde = { version = "1.0", features = ["derive"] }
+```
+
+**DON'T**:
+```rust
+// Don't use wildcard versions
+dioxus = "*" // ❌
+```
+
+---
+
+## 🎯 Dioxus-Specific Best Practices
+
+### 1. Signal Management
+
+**DO**:
+```rust
+// Initialize signals with loaded data
+let mut reminders = use_signal(|| load_reminders());
+
+// Update signals reactively
+reminders.set(new_reminders);
+
+// Read signals in closures
+onclick: move |_| {
+    let count = reminders().len();
+    // Use count
+}
+```
+
+**DON'T**:
+```rust
+// Don't create signals in loops
+for item in items {
+    let mut signal = use_signal(|| item); // ❌ Not allowed
+}
+```
+
+### 2. Event Handlers
+
+**DO**:
+```rust
+// Use move closures for event handlers
+onclick: move |_| {
+    reminders.set(new_reminders);
+}
+
+// Clone only what's needed
+let reminder_id = reminder.id.clone();
+onclick: move |_| {
+    on_delete.call(reminder_id);
+}
+```
+
+**DON'T**:
+```rust
+// Don't capture too much in closures
+onclick: move |_| {
+    // Don't capture entire component state if not needed
+}
+```
+
+### 3. Component Props
+
+**DO**:
+```rust
+// Use EventHandler for callbacks
+#[component]
+fn ReminderCard(
+    reminder: Reminder,
+    on_delete: EventHandler<String>,
+) -> Element {
+    // ...
+}
+```
+
+**DON'T**:
+```rust
+// Don't pass entire state to child components
+fn ReminderCard(reminders: Vec<Reminder>) { // ❌ Pass only what's needed
+}
+```
+
+---
+
+## 📝 Documentation
+
+### 1. Code Comments
+
+**DO**:
+```rust
+// Load reminders from localStorage
+// Returns empty vector if storage is unavailable or data is invalid
+fn load_reminders() -> Vec<Reminder> {
+    // Implementation
+}
+
+/// Validates a reminder ID format
+/// Returns true if ID matches pattern "reminder_{timestamp}"
+fn is_valid_reminder_id(id: &str) -> bool {
+    // Implementation
+}
+```
+
+**DON'T**:
+```rust
+// Don't comment obvious code
+let count = reminders.len(); // Gets the length ❌
+```
+
+### 2. Documentation Comments
+
+**DO**:
+```rust
+/// Represents a reminder with due date and completion status
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Reminder {
+    /// Unique identifier for the reminder
+    pub id: String,
+    /// Title of the reminder
+    pub title: String,
+}
+```
+
+---
+
+## 🎯 Summary Checklist
+
+### Code Quality
+- [ ] Use `Result` for fallible operations
+- [ ] Use `Option` for nullable values
+- [ ] Avoid `unwrap()` in production code
+- [ ] Handle errors gracefully
+- [ ] Use pattern matching exhaustively
+
+### Performance
+- [ ] Minimize allocations
+- [ ] Use references when possible
+- [ ] Avoid unnecessary clones
+- [ ] Use iterators for transformations
+- [ ] Keep WASM binary size small
+
+### Safety
+- [ ] Avoid `unsafe` code
+- [ ] Use bounds checking (get() vs indexing)
+- [ ] Don't panic on user input
+- [ ] Validate external data
+
+### Organization
+- [ ] Keep functions focused
+- [ ] Use descriptive names
+- [ ] Split large files into modules
+- [ ] Group related functionality
+
+### Dioxus-Specific
+- [ ] Use signals correctly
+- [ ] Minimize closure captures
+- [ ] Use EventHandler for callbacks
+- [ ] Initialize state from storage
+
+---
+
+**See Also**:
+- `code-formatting.mdc` - Code style guidelines
+- `project-structure.mdc` - Project organization
+- `skills.md` - Dioxus development skills

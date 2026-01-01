@@ -1,0 +1,66 @@
+---
+alwaysApply: false
+description: PWA development patterns and best practices
+---
+# PWA Development Patterns
+
+## 🎯 PWA Features
+
+### Manifest Configuration
+
+**Location**: `assets/manifest.json`
+
+**Key Properties**:
+- `name`: App name
+- `short_name`: Short app name
+- `start_url`: Starting URL
+- `display`: Display mode (`standalone`, `fullscreen`, `minimal-ui`)
+- `icons`: App icons for different sizes
+- `theme_color`: Theme color
+- `background_color`: Background color
+
+### Service Worker
+
+**Location**: `assets/sw.js`
+
+**Key Capabilities**:
+- Cache static assets
+- Cache API responses (if needed)
+- Offline fallback
+- Update strategy
+
+**Cache Pattern**:
+```javascript
+const CACHE_NAME = 'remind-me-pwa-v1';
+const urlsToCache = [
+  '/remind-me-pwa/',
+  '/remind-me-pwa/index.html',
+  '/remind-me-pwa/assets/style.css',
+  '/remind-me-pwa/assets/manifest.json'
+];
+```
+
+### Base Path Configuration
+
+**For GitHub Pages**: Set `base_path` in `Dioxus.toml`
+```toml
+[web.app]
+base_path = "/remind-me-pwa"  # Repository name
+```
+
+**Important**: Service worker cache URLs must match base_path
+
+## 🎯 Best Practices
+
+### DO:
+- ✅ Configure manifest.json properly
+- ✅ Implement service worker caching
+- ✅ Test offline functionality
+- ✅ Use base_path for subdirectory deployment
+- ✅ Update cache version when assets change
+
+### DON'T:
+- ❌ Don't forget to update cache version
+- ❌ Don't hardcode paths (use base_path)
+- ❌ Don't cache too much (keep cache size reasonable)
+- ❌ Don't skip offline testing

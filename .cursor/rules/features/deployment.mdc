@@ -1,0 +1,267 @@
+---
+alwaysApply: false
+description: Deployment patterns for Dioxus PWA to GitHub Pages and other static hosts
+---
+# Deployment Patterns for Dioxus PWA
+
+## 🎯 Deployment Strategy
+
+### Static Hosting Options
+
+1. **GitHub Pages**: Free, automatic deployment via GitHub Actions
+2. **Netlify**: Automatic deployments, preview deployments
+3. **Vercel**: Fast global CDN, automatic deployments
+4. **Cloudflare Pages**: Free, fast, global CDN
+
+## GitHub Pages Deployment
+
+### Configuration
+
+#### Dioxus.toml
+
+```toml
+[web.app]
+base_path = "/remind-me-pwa"  # Repository name for subdirectory deployment
+
+[web.pwa]
+enabled = true
+manifest = "assets/manifest.json"
+service_worker = "assets/sw.js"
+```
+
+#### Build Output
+
+```bash
+# Build for production
+dx build --release --platform web
+
+# Output location
+target/dx/{package}/release/web/public/
+```
+
+### GitHub Actions Workflow
+
+Key steps:
+
+1. **Checkout**: Get source code
+2. **Install Rust**: Setup Rust toolchain with WASM target
+3. **Cache Dependencies**: Cache Cargo registry and build artifacts
+4. **Install Dioxus CLI**: Use cargo-binstall for faster installation
+5. **Configure base_path**: Update Dioxus.toml for GitHub Pages
+6. **Build**: Run `dx build --release --platform web`
+7. **Prepare Deployment**: Copy files to `docs/` directory
+8. **Deploy**: Upload to GitHub Pages
+
+### Deployment Directory Structure
+
+```
+docs/                          # GitHub Pages source directory
+├── index.html
+├── 404.html                   # Client-side routing fallback
+├── assets/
+│   ├── style.css
+│   ├── manifest.json
+│   └── sw.js
+└── wasm/                      # WASM files
+    ├── remind-me-pwa.wasm
+    └── remind-me-pwa.js
+```
+
+### 404.html for Client-Side Routing
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Remind Me PWA</title>
+    <script>
+        // Redirect to index.html for client-side routing
+        sessionStorage.redirect = location.href;
+        location.replace('/remind-me-pwa/');
+    </script>
+</head>
+<body></body>
+</html>
+```
+
+## Build Optimization
+
+### Production Build Settings
+
+```toml
+# Cargo.toml
+[profile.release]
+opt-level = "z"        # Optimize for size
+lto = "thin"           # Thin LTO
+codegen-units = 1      # Better optimization
+panic = "abort"        # Smaller binary
+```
+
+### Build Commands
+
+```bash
+# Development build
+dx build --platform web
+
+# Production build
+dx build --release --platform web
+
+# Check binary size
+ls -lh target/wasm32-unknown-unknown/release/*.wasm
+```
+
+## CI/CD Best Practices
+
+### Caching Strategy
+
+```yaml
+# Cache these for faster builds
+- Rust toolchain
+- Cargo registry (~/.cargo/registry/)
+- Cargo git cache (~/.cargo/git/)
+- Build artifacts (target/)
+- Dioxus CLI binary (~/.cargo/bin/dx)
+```
+
+### Build Optimization
+
+```yaml
+# Use parallel jobs
+export CARGO_BUILD_JOBS=$(nproc)
+
+# Network optimizations
+export CARGO_NET_GIT_FETCH_WITH_CLI=true
+export CARGO_NET_RETRY=3
+```
+
+### Error Handling
+
+```yaml
+# Handle build failures gracefully
+- Check for output even if build exits non-zero
+- Provide detailed error logs
+- Search for artifacts before failing
+```
+
+## Deployment Checklist
+
+### Pre-Deployment
+
+- [ ] Update `base_path` in `Dioxus.toml`
+- [ ] Test production build locally
+- [ ] Verify PWA manifest is correct
+- [ ] Check service worker cache URLs
+- [ ] Test offline functionality
+- [ ] Verify all assets are included
+
+### Post-Deployment
+
+- [ ] Test deployed app in browser
+- [ ] Verify PWA installation works
+- [ ] Test offline mode
+- [ ] Check console for errors
+- [ ] Verify all routes work
+- [ ] Test on mobile devices
+
+## Alternative Deployment Options
+
+### Netlify
+
+```toml
+# netlify.toml
+[build]
+  command = "dx build --release --platform web"
+  publish = "target/dx/remind-me-pwa/release/web/public"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+### Vercel
+
+```json
+// vercel.json
+{
+  "buildCommand": "dx build --release --platform web",
+  "outputDirectory": "target/dx/remind-me-pwa/release/web/public",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
+
+### Cloudflare Pages
+
+```yaml
+# cloudflare-pages.yml
+build_command: dx build --release --platform web
+build_output_directory: target/dx/remind-me-pwa/release/web/public
+```
+
+## Environment-Specific Configuration
+
+### Development
+
+```toml
+# Dioxus.toml (dev)
+[web.app]
+base_path = ""  # No base path for local dev
+```
+
+### Production
+
+```toml
+# Dioxus.toml (prod)
+[web.app]
+base_path = "/remind-me-pwa"  # GitHub Pages subdirectory
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **404 on refresh**: Need `404.html` for client-side routing
+2. **Assets not loading**: Check `base_path` configuration
+3. **Service worker not working**: Verify cache URLs match `base_path`
+4. **WASM not loading**: Check CORS headers and file paths
+
+### Debug Steps
+
+```bash
+# Check build output
+ls -la target/dx/*/release/web/public/
+
+# Verify base_path
+grep base_path Dioxus.toml
+
+# Test locally with base_path
+dx serve --release
+```
+
+## Best Practices
+
+### DO:
+- ✅ Use `base_path` for subdirectory deployments
+- ✅ Create `404.html` for client-side routing
+- ✅ Cache dependencies in CI/CD
+- ✅ Test production builds locally
+- ✅ Verify PWA features after deployment
+- ✅ Use thin LTO for faster builds
+- ✅ Optimize for size in production
+
+### DON'T:
+- ❌ Don't forget to update `base_path` for deployment
+- ❌ Don't skip `404.html` for SPAs
+- ❌ Don't hardcode paths (use `base_path`)
+- ❌ Don't deploy without testing production build
+- ❌ Don't ignore service worker cache URLs
+- ❌ Don't use full LTO (use "thin" instead)
+
+## Resources
+
+- [GitHub Pages Documentation](https://docs.github.com/en/pages)
+- [Dioxus Deployment Guide](https://dioxuslabs.com/learn/0.6/deployment/)
+- [PWA Deployment Checklist](https://web.dev/pwa-checklist/)

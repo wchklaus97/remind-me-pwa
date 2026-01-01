@@ -1,0 +1,142 @@
+---
+alwaysApply: true
+---
+# Code Formatting and Style Guide
+
+## 🎨 Rust Code Style
+
+### Formatting
+- Use `rustfmt` for automatic formatting
+- Run `cargo fmt` before committing
+- Follow standard Rust style conventions
+
+### Indentation
+- Use 4 spaces (Rust default)
+- Align with surrounding code
+
+### Line Length
+- Prefer lines under 100 characters
+- Break long lines at logical points
+
+## 📝 Code Style Patterns
+
+### Component Definition
+
+```rust
+#[component]
+fn ComponentName() -> Element {
+    // Component logic here
+    rsx! {
+        // JSX content
+    }
+}
+```
+
+### Signal Usage
+
+```rust
+// Initialize
+let mut count = use_signal(|| 0);
+
+// Read
+let current = count();
+
+// Update
+count.set(count() + 1);
+```
+
+### Event Handlers
+
+```rust
+// Inline handler
+onclick: move |_| {
+    // action
+}
+
+// Handler with parameter
+onclick: move |e| {
+    title.set(e.value())
+}
+```
+
+### Conditional Rendering
+
+```rust
+// Simple if
+if condition() {
+    rsx! { div { "Content" } }
+}
+
+// If-else pattern
+if condition() {
+    rsx! { div { "True" } }
+} else {
+    rsx! { div { "False" } }
+}
+```
+
+### List Rendering
+
+```rust
+// Simple list
+for item in items().iter() {
+    ItemComponent { item: item.clone() }
+}
+
+// With filter
+for item in items().iter().filter(|i| i.active) {
+    ItemComponent { item: item.clone() }
+}
+```
+
+## 🔤 Naming Conventions
+
+### Components
+- `PascalCase`: `App`, `ReminderCard`, `AddReminderForm`
+
+### Functions
+- `snake_case`: `load_reminders`, `save_reminders`
+
+### Variables
+- `snake_case`: `reminders`, `show_form`, `filter`
+
+### Constants
+- `UPPER_CASE`: `CACHE_NAME`, `MAX_ITEMS`
+
+### Types
+- `PascalCase`: `Reminder`, `ReminderStatus`
+
+## 📦 Import Organization
+
+```rust
+// 1. Dioxus
+use dioxus::prelude::*;
+
+// 2. Serde
+use serde::{Deserialize, Serialize};
+
+// 3. Chrono
+use chrono::{Utc, Local, DateTime};
+
+// 4. Web APIs
+use web_sys::window;
+
+// 5. Standard library
+use std::collections::HashMap;
+```
+
+## 🎯 Best Practices
+
+### DO:
+- ✅ Use `rustfmt` for formatting
+- ✅ Follow Rust naming conventions
+- ✅ Use descriptive names
+- ✅ Keep functions focused
+- ✅ Handle errors properly (Option/Result)
+
+### DON'T:
+- ❌ Don't use `unwrap()` without good reason
+- ❌ Don't ignore compiler warnings
+- ❌ Don't use abbreviations
+- ❌ Don't create overly complex expressions
+- ❌ Don't skip error handling
