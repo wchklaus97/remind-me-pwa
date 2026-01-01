@@ -27,3 +27,4 @@ echo "1. Review the docs/ directory"
 echo "2. Commit and push: git add docs/ && git commit -m 'Deploy' && git push"
 echo "3. Enable GitHub Pages in repository settings (docs folder)"
 
+
