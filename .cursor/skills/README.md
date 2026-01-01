@@ -1,87 +1,24 @@
-# Agent Skills for Dioxus PWA Project
+# Agent Skills Index
 
-This directory contains Agent Skills following the [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md). These skills provide specialized knowledge for Dioxus PWA development.
+This directory contains specialized Agent Skills that extend Cursor AI's capabilities with domain-specific knowledge for the Dioxus PWA project. These skills follow Anthropic's [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md).
 
-## Skills Overview
+## 📁 Skills List
 
-| Skill | Description | Use When |
-|-------|-------------|----------|
+| Skill Name | Description | Use When |
+|------------|-------------|----------|
 | **dioxus-pwa-development** | Build Progressive Web Apps with Dioxus framework | Developing Dioxus web applications, creating PWA features, or working with WASM targets |
 | **rust-wasm-optimization** | Optimize Rust code for WebAssembly compilation and runtime performance | Building WASM applications, optimizing binary size, or improving WASM runtime performance |
-| **pwa-storage-patterns** | Implement data persistence patterns for Progressive Web Apps | Working with browser storage APIs, implementing localStorage or IndexedDB |
+| **pwa-storage-patterns** | Implement data persistence patterns for Progressive Web Apps | Working with browser storage APIs, implementing localStorage or IndexedDB, or managing client-side data persistence |
 | **dioxus-component-patterns** | Master Dioxus component patterns and reactive state management | Building Dioxus components, managing component state, or implementing component interactions |
-| **changelog-management** | Manage project changelogs with commit tracking and structured documentation | Updating CHANGELOG.md, tracking project changes, or documenting version releases |
+| **changelog-management** | Manage project changelogs, track changes, and prepare version releases | Updating CHANGELOG.md, tracking project evolution, or preparing for a new release |
+| **lighthouse-optimization** | Optimize web applications to achieve 95%+ Lighthouse scores | Optimizing performance, accessibility, best practices, or SEO for web applications |
 
-## Skill Structure
+## 💡 How Skills Work
 
-Each skill follows the Agent Skills Specification:
+Skills are automatically activated when Cursor AI detects matching patterns in your request. They provide deep expertise in specific domains without loading everything into context upfront, ensuring token efficiency and specialized guidance.
 
-- **YAML Frontmatter**: `name` and `description` with "Use when" clause
-- **Progressive Disclosure**: Metadata → Instructions → Resources
-- **Activation Triggers**: Clear "Use when" clauses for automatic invocation
-
-## Usage
-
-These skills are automatically activated when Claude detects matching patterns:
-
-```
-User: "Create a Dioxus component for reminders"
-→ Activates: dioxus-component-patterns, dioxus-pwa-development
-
-User: "Optimize WASM binary size"
-→ Activates: rust-wasm-optimization
-
-User: "Implement localStorage for reminders"
-→ Activates: pwa-storage-patterns
-
-User: "Update CHANGELOG with new feature"
-→ Activates: changelog-management
-```
-
-## Skill Files
-
-Each skill is in its own directory:
-
-```
-.cursor/skills/
-├── dioxus-pwa-development/
-│   └── SKILL.md
-├── rust-wasm-optimization/
-│   └── SKILL.md
-├── pwa-storage-patterns/
-│   └── SKILL.md
-├── dioxus-component-patterns/
-│   └── SKILL.md
-├── changelog-management/
-│   └── SKILL.md
-└── README.md
-```
-
-## Integration with Cursor Rules
-
-These Agent Skills complement the Cursor Rules:
-
-- **Cursor Rules** (`.cursor/rules/`): Project-specific patterns and conventions
-- **Agent Skills** (`.cursor/skills/`): Reusable domain knowledge and best practices
-
-## Creating New Skills
-
-To add a new skill:
-
-1. Create directory: `.cursor/skills/{skill-name}/`
-2. Create `SKILL.md` with YAML frontmatter:
-   ```yaml
-   ---
-   name: skill-name
-   description: What the skill does. Use when [activation trigger].
-   ---
-   ```
-3. Write comprehensive skill content
-4. Update this README.md
-
-## Resources
+## 🔗 Related Documentation
 
 - [Agent Skills Specification](https://github.com/anthropics/skills/blob/main/agent_skills_spec.md)
-- [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [Dioxus Documentation](https://dioxuslabs.com/learn/0.6/)
+- [.cursor/rules/README.md](./../rules/README.md) - Project-specific Cursor Rules
 
