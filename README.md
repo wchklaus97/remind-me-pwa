@@ -73,6 +73,8 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
    - Set source to `docs` directory on `main` branch
    - Your app will be available at `https://yourusername.github.io/remind-me-pwa/`
 
+**Note**: Manual deployment uses the `docs` folder on `main` branch. For automatic deployment, see the Automatic Deployment section below.
+
 ### Automatic Deployment (GitHub Actions)
 
 The included `.github/workflows/github-pages-deploy.yml` will automatically build and deploy your app whenever you push to the `main` branch. The workflow:

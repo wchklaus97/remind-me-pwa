@@ -21,7 +21,7 @@ remind-me-pwa/
 │       └── skills.md        # Skills and capabilities reference
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml        # GitHub Actions CI/CD
+│       └── github-pages-deploy.yml  # GitHub Actions CI/CD (branch-based deployment)
 ├── .cargo/
 │   └── config.toml          # Cargo build configuration
 ├── docs/                     # Build output directory (for GitHub Pages)

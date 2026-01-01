@@ -68,7 +68,7 @@ This directory is the **authoritative operating manual** for this repo: how the 
 - **State management**: Read `skills.md` → State Management section
 - **LocalStorage**: Read `skills.md` → Local Storage Integration section + `features/storage.mdc`
 - **PWA features**: Read `skills.md` → PWA Configuration section
-- **Build & deploy**: Check `DEPLOYMENT.md` and `.github/workflows/deploy.yml`
+- **Build & deploy**: Check `DEPLOYMENT.md` and `.github/workflows/github-pages-deploy.yml`
 
 ## 🎯 Key Patterns
 

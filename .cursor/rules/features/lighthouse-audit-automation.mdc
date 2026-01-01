@@ -130,7 +130,7 @@ fi
 
 ### CI/CD Integration
 
-Add to `.github/workflows/deploy.yml`:
+Add to `.github/workflows/github-pages-deploy.yml`:
 
 ```yaml
 - name: Run Lighthouse Audit

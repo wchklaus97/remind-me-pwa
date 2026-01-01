@@ -40,11 +40,26 @@
    - Branch: `main` / `docs` folder
    - Save
 
-## Automatic Deployment
+## Automatic Deployment (Recommended)
 
-The project includes a GitHub Actions workflow (`.github/workflows/deploy.yml`) that will automatically:
+The project includes a GitHub Actions workflow (`.github/workflows/github-pages-deploy.yml`) that will automatically:
 - Build the project on every push to `main`
-- Deploy to GitHub Pages
+- Optimize WASM bundle with wasm-opt
+- Deploy to `gh-pages` branch for GitHub Pages
+- Create/update `release` branch for backup and reference
+
+### GitHub Pages Settings for Automatic Deployment
+
+After the first automatic deployment, configure GitHub Pages:
+
+1. Go to **Repository Settings → Pages**
+2. Change **Source** from "GitHub Actions" to **"Deploy from a branch"**
+3. Select:
+   - **Branch**: `gh-pages`
+   - **Folder**: `/ (root)`
+4. Click **Save**
+
+Your site will be available at `https://yourusername.github.io/remind-me-pwa/`
 
 Just push your code and the workflow will handle the rest!
 

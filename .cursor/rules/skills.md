@@ -415,7 +415,7 @@ remind-me-pwa/
 │   └── rules/               # Cursor AI rules
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml        # CI/CD workflow
+│       └── github-pages-deploy.yml  # CI/CD workflow (branch-based deployment)
 ├── Cargo.toml               # Rust dependencies
 ├── Dioxus.toml              # Dioxus configuration
 └── README.md                # Project documentation
