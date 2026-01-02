@@ -304,9 +304,49 @@ pub fn App() -> Element {
     });
 
     // Background images using Dioxus 0.7 asset! macro - properly bundled and optimized
-    // Set background directly in rsx! with all CSS properties inline
-    let mobile_bg_str = format!("{}", MOBILE_BG);
-    let desktop_bg_str = format!("{}", DESKTOP_BG);
+    // CRITICAL FIX: Dioxus asset! macro may not automatically prepend base_path to asset URLs
+    // We need to detect base_path at runtime and prepend it if the asset URL doesn't already include it
+    // This ensures background images work on GitHub Pages (which uses /remind-me-pwa base_path)
+    let base_path_for_assets = use_signal(|| {
+        if let Some(window) = web_sys::window() {
+            if let Ok(location) = window.location().pathname() {
+                if location.starts_with("/remind-me-pwa") {
+                    return "/remind-me-pwa".to_string();
+                }
+            }
+        }
+        String::new()
+    });
+    
+    // Prepend base_path to asset URLs if needed (for GitHub Pages deployment)
+    let mobile_bg_str = {
+        let asset_url = format!("{}", MOBILE_BG);
+        // If base_path is set and asset URL doesn't start with it, prepend base_path
+        if !base_path_for_assets().is_empty() && !asset_url.starts_with(&base_path_for_assets()) {
+            // Ensure asset_url starts with / (asset! generates paths like /assets/...)
+            if asset_url.starts_with('/') {
+                format!("{}{}", base_path_for_assets(), asset_url)
+            } else {
+                format!("{}/{}", base_path_for_assets(), asset_url)
+            }
+        } else {
+            asset_url
+        }
+    };
+    let desktop_bg_str = {
+        let asset_url = format!("{}", DESKTOP_BG);
+        // If base_path is set and asset URL doesn't start with it, prepend base_path
+        if !base_path_for_assets().is_empty() && !asset_url.starts_with(&base_path_for_assets()) {
+            // Ensure asset_url starts with / (asset! generates paths like /assets/...)
+            if asset_url.starts_with('/') {
+                format!("{}{}", base_path_for_assets(), asset_url)
+            } else {
+                format!("{}/{}", base_path_for_assets(), asset_url)
+            }
+        } else {
+            asset_url
+        }
+    };
     
     rsx! {
         div {
