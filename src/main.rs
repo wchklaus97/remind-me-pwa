@@ -6,6 +6,7 @@ mod utils;
 mod i18n;
 mod components;
 mod app;
+mod deployment;
 
 use app::App;
 

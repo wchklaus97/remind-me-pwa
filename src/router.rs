@@ -1,3 +1,35 @@
+// Use deployment utilities for GitHub Pages detection and base path
+use crate::deployment::is_github_pages;
+#[cfg(target_arch = "wasm32")]
+use crate::deployment::get_base_path;
+
+fn strip_base_path_prefix(path: &str) -> &str {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let base_path = get_base_path();
+        if !base_path.is_empty() {
+            return path.strip_prefix(&base_path).unwrap_or(path);
+        }
+    }
+    path
+}
+
+fn path_has_locale_prefix(path: &str) -> bool {
+    // Normalize:
+    // - Remove leading '#' (hash-routing paths may start with "#/en/app")
+    let path = path.trim_start_matches('#');
+    let path = strip_base_path_prefix(path);
+
+    // Get first segment (e.g. "/en/app" -> "en", "/zh-Hans/app" -> "zh-Hans")
+    let first = path
+        .trim_start_matches('/')
+        .split('/')
+        .find(|p| !p.is_empty())
+        .unwrap_or("");
+
+    first == "en" || first == "zh" || first.starts_with("zh-")
+}
+
 #[derive(Clone, PartialEq)]
 pub enum Route {
     Landing,
@@ -6,20 +38,43 @@ pub enum Route {
 
 impl Route {
     pub fn from_path(path: &str) -> (Route, String) {
-        let parts: Vec<&str> = path.trim_start_matches('/').split('/').collect();
+        // Remove base_path if present (e.g., "/<repo>/en/app" -> "/en/app")
+        let path = strip_base_path_prefix(path);
+        let path = if path.is_empty() { "/" } else { path };
         
-        // Check for locale prefix: /en/app, /zh/app, etc.
-        if parts.len() >= 2 && !parts[0].is_empty() {
-            let locale = parts[0].to_string();
-            let route_str = parts[1];
+        let parts: Vec<&str> = path.trim_start_matches('/').split('/').filter(|p| !p.is_empty()).collect();
+        
+        // Check for locale prefix: /en/app, /zh/app, /en/, /zh/, etc.
+        // Valid locales: en, zh, zh-Hans, zh-Hant, etc.
+        if !parts.is_empty() {
+            let first_part = parts[0];
             
-            match route_str {
-                "app" => return (Route::App, locale),
-                _ => return (Route::Landing, locale),
+            // Check if first part is a valid locale code
+            if first_part == "en" || first_part == "zh" || first_part.starts_with("zh-") {
+                let locale = if first_part == "zh" {
+                    "zh".to_string() // Keep "zh" for compatibility
+                } else if first_part.starts_with("zh-") {
+                    // Map zh-Hans/zh-Hant back to "zh" for i18n
+                    "zh".to_string()
+                } else {
+                    first_part.to_string()
+                };
+                
+                // Check if there's a route after locale
+                if parts.len() >= 2 {
+                    let route_str = parts[1];
+                    match route_str {
+                        "app" => return (Route::App, locale),
+                        _ => return (Route::Landing, locale),
+                    }
+                } else {
+                    // Just locale, no route (e.g., /en/, /zh/)
+                    return (Route::Landing, locale);
+                }
             }
         }
         
-        // Check for simple paths: /app, /#app
+        // Check for simple paths: /app, /#app (without locale prefix)
         if path.contains("/app") || path.contains("#app") {
             return (Route::App, "en".to_string());
         }
@@ -36,6 +91,7 @@ impl Route {
         }
     }
     
+    #[allow(dead_code)] // Only used as a WASM fallback when History API navigation fails
     pub fn to_hash(&self, locale: &str) -> String {
         match self {
             Route::Landing => format!("#/{}/", locale),
@@ -47,15 +103,25 @@ impl Route {
 pub fn get_initial_route() -> (Route, String) {
     if let Some(window) = web_sys::window() {
         let location = window.location();
-        // Extract path from URL
-        if let Ok(pathname) = location.pathname() {
-            return Route::from_path(&pathname);
-        }
-        // Fallback to hash
+        
+        // GitHub Pages uses hash-based routing, normal deployments use path-based routing
+        // Check hash first (for GitHub Pages), then pathname (for normal deployments)
         if let Ok(hash) = location.hash() {
             let path = hash.trim_start_matches('#');
-            return Route::from_path(path);
+            if !path.is_empty() {
+                return Route::from_path(path);
+            }
         }
+        
+        // Extract path from URL (for normal production deployments with server-side routing)
+        if let Ok(pathname) = location.pathname() {
+            let (route, locale) = Route::from_path(&pathname);
+            // Only use pathname if it contains a locale (not just base_path)
+            if path_has_locale_prefix(&pathname) {
+                return (route, locale);
+            }
+        }
+        
         // Try to get locale from localStorage (i18nrs storage)
         if let Ok(Some(storage)) = window.local_storage() {
             if let Ok(Some(saved_locale)) = storage.get_item("remind-me-locale") {
@@ -68,8 +134,46 @@ pub fn get_initial_route() -> (Route, String) {
 
 pub fn update_url(route: &Route, locale: &str) {
     if let Some(window) = web_sys::window() {
-        let location = window.location();
-        let hash = route.to_hash(locale);
-        let _ = location.set_hash(&hash);
+        // Prefer path-based URLs everywhere (clean shareable links):
+        // - Local dev:              /en/app
+        // - GitHub Pages (subdir):  /<repo>/en/app
+        // - Normal production:      /en/app
+        //
+        // GitHub Pages is static hosting, so direct loads of /<repo>/en/app
+        // are served via 404.html (SPA fallback). Our CI already generates 404.html,
+        // so path-based routing is safe there too.
+        //
+        // If History API pushState fails for any reason, we fall back to hash routes.
+        #[cfg(target_arch = "wasm32")]
+        {
+            let location = window.location();
+            let base_path = get_base_path();
+            let path = route.to_path(locale);
+            let full_path = if !base_path.is_empty() {
+                format!("{}{}", base_path, path)
+            } else {
+                path
+            };
+
+            if let Ok(history) = window.history() {
+                use wasm_bindgen::JsValue;
+                if history
+                    .push_state_with_url(&JsValue::NULL, "", Some(&full_path))
+                    .is_err()
+                {
+                    let hash = route.to_hash(locale);
+                    let _ = location.set_hash(&hash);
+                }
+            } else {
+                let hash = route.to_hash(locale);
+                let _ = location.set_hash(&hash);
+            }
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            // Non-WASM fallback (shouldn't happen in web builds)
+            let _ = (window, route, locale, is_github_pages);
+        }
     }
 }

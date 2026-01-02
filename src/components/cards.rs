@@ -8,7 +8,7 @@ use remind_me_ui::{
 };
 use crate::models::Reminder;
 use crate::utils::format_date;
-use i18nrs::I18n;
+use crate::i18n::use_t;
 
 #[component]
 pub fn ReminderCard(
@@ -16,7 +16,6 @@ pub fn ReminderCard(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
-    i18n: I18n,
 ) -> Element {
     let is_overdue = if !reminder.completed && !reminder.due_date.is_empty() {
         if let Ok(due) = chrono::DateTime::parse_from_rfc3339(&reminder.due_date) {
@@ -81,13 +80,13 @@ pub fn ReminderCard(
                                     if is_overdue {
                                         Badge {
                                             variant: BadgeVariant::Danger,
-                                            {i18n.t("reminder.overdue")}
+                                            {use_t("reminder.overdue")}
                                         }
                                     }
                                     span {
                                         class: "text-sm text-gray-500",
                                         {
-                                            format!("{} {}", i18n.t("reminder.due"), format_date(&reminder.due_date))
+                                            format!("{} {}", use_t("reminder.due"), format_date(&reminder.due_date))
                                         }
                                     }
                                 }

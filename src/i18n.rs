@@ -1,92 +1,186 @@
+use dioxus::prelude::*;
 use std::collections::HashMap;
-use i18nrs::{I18n, I18nConfig};
+use serde_json::Value;
+use std::sync::Arc;
 
-#[cfg(target_arch = "wasm32")]
-use web_sys::console;
-
-// Load JSON translations and convert to HashMap format expected by i18nrs
-// i18nrs expects HashMap<&str, &str> where values are JSON strings
-pub fn load_translations() -> HashMap<&'static str, &'static str> {
-    // Include JSON files as static strings at compile time
-    let en_json = include_str!("../assets/i18n/en.json");
-    let zh_json = include_str!("../assets/i18n/zh.json");
-    
-    HashMap::from([
-        ("en", en_json),
-        ("zh", zh_json),
-    ])
+// Define supported locales
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub enum Locale {
+    En,
+    Zh,
 }
 
-// Initialize i18nrs - create config with default language and translations
-// CRITICAL FIX: i18nrs panics at config.rs:177 because it accesses languages[0] 
-// when config.translations is empty. We MUST put translations in the config!
-// Also, I18n::new() sets current_language to the FIRST language in the HashMap,
-// so we ensure "en" is first to guarantee it's the default.
-pub fn init_i18n() -> Result<I18n, String> {
-    let mut translations = load_translations();
-    
-    // Ensure we have at least English translations
-    if !translations.contains_key("en") {
-        return Err("English translations are required".to_string());
+impl Locale {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Locale::En => "en",
+            Locale::Zh => "zh",
+        }
     }
-    
-    // CRITICAL: Ensure "en" is the first language in the HashMap
-    // I18n::new() sets current_language to languages.first(), so "en" must be first
-    // We create a new HashMap with "en" first to guarantee iteration order
-    let mut ordered_translations = HashMap::new();
-    // Insert "en" first
-    if let Some(en_val) = translations.remove("en") {
-        ordered_translations.insert("en", en_val);
+
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "zh" => Locale::Zh,
+            _ => Locale::En, // Default to English for any other value
+        }
     }
-    // Insert remaining languages
-    for (key, value) in translations {
-        ordered_translations.insert(key, value);
-    }
-    
-    // CRITICAL: Put translations in the config - i18nrs accesses config.translations.keys()[0]
-    // at line 177, and panics if empty. We MUST ensure config.translations is NOT empty!
-    let config = I18nConfig {
-        translations: ordered_translations.clone(), // Put translations in config!
-    };
-    
-    // Verify config has translations (defensive check)
-    if config.translations.is_empty() {
-        return Err("Config translations cannot be empty".to_string());
-    }
-    
-    // Create i18n instance - translations are in config, but also pass them
-    // I18n::new() will set current_language to the first language ("en")
-    let i18n = I18n::new(config, ordered_translations)?;
-    
-    // Verify current_language is set (should be "en" since it's first)
-    // Note: We don't need to call set_translation_language because I18n::new()
-    // already sets current_language to the first language in the HashMap
-    
-    Ok(i18n)
 }
 
-// Helper to get i18n instance - returns a default instance if initialization fails
-pub fn get_i18n() -> I18n {
-    // Try to initialize i18n, fallback to minimal instance if it fails
-    init_i18n().unwrap_or_else(|e| {
-        // Log error to console for debugging
+impl Default for Locale {
+    fn default() -> Self {
+        Locale::En
+    }
+}
+
+// Simple I18n context that loads translations from JSON files
+#[derive(Clone)]
+pub struct I18nContext {
+    current_locale: Locale,
+    translations: Arc<HashMap<String, Value>>,
+}
+
+impl I18nContext {
+    pub fn new() -> Self {
+        let translations = Self::load_translations();
+        let mut context = Self {
+            current_locale: Locale::En,
+            translations: Arc::new(translations),
+        };
+
+        // Try to load locale from localStorage first, fallback to default
         #[cfg(target_arch = "wasm32")]
         {
-            console::error_1(&format!("Failed to initialize i18n: {}", e).into());
+            if let Some(window) = web_sys::window() {
+                if let Ok(Some(storage)) = window.local_storage() {
+                    if let Ok(Some(locale)) = storage.get_item("remind-me-locale") {
+                        context.current_locale = Locale::from_str(&locale);
+                    }
+                }
+            }
         }
-        #[cfg(not(target_arch = "wasm32"))]
-        let _ = e; // Suppress unused variable warning for non-WASM builds
-        
-        // Create a minimal fallback with at least English translations
-        // CRITICAL: Put translations in config to prevent panic at config.rs:177
-        // Ensure "en" is first in HashMap so it becomes the default language
-        let minimal_translations = HashMap::from([("en", "{}")]);
-        let minimal_config = I18nConfig {
-            translations: minimal_translations.clone(), // Put in config!
-        };
-        
-        // Create i18n - I18n::new() will set current_language to "en" (first in HashMap)
-        I18n::new(minimal_config, minimal_translations)
-            .expect("Critical: Unable to create minimal i18n instance")
-    })
+
+        context
+    }
+
+    fn load_translations() -> HashMap<String, Value> {
+        let mut translations = HashMap::new();
+
+        // Load English translations
+        let en_json: Value = serde_json::from_str(include_str!("../assets/i18n/en.json"))
+            .expect("Failed to parse English translations");
+        translations.insert("en".to_string(), en_json);
+
+        // Load Chinese translations
+        let zh_json: Value = serde_json::from_str(include_str!("../assets/i18n/zh.json"))
+            .expect("Failed to parse Chinese translations");
+        translations.insert("zh".to_string(), zh_json);
+
+        translations
+    }
+
+    pub fn set_locale(&mut self, locale: Locale) {
+        let locale_str = locale.as_str();
+        self.current_locale = locale;
+
+        // Persist locale preference to localStorage
+        #[cfg(target_arch = "wasm32")]
+        {
+            if let Some(window) = web_sys::window() {
+                if let Ok(Some(storage)) = window.local_storage() {
+                    let _ = storage.set_item("remind-me-locale", locale_str);
+                }
+            }
+        }
+    }
+
+    pub fn current_locale_str(&self) -> &'static str {
+        self.current_locale.as_str()
+    }
+
+    pub fn t(&self, key: &str) -> String {
+        let current_locale = self.current_locale.as_str();
+        let translations = &self.translations[current_locale];
+
+        // Navigate through the nested JSON structure to find the translation
+        let mut current = translations;
+        let path_parts = key.split('.');
+
+        for path_part in path_parts {
+            match current.get(path_part) {
+                Some(value) => current = value,
+                None => {
+                    // Fallback to English if key doesn't exist in current locale
+                    if current_locale != "en" {
+                        let en_translations = &self.translations["en"];
+                        return self.get_nested_value(en_translations, key)
+                            .unwrap_or_else(|| key.to_string());
+                    }
+                    return key.to_string();
+                }
+            }
+        }
+
+        match current {
+            Value::String(s) => s.clone(),
+            _ => {
+                // Fallback to English if value is not a string
+                if current_locale != "en" {
+                    let en_translations = &self.translations["en"];
+                    return self.get_nested_value(en_translations, key)
+                        .unwrap_or_else(|| key.to_string());
+                }
+                key.to_string()
+            }
+        }
+    }
+
+    fn get_nested_value(&self, json: &Value, key: &str) -> Option<String> {
+        let mut current = json;
+        let path_parts = key.split('.');
+
+        for path_part in path_parts {
+            current = match current.get(path_part) {
+                Some(value) => value,
+                None => return None,
+            };
+        }
+
+        match current {
+            Value::String(s) => Some(s.clone()),
+            _ => None,
+        }
+    }
+}
+
+// Provide the I18nContext as a Dioxus context - this should be called once in the App component
+pub fn use_init_i18n() {
+    use_context_provider(|| Signal::new(I18nContext::new()));
+}
+
+// Hook to access the I18nContext
+pub fn use_i18n() -> Signal<I18nContext> {
+    use_context()
+}
+
+// Hook to get translated text
+pub fn use_t(key: &str) -> String {
+    let i18n = use_i18n();
+    let i18n_val = i18n.read();
+    i18n_val.t(key)
+}
+
+// Hook to change the locale
+pub fn use_set_locale() -> impl FnMut(Locale) {
+    let mut i18n = use_i18n();
+    move |locale: Locale| {
+        let mut ctx = i18n.write();
+        ctx.set_locale(locale);
+    }
+}
+
+// Helper to get the current locale as string
+pub fn use_current_locale() -> String {
+    let i18n = use_i18n();
+    let i18n_val = i18n.read();
+    i18n_val.current_locale_str().to_string()
 }
