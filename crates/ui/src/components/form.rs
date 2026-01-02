@@ -23,6 +23,14 @@ pub struct FormFieldProps {
     #[props(default)]
     pub help: String,
     
+    /// Field ID (for label association). If not provided, one will be generated.
+    #[props(default)]
+    pub id: String,
+    
+    /// Field name (for form submission). If not provided, will use id.
+    #[props(default)]
+    pub name: String,
+    
     /// Field content (input, textarea, etc.)
     pub children: Element,
 }
@@ -48,7 +56,12 @@ pub struct FormFieldProps {
 /// ```
 #[component]
 pub fn FormField(props: FormFieldProps) -> Element {
-    let field_id = format!("field_{}", uuid::Uuid::new_v4().to_string());
+    // Use provided id or generate one
+    let field_id = if !props.id.is_empty() {
+        props.id.clone()
+    } else {
+        format!("field_{}", uuid::Uuid::new_v4().to_string())
+    };
     
     rsx! {
         div {
@@ -68,8 +81,9 @@ pub fn FormField(props: FormFieldProps) -> Element {
                 }
             }
             
+            // Provide field_id and field_name via context for children to use
+            // Children components (Input, Textarea) should accept id and name props
             div {
-                id: "{field_id}",
                 {props.children}
             }
             

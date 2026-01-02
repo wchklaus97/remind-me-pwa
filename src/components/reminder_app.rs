@@ -70,12 +70,16 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                     div {
                         class: "flex gap-2 mb-2",
                         Input {
+                            id: "search_reminders".to_string(),
+                            name: "search".to_string(),
                             r#type: "text",
                             placeholder: i18n_search.t("search.placeholder"),
                             value: "{search_query()}",
                             oninput: move |value| search_query.set(value),
                         }
                         Select {
+                            id: "sort_reminders".to_string(),
+                            name: "sort_by".to_string(),
                             value: sort_by(),
                             onchange: move |value| sort_by.set(value),
                             options: vec![
