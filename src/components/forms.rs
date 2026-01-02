@@ -5,6 +5,7 @@ use remind_me_ui::{
     FormField, Input, Textarea,
 };
 use crate::models::Reminder;
+use crate::utils::convert_datetime_local_to_rfc3339;
 use i18nrs::I18n;
 
 #[component]
@@ -71,11 +72,14 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                         disabled: title().is_empty(),
                         onclick: move |_| {
                             if !title().is_empty() {
+                                // Convert datetime-local format to RFC3339 for storage consistency
+                                let due_date_rfc3339 = convert_datetime_local_to_rfc3339(&due_date());
+                                
                                 let reminder = Reminder {
                                     id: format!("reminder_{}", chrono::Utc::now().timestamp_millis()),
                                     title: title(),
                                     description: description(),
-                                    due_date: due_date(),
+                                    due_date: due_date_rfc3339,
                                     completed: false,
                                     created_at: chrono::Utc::now().to_rfc3339(),
                                 };
@@ -174,11 +178,14 @@ pub fn EditReminderForm(
                         disabled: title().is_empty(),
                         onclick: move |_| {
                             if !title().is_empty() {
+                                // Convert datetime-local format back to RFC3339 for storage consistency
+                                let due_date_rfc3339 = convert_datetime_local_to_rfc3339(&due_date());
+                                
                                 let updated = Reminder {
                                     id: reminder.id.clone(),
                                     title: title(),
                                     description: description(),
-                                    due_date: due_date(),
+                                    due_date: due_date_rfc3339,
                                     completed: reminder.completed,
                                     created_at: reminder.created_at.clone(),
                                 };
