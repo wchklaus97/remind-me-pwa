@@ -1,0 +1,105 @@
+{
+  "app": {
+    "title": "Remind Me PWA - Your Personal Reminder Assistant",
+    "description": "A simple and elegant reminder app to help you stay organized",
+    "tagline": "Your Personal Reminder Assistant",
+    "header": {
+      "title": "🔔 Remind Me",
+      "new_reminder": "+ New Reminder",
+      "cancel": "Cancel"
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": "Stay Organized,",
+      "highlight": "Never Forget",
+      "description": "A beautiful and functional Progressive Web App to help you manage your reminders. Works offline, installs on your device, and keeps your data private."
+    },
+    "feature": {
+      "pwa": {
+        "title": "Installable PWA",
+        "description": "Install on any device and access like a native app"
+      },
+      "offline": {
+        "title": "Offline Support",
+        "description": "Works seamlessly even without internet connection"
+      },
+      "privacy": {
+        "title": "Private & Secure",
+        "description": "Your data stays on your device, always"
+      }
+    },
+    "cta": {
+      "button": "Get Started",
+      "subtitle": "Free forever • No sign-up required • Start immediately"
+    }
+  },
+  "stats": {
+    "total": "Total",
+    "active": "Active",
+    "completed": "Completed",
+    "overdue": "Overdue"
+  },
+  "filter": {
+    "all": "All",
+    "active": "Active",
+    "completed": "Completed"
+  },
+  "search": {
+    "placeholder": "Search reminders..."
+  },
+  "sort": {
+    "date": "Sort by Date",
+    "title": "Sort by Title",
+    "status": "Sort by Status"
+  },
+  "form": {
+    "new_reminder": {
+      "title": "New Reminder"
+    },
+    "edit_reminder": {
+      "title": "Edit Reminder"
+    },
+    "title": {
+      "label": "Title",
+      "placeholder": "Enter reminder title"
+    },
+    "description": {
+      "label": "Description (optional)",
+      "placeholder": "Enter reminder description"
+    },
+    "due_date": {
+      "label": "Due Date (optional)"
+    },
+    "save": "Save Changes",
+    "add": "Add Reminder",
+    "cancel": "Cancel"
+  },
+  "empty": {
+    "title": "No reminders yet",
+    "description": "Add your first reminder to get started!",
+    "action": "Add Reminder"
+  },
+  "toast": {
+    "added": "Reminder added successfully!",
+    "updated": "Reminder updated successfully!",
+    "deleted": "Reminder deleted successfully!",
+    "completed": "completed",
+    "marked_active": "marked as active",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "delete": {
+    "title": "Delete Reminder",
+    "message": "Are you sure you want to delete this reminder? This action cannot be undone.",
+    "confirm": "Delete",
+    "cancel": "Cancel"
+  },
+  "reminder": {
+    "overdue": "⚠️ Overdue",
+    "due": "Due:"
+  }
+}
+

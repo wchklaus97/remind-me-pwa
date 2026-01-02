@@ -4,7 +4,7 @@
 ![Version](https://img.shields.io/badge/version-0.0.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Rust](https://img.shields.io/badge/rust-stable-orange.svg?logo=rust)
-![Dioxus](https://img.shields.io/badge/dioxus-0.6-purple.svg)
+![Dioxus](https://img.shields.io/badge/dioxus-0.7-purple.svg)
 
 A beautiful and functional Progressive Web App (PWA) built with Dioxus for managing reminders. Deploy it to GitHub Pages with ease!
 

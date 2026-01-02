@@ -1,0 +1,41 @@
+{
+  "title": "Remind Me PWA - Your Personal Reminder Assistant",
+  "description": "A simple and elegant reminder app to help you stay organized",
+  "keywords": "reminder app, PWA, task manager, productivity, offline app, progressive web app",
+  "author": "Remind Me PWA",
+  "baseUrl": "https://wchklaus97.github.io/remind-me-pwa",
+  "images": {
+    "desktop": {
+      "url": "/assets/images/backgrounds/desktop.avif",
+      "width": 1584,
+      "height": 672,
+      "alt": "Remind Me PWA - Beautiful gradient background (desktop)",
+      "type": "image/avif"
+    },
+    "mobile": {
+      "url": "/assets/images/backgrounds/mobile.avif",
+      "width": 768,
+      "height": 1376,
+      "alt": "Remind Me PWA - Beautiful gradient background (mobile)",
+      "type": "image/avif"
+    },
+    "og": {
+      "url": "/assets/images/backgrounds/desktop.avif",
+      "width": 1584,
+      "height": 672,
+      "alt": "Remind Me PWA - Your Personal Reminder Assistant",
+      "type": "image/avif"
+    }
+  },
+  "social": {
+    "og": {
+      "type": "website",
+      "site_name": "Remind Me PWA",
+      "locale": "en_US"
+    },
+    "twitter": {
+      "card": "summary_large_image"
+    }
+  }
+}
+
