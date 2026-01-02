@@ -8,10 +8,10 @@ use crate::storage::{load_reminders, save_reminders};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
 use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, ReminderCard, DeleteConfirmModal};
-use i18nrs::I18n;
+use crate::i18n::use_t;
 
 #[component]
-pub fn ReminderApp(i18n: I18n) -> Element {
+pub fn ReminderApp() -> Element {
     let mut reminders = use_signal(load_reminders);
     let mut show_add_form = use_signal(|| false);
     let mut filter = use_signal(|| "all".to_string());
@@ -27,17 +27,6 @@ pub fn ReminderApp(i18n: I18n) -> Element {
     // Delete confirmation state
     let mut delete_confirm_id = use_signal(|| None::<String>);
 
-    // Clone i18n for use in closures - each closure needs its own clone
-    let i18n_stats = i18n.clone();
-    let i18n_search = i18n.clone();
-    let i18n_sort = i18n.clone();
-    let i18n_header = i18n.clone();
-    let i18n_filter_all = i18n.clone();
-    let i18n_filter_active = i18n.clone();
-    let i18n_filter_completed = i18n.clone();
-    let i18n_empty = i18n.clone();
-    let i18n_toggle_card = i18n.clone();
-    let i18n_toast = i18n.clone();
 
     rsx! {
         div {
@@ -45,15 +34,15 @@ pub fn ReminderApp(i18n: I18n) -> Element {
             header {
                 role: "banner",
                 class: "app-header",
-                h1 { {i18n_header.t("app.header.title")} }
+                h1 { {use_t("app.header.title")} }
                 Button {
                     variant: ButtonVariant::Primary,
                     onclick: move |_| show_add_form.set(!show_add_form()),
                     {
                         if show_add_form() {
-                            {i18n_header.t("app.header.cancel")}
+                            {use_t("app.header.cancel")}
                         } else {
-                            {i18n_header.t("app.header.new_reminder")}
+                            {use_t("app.header.new_reminder")}
                         }
                     }
                 }
@@ -62,7 +51,7 @@ pub fn ReminderApp(i18n: I18n) -> Element {
             main {
                 role: "main",
                 // Statistics section
-                StatisticsDisplay { reminders: reminders(), i18n: i18n_stats }
+                StatisticsDisplay { reminders: reminders() }
 
                 // Search and sort controls
                 section {
@@ -73,7 +62,7 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                             id: "search_reminders".to_string(),
                             name: "search".to_string(),
                             r#type: "text",
-                            placeholder: i18n_search.t("search.placeholder"),
+                            placeholder: use_t("search.placeholder"),
                             value: "{search_query()}",
                             oninput: move |value| search_query.set(value),
                         }
@@ -83,9 +72,9 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                             value: sort_by(),
                             onchange: move |value| sort_by.set(value),
                             options: vec![
-                                SelectOption { value: "date".to_string(), label: i18n_sort.t("sort.date") },
-                                SelectOption { value: "title".to_string(), label: i18n_sort.t("sort.title") },
-                                SelectOption { value: "status".to_string(), label: i18n_sort.t("sort.status") },
+                                SelectOption { value: "date".to_string(), label: use_t("sort.date") },
+                                SelectOption { value: "title".to_string(), label: use_t("sort.title") },
+                                SelectOption { value: "status".to_string(), label: use_t("sort.status") },
                             ],
                         }
                     }
@@ -96,48 +85,34 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                         if let Some(reminder) = reminders().iter().find(|r| r.id == edit_id) {
                             EditReminderForm {
                                 reminder: reminder.clone(),
-                                on_save: {
-                                    let i18n_save = i18n.clone();
-                                    move |updated: Reminder| {
-                                        let mut updated_reminders = reminders();
-                                        if let Some(r) = updated_reminders.iter_mut().find(|r| r.id == updated.id) {
-                                            *r = updated.clone();
-                                        }
-                                        reminders.set(updated_reminders);
-                                        save_reminders(&reminders());
-                                        editing_id.set(None);
-
-                                        toast_message.set(i18n_save.t("toast.updated"));
-                                        toast_variant.set(ToastVariant::Success);
-                                        show_toast.set(true);
+                                on_save: move |updated: Reminder| {
+                                    let mut updated_reminders = reminders();
+                                    if let Some(r) = updated_reminders.iter_mut().find(|r| r.id == updated.id) {
+                                        *r = updated.clone();
                                     }
+                                    reminders.set(updated_reminders);
+                                    save_reminders(&reminders());
+                                    editing_id.set(None);
+
+                                    toast_message.set(use_t("toast.updated"));
+                                    toast_variant.set(ToastVariant::Success);
+                                    show_toast.set(true);
                                 },
                                 on_cancel: move |_| editing_id.set(None),
-                                i18n: {
-                                    let i18n_edit = i18n.clone();
-                                    i18n_edit
-                                },
                             }
                         }
                     } else {
                         AddReminderForm {
-                            on_add: {
-                                let i18n_add = i18n.clone();
-                                move |reminder: Reminder| {
-                                    let mut new_reminders = reminders();
-                                    new_reminders.push(reminder);
-                                    reminders.set(new_reminders);
-                                    save_reminders(&reminders());
-                                    show_add_form.set(false);
+                            on_add: move |reminder: Reminder| {
+                                let mut new_reminders = reminders();
+                                new_reminders.push(reminder);
+                                reminders.set(new_reminders);
+                                save_reminders(&reminders());
+                                show_add_form.set(false);
 
-                                    toast_message.set(i18n_add.t("toast.added"));
-                                    toast_variant.set(ToastVariant::Success);
-                                    show_toast.set(true);
-                                }
-                            },
-                            i18n: {
-                                let i18n_add_form = i18n.clone();
-                                i18n_add_form
+                                toast_message.set(use_t("toast.added"));
+                                toast_variant.set(ToastVariant::Success);
+                                show_toast.set(true);
                             },
                         }
                     }
@@ -150,17 +125,17 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                     Button {
                         variant: if filter() == "all" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         onclick: move |_| filter.set("all".to_string()),
-                        {i18n_filter_all.t("filter.all")}
+                        {use_t("filter.all")}
                     }
                     Button {
                         variant: if filter() == "active" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         onclick: move |_| filter.set("active".to_string()),
-                        {i18n_filter_active.t("filter.active")}
+                        {use_t("filter.active")}
                     }
                     Button {
                         variant: if filter() == "completed" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         onclick: move |_| filter.set("completed".to_string()),
-                        {i18n_filter_completed.t("filter.completed")}
+                        {use_t("filter.completed")}
                     }
                 }
 
@@ -175,20 +150,17 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                     ) {
                         ReminderCard {
                             reminder: reminder.clone(),
-                            on_toggle: {
-                                let i18n_toggle = i18n.clone();
-                                move |id: String| {
-                                    let mut updated = reminders();
-                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
-                                        r.completed = !r.completed;
-                                        let status = if r.completed { i18n_toggle.t("toast.completed") } else { i18n_toggle.t("toast.marked_active") };
-                                        reminders.set(updated);
-                                        save_reminders(&reminders());
+                            on_toggle: move |id: String| {
+                                let mut updated = reminders();
+                                if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                    r.completed = !r.completed;
+                                    let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                    reminders.set(updated);
+                                    save_reminders(&reminders());
 
-                                        toast_message.set(format!("{} {}", i18n_toggle.t("toast.info"), status));
-                                        toast_variant.set(ToastVariant::Info);
-                                        show_toast.set(true);
-                                    }
+                                    toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                    toast_variant.set(ToastVariant::Info);
+                                    show_toast.set(true);
                                 }
                             },
                             on_edit: move |id: String| {
@@ -198,7 +170,6 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                             on_delete: move |id: String| {
                                 delete_confirm_id.set(Some(id));
                             },
-                            i18n: i18n_toggle_card.clone(),
                         }
                     }
                 }
@@ -206,9 +177,9 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                 if reminders().is_empty() {
                     EmptyState {
                         icon: "📝",
-                        title: i18n_empty.t("empty.title"),
-                        description: i18n_empty.t("empty.description"),
-                        action_text: i18n_empty.t("empty.action"),
+                        title: use_t("empty.title"),
+                        description: use_t("empty.description"),
+                        action_text: use_t("empty.action"),
                         on_action: move |_| show_add_form.set(true),
                     }
                 }
@@ -219,25 +190,18 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                 DeleteConfirmModal {
                     open: delete_confirm_id,
                     reminder_id: delete_id.clone(),
-                    on_confirm: {
-                        let i18n_delete = i18n.clone();
-                        move |id: String| {
-                            let mut updated = reminders();
-                            updated.retain(|r| r.id != id);
-                            reminders.set(updated);
-                            save_reminders(&reminders());
-                            delete_confirm_id.set(None);
+                    on_confirm: move |id: String| {
+                        let mut updated = reminders();
+                        updated.retain(|r| r.id != id);
+                        reminders.set(updated);
+                        save_reminders(&reminders());
+                        delete_confirm_id.set(None);
 
-                            toast_message.set(i18n_delete.t("toast.deleted"));
-                            toast_variant.set(ToastVariant::Success);
-                            show_toast.set(true);
-                        }
+                        toast_message.set(use_t("toast.deleted"));
+                        toast_variant.set(ToastVariant::Success);
+                        show_toast.set(true);
                     },
                     on_cancel: move |_| delete_confirm_id.set(None),
-                    i18n: {
-                        let i18n_modal = i18n.clone();
-                        i18n_modal
-                    },
                 }
             }
 
@@ -247,10 +211,10 @@ pub fn ReminderApp(i18n: I18n) -> Element {
                 variant: toast_variant(),
                 title: {
                     match toast_variant() {
-                        ToastVariant::Success => i18n_toast.t("toast.success"),
-                        ToastVariant::Error => i18n_toast.t("toast.error"),
-                        ToastVariant::Warning => i18n_toast.t("toast.warning"),
-                        ToastVariant::Info => i18n_toast.t("toast.info"),
+                        ToastVariant::Success => use_t("toast.success"),
+                        ToastVariant::Error => use_t("toast.error"),
+                        ToastVariant::Warning => use_t("toast.warning"),
+                        ToastVariant::Info => use_t("toast.info"),
                     }
                 },
                 message: toast_message(),

@@ -1,8 +1,23 @@
 use dioxus::prelude::*;
 use crate::router::{Route, get_initial_route, update_url};
-use crate::i18n::get_i18n;
+use crate::i18n::{use_init_i18n, use_i18n, Locale};
 use crate::components::{LandingPage, ReminderApp};
-use i18nrs::StorageType;
+#[cfg(target_arch = "wasm32")]
+use crate::deployment::{get_base_path, get_base_url};
+
+// Helper function to map locale code to BCP 47 language code
+// This ensures valid lang attribute values for Lighthouse
+// en -> en, zh -> zh-Hans (Simplified Chinese)
+#[allow(dead_code)] // Used in #[cfg(target_arch = "wasm32")] blocks
+fn locale_to_bcp47(locale: &str) -> String {
+    match locale {
+        "zh" => "zh-Hans".to_string(), // Simplified Chinese
+        "zh-CN" => "zh-Hans".to_string(),
+        "zh-TW" => "zh-Hant".to_string(), // Traditional Chinese
+        "en" => "en".to_string(),
+        _ => locale.to_string(), // Fallback to original if unknown
+    }
+}
 
 // Background images using Dioxus 0.7 asset! macro for proper bundling
 // Using AVIF format for better performance (smaller file size, better compression)
@@ -12,12 +27,52 @@ static DESKTOP_BG: Asset = asset!("/assets/images/backgrounds/desktop.avif");
 
 #[component]
 pub fn App() -> Element {
-    // Initialize i18n once - I18n::new() automatically sets current_language to first language ("en")
-    // No need to call set_translation_language here - it's already set during initialization
-    let mut i18n_signal = use_signal(|| get_i18n());
-    
-    // Get current locale from localStorage or default to "en"
+    // Provide the i18n context for the entire app
+    use_init_i18n();
+
+    // Get access to i18n context
+    let mut i18n = use_i18n();
+
+    // Get current locale from URL first, then localStorage, then default to "en"
+    // This ensures the locale matches the URL path (e.g., /en/app -> "en", /zh/app -> "zh")
     let mut current_locale = use_signal(|| {
+        // Try to get locale from URL first (path-based or hash-based routing)
+        let (_, url_locale) = get_initial_route();
+
+        // If URL has an explicit locale in the path OR hash, use it.
+        // This is important for GitHub Pages hash routing (e.g. "#/zh/app"),
+        // and also ensures <html lang> is correct on the very first render.
+        if let Some(window) = web_sys::window() {
+            let location = window.location();
+
+            // Check hash first (GitHub Pages style)
+            if let Ok(hash) = location.hash() {
+                let hash_path = hash.trim_start_matches('#');
+                let first = hash_path
+                    .trim_start_matches('/')
+                    .split('/')
+                    .find(|p| !p.is_empty())
+                    .unwrap_or("");
+                if first == "en" || first == "zh" || first.starts_with("zh-") {
+                    return url_locale;
+                }
+            }
+
+            // Then check pathname (normal deployments)
+            if let Ok(pathname) = location.pathname() {
+                let path = pathname.trim_start_matches("/remind-me-pwa");
+                let first = path
+                    .trim_start_matches('/')
+                    .split('/')
+                    .find(|p| !p.is_empty())
+                    .unwrap_or("");
+                if first == "en" || first == "zh" || first.starts_with("zh-") {
+                    return url_locale;
+                }
+            }
+        }
+
+        // Fallback to localStorage if URL doesn't have locale
         if let Some(window) = web_sys::window() {
             if let Ok(Some(storage)) = window.local_storage() {
                 if let Ok(Some(locale)) = storage.get_item("remind-me-locale") {
@@ -27,6 +82,22 @@ pub fn App() -> Element {
         }
         "en".to_string()
     });
+    
+    // Set lang attribute synchronously on initial render (before Lighthouse checks)
+    // This must happen immediately, not in use_effect, so Lighthouse can detect it
+    // Use BCP 47 language codes (en, zh-Hans) for valid lang attribute values
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            if let Some(document) = window.document() {
+                if let Some(html) = document.document_element() {
+                    let initial_locale = current_locale();
+                    let bcp47_lang = locale_to_bcp47(&initial_locale);
+                    let _ = html.set_attribute("lang", &bcp47_lang);
+                }
+            }
+        }
+    }
     
     // LCP Optimization: Default to Landing immediately (no blocking)
     // Route detection happens asynchronously in use_effect to avoid blocking initial render
@@ -38,6 +109,49 @@ pub fn App() -> Element {
     // Priority: Use Dioxus APIs (use_signal, use_effect, etc.) whenever possible
     // Note: Background images now use PNG format (universal browser support) instead of AVIF
     // AVIF has limited browser support and requires complex detection, so PNG is used for reliability
+    // Listen for browser back/forward navigation (popstate events)
+    // This ensures path-based routing works correctly with browser navigation
+    // When user navigates back/forward, the URL changes and we need to update the route
+    use_effect(move || {
+        #[cfg(target_arch = "wasm32")]
+        {
+            use wasm_bindgen::JsCast;
+
+            if let Some(window) = web_sys::window() {
+                let mut current_route_signal = current_route;
+                let mut current_locale_signal = current_locale;
+                let mut i18n_signal = i18n;
+
+                let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |_e: web_sys::Event| {
+                    // When user navigates back/forward, update route from URL
+                    let (detected_route, detected_locale) = get_initial_route();
+                    current_route_signal.set(detected_route);
+
+                    // Keep the "current_locale" signal in sync with URL (used for URL updates, lang attribute, etc.)
+                    if detected_locale != current_locale_signal() {
+                        current_locale_signal.set(detected_locale.clone());
+                    }
+
+                    // Always sync i18n with URL locale if it drifted (e.g. localStorage has a different locale).
+                    let desired_locale = if detected_locale == "zh" {
+                        Locale::Zh
+                    } else {
+                        Locale::En
+                    };
+                    let i18n_current = i18n_signal.read().current_locale_str();
+                    let desired_str = desired_locale.as_str();
+                    if i18n_current != desired_str {
+                        let mut ctx = i18n_signal.write();
+                        ctx.set_locale(desired_locale);
+                    }
+                }) as Box<dyn FnMut(_)>);
+
+                window.add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref()).ok();
+                closure.forget(); // Keep closure alive
+            }
+        }
+    });
+
     use_effect(move || {
         // LCP Optimization: Detect route asynchronously after initial render
         // This prevents blocking the initial render with web_sys calls
@@ -45,30 +159,28 @@ pub fn App() -> Element {
         if detected_route != Route::Landing {
             current_route.set(detected_route);
         }
-        
-        // Set locale in i18n if different
-        // Note: i18nrs may have limited Dioxus 0.7 support, so we handle this gracefully
+
+        // Keep current_locale signal in sync with URL
         if detected_locale != current_locale() {
-            // Update i18n language - try with storage, but continue even if it fails
-            let mut i18n_val = i18n_signal();
-            // Try to set language - ignore errors if storage isn't supported
-            match i18n_val.set_translation_language(&detected_locale, &StorageType::LocalStorage, "remind-me-locale") {
-                Ok(_) => {
-                    // Successfully set language
-                    i18n_signal.set(i18n_val);
-                }
-                Err(_) => {
-                    // Storage not supported or failed - create new i18n instance with correct locale
-                    // This is a workaround for i18nrs compatibility issues
-                    if let Ok(mut new_i18n) = crate::i18n::init_i18n() {
-                        // Try to set language on new instance (without storage)
-                        let _ = new_i18n.set_translation_language(&detected_locale, &StorageType::LocalStorage, "remind-me-locale");
-                        i18n_signal.set(new_i18n);
-                    }
-                    // If all else fails, just update locale tracking (translations may not update)
-                }
-            }
-            current_locale.set(detected_locale);
+            current_locale.set(detected_locale.clone());
+
+            // Update URL to reflect locale change (for multi-locale path support)
+            // This ensures the URL shows the correct locale path (e.g., /remind-me-pwa/en/app)
+            update_url(&current_route(), &current_locale());
+        }
+
+        // Also sync the i18n context to match the URL locale even if current_locale already matched.
+        // This fixes the case where localStorage had "zh" but the URL is "/en/app".
+        let desired_locale = if detected_locale == "zh" {
+            Locale::Zh
+        } else {
+            Locale::En
+        };
+        let i18n_current = i18n.read().current_locale_str();
+        let desired_str = desired_locale.as_str();
+        if i18n_current != desired_str {
+            let mut ctx = i18n.write();
+            ctx.set_locale(desired_locale);
         }
 
         // Use web_sys ONLY for removing render-blocking Google Fonts links
@@ -83,10 +195,12 @@ pub fn App() -> Element {
                     // LCP Optimization: Critical operations only (lang attribute, font removal)
                     // Non-critical meta tags are deferred to reduce render delay
 
-                    // Set lang attribute on <html> (critical for accessibility)
+                    // Update lang attribute on <html> when locale changes (critical for accessibility)
+                    // Use BCP 47 language codes for valid lang attribute values
                     if let Some(html) = document.document_element() {
-                        let lang = current_locale();
-                        let _ = html.set_attribute("lang", &lang);
+                        let locale = current_locale();
+                        let bcp47_lang = locale_to_bcp47(&locale);
+                        let _ = html.set_attribute("lang", &bcp47_lang);
                     }
 
                     // Get head element
@@ -174,21 +288,10 @@ pub fn App() -> Element {
                                 }
                             }
 
-                            // Get base URL for absolute image URLs
-                            let base_url = window
-                                .location()
-                                .origin()
-                                .unwrap_or_else(|_| "https://wchklaus97.github.io".to_string());
-                            // Check if we're on GitHub Pages (has /remind-me-pwa in path) or local dev
-                            let current_path = window
-                                .location()
-                                .pathname()
-                                .unwrap_or_else(|_| String::new());
-                            let base_path = if current_path.contains("/remind-me-pwa") {
-                                "/remind-me-pwa"
-                            } else {
-                                ""
-                            };
+                            // Get base URL and base path for absolute image URLs (Open Graph, Twitter Cards)
+                            // Use utility functions for consistency across the app
+                            let base_url = get_base_url();
+                            let base_path = get_base_path();
 
                             // Open Graph meta tags for SEO and social sharing
                             let add_meta_tag =
@@ -341,15 +444,21 @@ pub fn App() -> Element {
             if current_route() == Route::Landing {
                 LandingPage {
                     on_enter_app: move |_| {
+                        // Get current locale from i18n context
+                        let i18n_read = i18n.read();
+                        let locale = i18n_read.current_locale_str().to_string();
+
+                        // Update current_locale signal to match i18n
+                        current_locale.set(locale.clone());
+
+                        // Update route and URL with the locale from i18n
+                        // The URL will show the locale (e.g., /en/app or /zh/app)
                         current_route.set(Route::App);
-                        update_url(&Route::App, &current_locale());
+                        update_url(&Route::App, &locale);
                     },
-                    i18n: i18n_signal(),
                 }
             } else {
-                ReminderApp {
-                    i18n: i18n_signal(),
-                }
+                ReminderApp {}
             }
         }
     }

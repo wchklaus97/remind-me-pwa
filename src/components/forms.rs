@@ -5,10 +5,10 @@ use remind_me_ui::{
     FormField, Input, Textarea,
 };
 use crate::models::Reminder;
-use i18nrs::I18n;
+use crate::i18n::use_t;
 
 #[component]
-pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
+pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
     let mut title = use_signal(String::new);
     let mut description = use_signal(String::new);
     let mut due_date = use_signal(String::new);
@@ -18,20 +18,20 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
             class: "add-form",
             header: rsx! {
                 CardHeader {
-                    CardTitle { {i18n.t("form.new_reminder.title")} }
+                    CardTitle { {use_t("form.new_reminder.title")} }
                 }
             },
             CardContent {
                 FormField {
                     id: "reminder_title".to_string(),
                     name: "title".to_string(),
-                    label: i18n.t("form.title.label"),
+                    label: use_t("form.title.label"),
                     required: true,
                     Input {
                         id: "reminder_title".to_string(),
                         name: "title".to_string(),
                         r#type: "text",
-                        placeholder: i18n.t("form.title.placeholder"),
+                        placeholder: use_t("form.title.placeholder"),
                         value: "{title()}",
                         oninput: move |value| title.set(value),
                     }
@@ -40,11 +40,11 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                 FormField {
                     id: "reminder_description".to_string(),
                     name: "description".to_string(),
-                    label: i18n.t("form.description.label"),
+                    label: use_t("form.description.label"),
                     Textarea {
                         id: "reminder_description".to_string(),
                         name: "description".to_string(),
-                        placeholder: i18n.t("form.description.placeholder"),
+                        placeholder: use_t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
                         oninput: move |value| description.set(value),
@@ -54,7 +54,7 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                 FormField {
                     id: "reminder_due_date".to_string(),
                     name: "due_date".to_string(),
-                    label: i18n.t("form.due_date.label"),
+                    label: use_t("form.due_date.label"),
                     Input {
                         id: "reminder_due_date".to_string(),
                         name: "due_date".to_string(),
@@ -85,7 +85,7 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                                 due_date.set(String::new());
                             }
                         },
-                        {i18n.t("form.add")}
+                        {use_t("form.add")}
                     }
                 }
             }
@@ -98,7 +98,6 @@ pub fn EditReminderForm(
     reminder: Reminder,
     on_save: EventHandler<Reminder>,
     on_cancel: EventHandler<()>,
-    i18n: I18n,
 ) -> Element {
     let mut title = use_signal(|| reminder.title.clone());
     let mut description = use_signal(|| reminder.description.clone());
@@ -116,20 +115,20 @@ pub fn EditReminderForm(
             class: "add-form",
             header: rsx! {
                 CardHeader {
-                    CardTitle { {i18n.t("form.edit_reminder.title")} }
+                    CardTitle { {use_t("form.edit_reminder.title")} }
                 }
             },
             CardContent {
                 FormField {
                     id: "edit_reminder_title".to_string(),
                     name: "title".to_string(),
-                    label: i18n.t("form.title.label"),
+                    label: use_t("form.title.label"),
                     required: true,
                     Input {
                         id: "edit_reminder_title".to_string(),
                         name: "title".to_string(),
                         r#type: "text",
-                        placeholder: i18n.t("form.title.placeholder"),
+                        placeholder: use_t("form.title.placeholder"),
                         value: "{title()}",
                         oninput: move |value| title.set(value),
                     }
@@ -138,11 +137,11 @@ pub fn EditReminderForm(
                 FormField {
                     id: "edit_reminder_description".to_string(),
                     name: "description".to_string(),
-                    label: i18n.t("form.description.label"),
+                    label: use_t("form.description.label"),
                     Textarea {
                         id: "edit_reminder_description".to_string(),
                         name: "description".to_string(),
-                        placeholder: i18n.t("form.description.placeholder"),
+                        placeholder: use_t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
                         oninput: move |value| description.set(value),
@@ -152,7 +151,7 @@ pub fn EditReminderForm(
                 FormField {
                     id: "edit_reminder_due_date".to_string(),
                     name: "due_date".to_string(),
-                    label: i18n.t("form.due_date.label"),
+                    label: use_t("form.due_date.label"),
                     Input {
                         id: "edit_reminder_due_date".to_string(),
                         name: "due_date".to_string(),
@@ -167,7 +166,7 @@ pub fn EditReminderForm(
                     Button {
                         variant: ButtonVariant::Ghost,
                         onclick: move |_| on_cancel.call(()),
-                        {i18n.t("form.cancel")}
+                        {use_t("form.cancel")}
                     }
                     Button {
                         variant: ButtonVariant::Primary,
@@ -188,7 +187,7 @@ pub fn EditReminderForm(
                                 due_date.set(String::new());
                             }
                         },
-                        {i18n.t("form.save")}
+                        {use_t("form.save")}
                     }
                 }
             }

@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
 use remind_me_ui::{Button, ButtonVariant, ButtonSize};
-use i18nrs::I18n;
+use crate::i18n::use_t;
 
 #[component]
-pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
+pub fn LandingPage(on_enter_app: EventHandler<()>) -> Element {
     rsx! {
         div {
             class: "landing-page",
@@ -21,7 +21,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                         div {
                             class: "logo-text",
                             h1 { "Remind Me" }
-                            p { class: "tagline", {i18n.t("app.tagline")} }
+                            p { class: "tagline", {use_t("app.tagline")} }
                         }
                     }
                 }
@@ -34,13 +34,13 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                             class: "hero-content",
                             h2 {
                                 class: "hero-title",
-                                {i18n.t("landing.hero.title")}
+                                {use_t("landing.hero.title")}
                                 br {}
-                                span { class: "highlight", {i18n.t("landing.hero.highlight")} }
+                                span { class: "highlight", {use_t("landing.hero.highlight")} }
                             }
                             p {
                                 class: "hero-description",
-                                {i18n.t("landing.hero.description")}
+                                {use_t("landing.hero.description")}
                             }
                         }
                     }
@@ -54,8 +54,8 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                                     class: "feature-icon",
                                     "📱"
                                 }
-                                h3 { {i18n.t("landing.feature.pwa.title")} }
-                                p { {i18n.t("landing.feature.pwa.description")} }
+                                h3 { {use_t("landing.feature.pwa.title")} }
+                                p { {use_t("landing.feature.pwa.description")} }
                             }
                             div {
                                 class: "feature-card",
@@ -63,8 +63,8 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                                     class: "feature-icon",
                                     "💾"
                                 }
-                                h3 { {i18n.t("landing.feature.offline.title")} }
-                                p { {i18n.t("landing.feature.offline.description")} }
+                                h3 { {use_t("landing.feature.offline.title")} }
+                                p { {use_t("landing.feature.offline.description")} }
                             }
                             div {
                                 class: "feature-card",
@@ -72,8 +72,8 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                                     class: "feature-icon",
                                     "🔒"
                                 }
-                                h3 { {i18n.t("landing.feature.privacy.title")} }
-                                p { {i18n.t("landing.feature.privacy.description")} }
+                                h3 { {use_t("landing.feature.privacy.title")} }
+                                p { {use_t("landing.feature.privacy.description")} }
                             }
                         }
                     }
@@ -83,11 +83,11 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, i18n: I18n) -> Element {
                             variant: ButtonVariant::Primary,
                             size: ButtonSize::Large,
                             onclick: move |_| on_enter_app.call(()),
-                            {i18n.t("landing.cta.button")}
+                            {use_t("landing.cta.button")}
                         }
                         p {
                             class: "cta-subtitle",
-                            {i18n.t("landing.cta.subtitle")}
+                            {use_t("landing.cta.subtitle")}
                         }
                     }
                 }
