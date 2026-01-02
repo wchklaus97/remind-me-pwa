@@ -3,12 +3,22 @@ use crate::deployment::is_github_pages;
 #[cfg(target_arch = "wasm32")]
 use crate::deployment::get_base_path;
 
+fn strip_base_path_prefix(path: &str) -> &str {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let base_path = get_base_path();
+        if !base_path.is_empty() {
+            return path.strip_prefix(&base_path).unwrap_or(path);
+        }
+    }
+    path
+}
+
 fn path_has_locale_prefix(path: &str) -> bool {
     // Normalize:
     // - Remove leading '#' (hash-routing paths may start with "#/en/app")
-    // - Remove GitHub Pages base path (currently hardcoded repo name)
     let path = path.trim_start_matches('#');
-    let path = path.trim_start_matches("/remind-me-pwa");
+    let path = strip_base_path_prefix(path);
 
     // Get first segment (e.g. "/en/app" -> "en", "/zh-Hans/app" -> "zh-Hans")
     let first = path
@@ -28,8 +38,8 @@ pub enum Route {
 
 impl Route {
     pub fn from_path(path: &str) -> (Route, String) {
-        // Remove base_path if present (e.g., "/remind-me-pwa/en/app" -> "/en/app")
-        let path = path.trim_start_matches("/remind-me-pwa");
+        // Remove base_path if present (e.g., "/<repo>/en/app" -> "/en/app")
+        let path = strip_base_path_prefix(path);
         let path = if path.is_empty() { "/" } else { path };
         
         let parts: Vec<&str> = path.trim_start_matches('/').split('/').filter(|p| !p.is_empty()).collect();
@@ -81,6 +91,7 @@ impl Route {
         }
     }
     
+    #[allow(dead_code)] // Only used as a WASM fallback when History API navigation fails
     pub fn to_hash(&self, locale: &str) -> String {
         match self {
             Route::Landing => format!("#/{}/", locale),
@@ -123,63 +134,46 @@ pub fn get_initial_route() -> (Route, String) {
 
 pub fn update_url(route: &Route, locale: &str) {
     if let Some(window) = web_sys::window() {
-        let location = window.location();
-        
-        // GitHub Pages only supports static hosting - use hash-based routing
-        // Normal production deployments (Netlify, Vercel, etc.) support server-side routing
-        // and can use path-based routing for better SEO
-        if is_github_pages() {
-            // Use hash-based routing for GitHub Pages (static hosting)
-            // Format: #/en/app or #/zh/app
-            // Hash routes work on static hosting because they don't require server-side routing
-            let hash = route.to_hash(locale);
-            let _ = location.set_hash(&hash);
-        } else {
-            // Use path-based routing for normal production deployments
-            // Format: /en/app or /zh/app (with optional base_path)
-            // This requires server-side routing support (Netlify, Vercel, etc.)
-            // Use History API to update URL without page reload
-            #[cfg(target_arch = "wasm32")]
-            {
-                let base_path = get_base_path();
-                let path = route.to_path(locale);
-                let full_path = if !base_path.is_empty() {
-                    format!("{}{}", base_path, path)
-                } else {
-                    path
-                };
+        // Prefer path-based URLs everywhere (clean shareable links):
+        // - Local dev:              /en/app
+        // - GitHub Pages (subdir):  /<repo>/en/app
+        // - Normal production:      /en/app
+        //
+        // GitHub Pages is static hosting, so direct loads of /<repo>/en/app
+        // are served via 404.html (SPA fallback). Our CI already generates 404.html,
+        // so path-based routing is safe there too.
+        //
+        // If History API pushState fails for any reason, we fall back to hash routes.
+        #[cfg(target_arch = "wasm32")]
+        {
+            let location = window.location();
+            let base_path = get_base_path();
+            let path = route.to_path(locale);
+            let full_path = if !base_path.is_empty() {
+                format!("{}{}", base_path, path)
+            } else {
+                path
+            };
 
-                if let Ok(history) = window.history() {
-                    // Use push_state_with_url to update the pathname (not hash)
-                    // This creates URLs like /en/app or /remind-me-pwa/en/app
-                    // Use wasm_bindgen::JsValue::NULL for null state value
-                    use wasm_bindgen::JsValue;
-                    match history.push_state_with_url(
-                        &JsValue::NULL,
-                        "",
-                        Some(&full_path),
-                    ) {
-                        Ok(_) => {
-                            // Successfully updated URL path
-                            // Path-based routing works on servers that support it (Netlify, Vercel, etc.)
-                        }
-                        Err(_) => {
-                            // If push_state fails, fallback to hash-based routing
-                            let hash = route.to_hash(locale);
-                            let _ = location.set_hash(&hash);
-                        }
-                    }
-                } else {
-                    // Fallback to hash-based routing if History API is unavailable
+            if let Ok(history) = window.history() {
+                use wasm_bindgen::JsValue;
+                if history
+                    .push_state_with_url(&JsValue::NULL, "", Some(&full_path))
+                    .is_err()
+                {
                     let hash = route.to_hash(locale);
                     let _ = location.set_hash(&hash);
                 }
+            } else {
+                let hash = route.to_hash(locale);
+                let _ = location.set_hash(&hash);
             }
-            
-            #[cfg(not(target_arch = "wasm32"))]
-            {
-                // Non-WASM fallback (shouldn't happen in web builds)
-            }
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            // Non-WASM fallback (shouldn't happen in web builds)
+            let _ = (window, route, locale, is_github_pages);
         }
     }
 }

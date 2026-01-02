@@ -40,12 +40,6 @@ pub fn is_github_pages() -> bool {
                 return true;
             }
         }
-        // Also check if we have base_path (indicates subdirectory deployment, likely GitHub Pages)
-        if let Ok(pathname) = window.location().pathname() {
-            if pathname.contains("/remind-me-pwa") {
-                return true;
-            }
-        }
     }
     false
 }
@@ -76,9 +70,21 @@ pub fn is_github_pages() -> bool {
 #[cfg(target_arch = "wasm32")]
 pub fn get_base_path() -> String {
     if let Some(window) = web_sys::window() {
-        if let Ok(pathname) = window.location().pathname() {
-            if pathname.contains("/remind-me-pwa") {
-                return "/remind-me-pwa".to_string();
+        // On GitHub Pages the app is served from a subdirectory:
+        //   https://<user>.github.io/<repo>/
+        // So the base path is the first non-empty segment of pathname.
+        // This avoids hardcoding the repository name.
+        if let Ok(hostname) = window.location().hostname() {
+            if hostname.contains("github.io") {
+                if let Ok(pathname) = window.location().pathname() {
+                    if let Some(first) = pathname
+                        .trim_start_matches('/')
+                        .split('/')
+                        .find(|p| !p.is_empty())
+                    {
+                        return format!("/{}", first);
+                    }
+                }
             }
         }
     }

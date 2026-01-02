@@ -2,8 +2,9 @@ use dioxus::prelude::*;
 use crate::router::{Route, get_initial_route, update_url};
 use crate::i18n::{use_init_i18n, use_i18n, Locale};
 use crate::components::{LandingPage, ReminderApp};
+use crate::deployment::get_base_path;
 #[cfg(target_arch = "wasm32")]
-use crate::deployment::{get_base_path, get_base_url};
+use crate::deployment::get_base_url;
 
 // Helper function to map locale code to BCP 47 language code
 // This ensures valid lang attribute values for Lighthouse
@@ -60,7 +61,12 @@ pub fn App() -> Element {
 
             // Then check pathname (normal deployments)
             if let Ok(pathname) = location.pathname() {
-                let path = pathname.trim_start_matches("/remind-me-pwa");
+                let base_path = get_base_path();
+                let path = if base_path.is_empty() {
+                    pathname.as_str()
+                } else {
+                    pathname.strip_prefix(&base_path).unwrap_or(pathname.as_str())
+                };
                 let first = path
                     .trim_start_matches('/')
                     .split('/')
