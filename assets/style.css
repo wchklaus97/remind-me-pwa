@@ -1,27 +1,59 @@
-* {
+/* Reset all margins and padding globally */
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Background is now set via Dioxus background_image attribute in Rust code */
+/* CSS only handles responsive switching and ensures proper sizing */
+html {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    /* Ensure html doesn't block background */
+    background: transparent !important;
+}
+
 :root {
-    --primary-color: #6366f1;
-    --primary-dark: #4f46e5;
-    --secondary-color: #8b5cf6;
-    --danger-color: #ef4444;
-    --success-color: #10b981;
-    --bg-color: #f8fafc;
-    --card-bg: #ffffff;
-    --text-primary: #1e293b;
-    --text-secondary: #64748b;
-    --border-color: #e2e8f0;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        /* WCAG 2.2 AA: Touch target standards (minimum 24x24px with spacing) */
-        /* We use 48x48px for better UX, but ensure at least 24x24px with 8px spacing */
-        --touch-target-min: 24px;  /* WCAG 2.2 AA minimum */
-        --touch-target-min-preferred: 48px;  /* Better UX (Lighthouse recommendation) */
-        --touch-target-spacing: 8px;  /* Minimum spacing between targets */
+    /* Bell Crab Color Palette - Warm & Friendly */
+    --primary-color: #FA8A59;  /* Crab Coral - Primary Action */
+    --primary-dark: #E8774A;   /* Darker shade for hover states */
+    --secondary-color: #F4D273; /* Bell Gold - Premium/Success */
+    --brand-blue: #6A7CED;     /* Clay Blue - Brand Color A */
+    --brand-purple: #9E75E9;   /* Soft Amethyst - Brand Color B */
+    --danger-color: #FF6B6B;   /* Soft red for danger (matches warm palette) */
+    --success-color: #F4D273;  /* Bell Gold for success */
+    --bg-color: #F9F9FC;       /* Off-White - Background UI (fallback/utility) */
+    --bg-gradient-top: #5e5eb4; /* Top right - Deep blue-purple */
+    --bg-gradient-bottom: #8094ce; /* Bottom left - Light blue */
+    --card-bg: #ffffff;        /* Pure White for cards */
+    --text-primary: #33334D;   /* Deep Slate - Primary Text */
+    --text-secondary: #5F5F7A; /* Medium Slate - Secondary Text */
+    --border-color: #E8E8F0;   /* Soft border matching palette */
+    --shadow: 0 2px 8px 0 rgba(106, 124, 237, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 25px -5px rgba(106, 124, 237, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 4px 12px 0 rgba(250, 138, 89, 0.12); /* Soft shadow with coral tint */
+    
+    /* Gradient for headers and banners */
+    --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+    
+    /* Border radius - soft, rounded 3D aesthetic */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    
+    /* WCAG 2.2 AA: Touch target standards (minimum 24x24px with spacing) */
+    /* We use 48x48px for better UX, but ensure at least 24x24px with 8px spacing */
+    --touch-target-min: 24px;  /* WCAG 2.2 AA minimum */
+    --touch-target-min-preferred: 48px;  /* Better UX (Lighthouse recommendation) */
+    --touch-target-spacing: 8px;  /* Minimum spacing between targets */
 }
 
 body {
@@ -29,20 +61,111 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
         'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
         sans-serif;
-    background-color: var(--bg-color);
+    /* Background is set via Dioxus background_image attribute on root div */
+    background: transparent !important;
     color: var(--text-primary);
     line-height: 1.6;
+    margin: 0 !important;
+    padding: 0 !important;
     min-height: 100vh;
+    width: 100% !important;
+    height: 100%;
     /* Performance: Optimize font rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
 }
 
+/* Background images handled entirely via CSS with responsive breakpoints */
+/* background-size: cover automatically determines best fit (scales to cover, maintaining aspect ratio) */
+/* It intelligently chooses whether to scale based on width or height depending on viewport aspect ratio */
+
+/* Ensure other wrapper elements are transparent and have no padding/margin */
+#main,
+[id^="dioxus-"],
+body > div:first-child {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Allow background div to escape stacking context */
+    z-index: 0;
+    /* Ensure main container doesn't block background */
+    overflow: visible;
+}
+
+/* Content wrapper - ensures content is above background */
+.app-content-wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    width: 100%;
+    /* Ensure content is above background */
+    background: transparent;
+}
+
+/* Root background container - fixed positioning to fill entire viewport with no padding */
+/* Background images are set via Dioxus asset! macro in Rust code */
+/* The inline style sets the mobile image, and this CSS overrides with desktop for larger screens */
+.dioxus-root.app-background {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    z-index: -999 !important; /* Place background far behind content */
+    /* Fallback color - shows if images fail to load */
+    background-color: #5e5eb4 !important;
+    /* background-size: cover automatically determines whether to scale based on width or height */
+    /* It chooses whichever dimension needs more scaling to cover the entire container */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+    /* Ensure background is visible */
+    pointer-events: none !important; /* Allow clicks to pass through */
+    /* Ensure background-image from inline style is not overridden */
+    /* Mobile image is set in inline style, desktop is set via media query */
+    /* Debug: Make sure background-image is visible */
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Desktop viewport - use desktop image via CSS custom property */
+/* Note: Mobile image is set in inline style, this only applies to desktop */
+@media (min-width: 768px) {
+    .dioxus-root.app-background {
+        /* Use desktop background image from CSS custom property set in Rust */
+        /* Only override if desktop-bg variable is set */
+        background-image: var(--desktop-bg, var(--mobile-bg)) !important;
+        /* cover ensures the image covers the entire viewport, scaling based on whichever dimension needs it */
+        /* For wide screens, it will scale based on height; for tall screens, it will scale based on width */
+    }
+}
+
+/* Mobile viewport - ensure mobile image is visible */
+/* The inline style sets background-image, but we ensure it's not overridden */
+@media (max-width: 767px) {
+    .dioxus-root.app-background {
+        /* Ensure mobile image from inline style is visible */
+        background-image: var(--mobile-bg) !important;
+    }
+}
+
 .app-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    background: transparent !important; /* Ensure it's transparent to show body background */
+    min-height: 100vh; /* Ensure it covers full height */
 }
 
 .app-header {
@@ -50,15 +173,18 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    padding: 20px;
-    background: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
+    padding: 24px 28px;
+    background: var(--gradient-brand);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    color: white;
 }
 
 .app-header h1 {
     font-size: 2rem;
-    color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn {
@@ -67,30 +193,32 @@ body {
     min-height: var(--touch-target-min) !important;
     min-width: 3rem !important;  /* Fallback in rem */
     min-height: 3rem !important;  /* Fallback in rem */
-    padding: 12px 20px;
+    padding: 14px 24px;
     margin: var(--touch-target-spacing);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--primary-color);
     color: white;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;  /* Ensure padding is included in size */
+    box-shadow: var(--shadow-soft);
 }
 
 .btn:hover {
     background: var(--primary-dark);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
 
 .btn:active {
     transform: translateY(0);
+    box-shadow: var(--shadow);
 }
 
 .btn:disabled {
@@ -100,10 +228,17 @@ body {
 
 .btn-primary {
     background: var(--primary-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-danger {
     background: var(--danger-color);
+    box-shadow: 0 2px 8px 0 rgba(255, 107, 107, 0.25);
     /* Lighthouse 100%: MANDATORY - small buttons still need large touch area */
     min-width: var(--touch-target-min) !important;
     min-height: var(--touch-target-min) !important;
@@ -112,6 +247,11 @@ body {
     padding: 12px;
     margin: var(--touch-target-spacing);
     box-sizing: border-box;  /* Ensure padding is included in size */
+}
+
+.btn-danger:hover {
+    background: #FF5555;
+    box-shadow: 0 4px 12px 0 rgba(255, 107, 107, 0.35);
 }
 
 .btn-small {
@@ -134,11 +274,11 @@ body {
 
 .filter-tabs {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 12px;
+    margin-bottom: 24px;
     background: var(--card-bg);
-    padding: 10px;
-    border-radius: 12px;
+    padding: 8px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
 }
 
@@ -150,14 +290,15 @@ body {
     min-width: 3rem !important;  /* Fallback in rem */
     min-height: 3rem !important;  /* Fallback in rem */
     padding: 12px 20px;
-    margin: 0 var(--touch-target-spacing);
+    margin: 0;
     border: none;
     background: transparent;
     color: var(--text-secondary);
     font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.2s;
+    border-radius: var(--radius-md);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -165,40 +306,52 @@ body {
 }
 
 .tab:hover {
-    background: var(--bg-color);
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
 }
 
 .tab.active {
     background: var(--primary-color);
     color: white;
+    box-shadow: var(--shadow-soft);
 }
 
 .add-form {
     background: var(--card-bg);
-    padding: 25px;
-    border-radius: 12px;
-    margin-bottom: 20px;
+    padding: 28px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 24px;
     box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
 }
 
 .add-form h2 {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     color: var(--text-primary);
+    font-weight: 700;
 }
 
 .form-input {
     width: 100%;
-    padding: 12px;
-    margin-bottom: 15px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
     border: 2px solid var(--border-color);
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    transition: border-color 0.2s;
+    transition: all 0.2s;
+    background: var(--card-bg);
+    color: var(--text-primary);
 }
 
 .form-input:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.1);
+}
+
+.form-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
 }
 
 textarea.form-input {
@@ -215,25 +368,29 @@ textarea.form-input {
 
 .reminder-card {
     background: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
+    padding: 24px;
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
-    transition: all 0.2s;
-    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 5px solid var(--brand-blue);
+    border: 1px solid var(--border-color);
 }
 
 .reminder-card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    border-color: rgba(250, 138, 89, 0.3);
 }
 
 .reminder-card.completed {
-    opacity: 0.7;
-    border-left-color: var(--success-color);
+    opacity: 0.75;
+    border-left-color: var(--secondary-color); /* Bell Gold */
+    background: linear-gradient(to right, rgba(244, 210, 115, 0.05), var(--card-bg));
 }
 
 .reminder-card.overdue {
     border-left-color: var(--danger-color);
+    background: linear-gradient(to right, rgba(255, 107, 107, 0.05), var(--card-bg));
 }
 
 .reminder-header {
@@ -293,15 +450,19 @@ textarea.form-input {
 }
 
 .badge {
-    padding: 4px 8px;
-    border-radius: 4px;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
     font-size: 0.75rem;
     font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .badge.overdue {
-    background: #fee2e2;
+    background: rgba(255, 107, 107, 0.15);
     color: var(--danger-color);
+    border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .empty-state {
@@ -311,59 +472,280 @@ textarea.form-input {
     font-size: 1.125rem;
 }
 
-/* Landing Page Styles */
+/* Landing Page Styles - Modern Design */
 .landing-page {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    background: transparent;
     color: white;
+    position: relative;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
+.landing-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 20px;
+}
+
+/* Landing Header */
 .landing-header {
-    text-align: center;
-    padding: 40px 20px;
+    padding: 32px 0;
+    position: relative;
+    z-index: 2;
 }
 
-.landing-header h1 {
-    font-size: 3rem;
-    margin-bottom: 10px;
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    justify-content: center;
+}
+
+.logo-icon {
+    font-size: 3.5rem;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+    animation: gentle-bounce 3s ease-in-out infinite;
+}
+
+@keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.logo-text h1 {
+    font-size: 2.5rem;
+    margin: 0;
     color: white;
+    font-weight: 800;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
 }
 
 .tagline {
-    font-size: 1.25rem;
-    opacity: 0.9;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 4px 0 0 0;
+    font-weight: 400;
 }
 
-.landing-content {
+/* Landing Main Content */
+.landing-main {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    padding: 40px 20px;
+    gap: 64px;
+    padding: 40px 0 80px 0;
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    animation: fade-in-up 0.8s ease-out;
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-content {
     max-width: 800px;
     margin: 0 auto;
-    width: 100%;
 }
 
-.hero {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.hero h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
     color: white;
+    margin: 0 0 24px 0;
+    line-height: 1.2;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.03em;
 }
 
-.hero p {
-    font-size: 1.125rem;
+.hero-title .highlight {
+    background: linear-gradient(135deg, var(--secondary-color) 0%, #FFE8A0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.hero-description {
+    font-size: clamp(1rem, 2vw, 1.25rem);
     line-height: 1.8;
-    margin-bottom: 40px;
-    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Features Section */
+.features-section {
+    animation: fade-in-up 0.8s ease-out 0.2s both;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.feature-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.feature-card:hover::before {
+    transform: scaleX(1);
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+    display: block;
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 12px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* CTA Section */
+.cta-section {
+    text-align: center;
+    animation: fade-in-up 0.8s ease-out 0.4s both;
+}
+
+.cta-subtitle {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+}
+
+/* Responsive Design for Landing Page */
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 0 16px;
+    }
+    
+    .landing-header {
+        padding: 24px 0;
+    }
+    
+    .logo-section {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .logo-icon {
+        font-size: 3rem;
+    }
+    
+    .logo-text h1 {
+        font-size: 2rem;
+    }
+    
+    .tagline {
+        font-size: 0.9rem;
+    }
+    
+    .landing-main {
+        gap: 48px;
+        padding: 32px 0 60px 0;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .hero-description {
+        font-size: 1rem;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .feature-card {
+        padding: 24px 20px;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem;
+    }
 }
 
 .features {
@@ -377,8 +759,21 @@ textarea.form-input {
 .feature {
     text-align: center;
     font-size: 1.125rem;
-    opacity: 0.95;
+    color: white;
     min-width: 150px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.feature:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
 .feature br {
@@ -394,8 +789,88 @@ textarea.form-input {
 label {
     display: block;
     margin-bottom: 8px;
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+/* Ghost button variant (secondary buttons) */
+.btn-ghost {
+    background: transparent;
+    border: 2px solid var(--brand-blue);
+    color: var(--brand-blue);
+    box-shadow: none;
+}
+
+.btn-ghost:hover {
+    background: rgba(106, 124, 237, 0.1);
+    border-color: var(--brand-purple);
+    color: var(--brand-purple);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Statistics section */
+.statistics {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Controls section */
+.controls {
+    margin-bottom: 1.5rem;
+}
+
+.controls .flex {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.controls input[type="text"] {
+    flex: 1;
+    min-width: 0;
 }
 
 /* Accessibility improvements */
@@ -404,6 +879,43 @@ input[type="checkbox"] {
     width: 24px;
     height: 24px;
     cursor: pointer;
+    accent-color: var(--secondary-color); /* Bell Gold for checked state */
+}
+
+input[type="checkbox"]:checked {
+    accent-color: var(--secondary-color);
+}
+
+/* Utility Classes for Layout */
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+.text-sm { font-size: 0.875rem; }
+.text-gray-500 { color: var(--text-secondary); }
+.text-gray-600 { color: var(--text-secondary); }
+.font-semibold { font-weight: 600; }
+.line-through { text-decoration: line-through; }
+
+/* Enhanced empty state */
+.empty-state {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 60px 20px;
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--border-color);
 }
 
 @media (max-width: 600px) {
@@ -437,6 +949,24 @@ input[type="checkbox"] {
     .features {
         flex-direction: column;
         gap: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .controls .flex {
+        flex-direction: column;
+        align-items: stretch;
     }
 }
 

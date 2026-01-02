@@ -1,0 +1,173 @@
+use dioxus::prelude::*;
+use remind_me_ui::{
+    Button, ButtonVariant,
+    Card, CardContent, CardHeader, CardTitle,
+    FormField, Input, Textarea,
+};
+use crate::models::Reminder;
+use i18nrs::I18n;
+
+#[component]
+pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
+    let mut title = use_signal(String::new);
+    let mut description = use_signal(String::new);
+    let mut due_date = use_signal(String::new);
+
+    rsx! {
+        Card {
+            class: "add-form",
+            header: rsx! {
+                CardHeader {
+                    CardTitle { {i18n.t("form.new_reminder.title")} }
+                }
+            },
+            CardContent {
+                FormField {
+                    label: i18n.t("form.title.label"),
+                    required: true,
+                    Input {
+                        r#type: "text",
+                        placeholder: i18n.t("form.title.placeholder"),
+                        value: "{title()}",
+                        oninput: move |value| title.set(value),
+                    }
+                }
+
+                FormField {
+                    label: i18n.t("form.description.label"),
+                    Textarea {
+                        placeholder: i18n.t("form.description.placeholder"),
+                        value: "{description()}",
+                        rows: 4,
+                        oninput: move |value| description.set(value),
+                    }
+                }
+
+                FormField {
+                    label: i18n.t("form.due_date.label"),
+                    Input {
+                        r#type: "datetime-local",
+                        value: "{due_date()}",
+                        oninput: move |value| due_date.set(value),
+                    }
+                }
+
+                div {
+                    class: "mt-4 flex justify-end",
+                    Button {
+                        variant: ButtonVariant::Primary,
+                        disabled: title().is_empty(),
+                        onclick: move |_| {
+                            if !title().is_empty() {
+                                let reminder = Reminder {
+                                    id: format!("reminder_{}", chrono::Utc::now().timestamp_millis()),
+                                    title: title(),
+                                    description: description(),
+                                    due_date: due_date(),
+                                    completed: false,
+                                    created_at: chrono::Utc::now().to_rfc3339(),
+                                };
+                                on_add.call(reminder);
+                                title.set(String::new());
+                                description.set(String::new());
+                                due_date.set(String::new());
+                            }
+                        },
+                        {i18n.t("form.add")}
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[component]
+pub fn EditReminderForm(
+    reminder: Reminder,
+    on_save: EventHandler<Reminder>,
+    on_cancel: EventHandler<()>,
+    i18n: I18n,
+) -> Element {
+    let mut title = use_signal(|| reminder.title.clone());
+    let mut description = use_signal(|| reminder.description.clone());
+    let mut due_date = use_signal(|| {
+        // Convert RFC3339 to datetime-local format
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(&reminder.due_date) {
+            dt.format("%Y-%m-%dT%H:%M").to_string()
+        } else {
+            reminder.due_date.clone()
+        }
+    });
+
+    rsx! {
+        Card {
+            class: "add-form",
+            header: rsx! {
+                CardHeader {
+                    CardTitle { {i18n.t("form.edit_reminder.title")} }
+                }
+            },
+            CardContent {
+                FormField {
+                    label: i18n.t("form.title.label"),
+                    required: true,
+                    Input {
+                        r#type: "text",
+                        placeholder: i18n.t("form.title.placeholder"),
+                        value: "{title()}",
+                        oninput: move |value| title.set(value),
+                    }
+                }
+
+                FormField {
+                    label: i18n.t("form.description.label"),
+                    Textarea {
+                        placeholder: i18n.t("form.description.placeholder"),
+                        value: "{description()}",
+                        rows: 4,
+                        oninput: move |value| description.set(value),
+                    }
+                }
+
+                FormField {
+                    label: i18n.t("form.due_date.label"),
+                    Input {
+                        r#type: "datetime-local",
+                        value: "{due_date()}",
+                        oninput: move |value| due_date.set(value),
+                    }
+                }
+
+                div {
+                    class: "mt-4 flex justify-end gap-2",
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        onclick: move |_| on_cancel.call(()),
+                        {i18n.t("form.cancel")}
+                    }
+                    Button {
+                        variant: ButtonVariant::Primary,
+                        disabled: title().is_empty(),
+                        onclick: move |_| {
+                            if !title().is_empty() {
+                                let updated = Reminder {
+                                    id: reminder.id.clone(),
+                                    title: title(),
+                                    description: description(),
+                                    due_date: due_date(),
+                                    completed: reminder.completed,
+                                    created_at: reminder.created_at.clone(),
+                                };
+                                on_save.call(updated);
+                                title.set(String::new());
+                                description.set(String::new());
+                                due_date.set(String::new());
+                            }
+                        },
+                        {i18n.t("form.save")}
+                    }
+                }
+            }
+        }
+    }
+}

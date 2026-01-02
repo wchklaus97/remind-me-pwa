@@ -38,3 +38,6 @@ node_modules
 lighthouse-reports/
 *.report.json
 *.report.html
+
+# Materials folder - raw assets, design files, reference materials
+materials/

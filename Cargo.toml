@@ -4,14 +4,30 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-dioxus = { version = "0.6", features = ["web"] }
+# Dioxus 0.7 - All packages compatible with 0.7.x
+dioxus = { version = "0.7", features = ["web"] }
+dioxus-router = "0.7"
+
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 chrono = { version = "0.4", features = ["serde", "clock"] }
+
+# i18nrs for internationalization (supports Dioxus 0.6+)
+i18nrs = { version = "0.1", features = ["dioxus"] }
+
 # Minimize web-sys features - only include what's absolutely necessary
 # Dioxus already provides most web APIs through wasm-bindgen, but we need web-sys
 # for DOM manipulation (removing Google Fonts links) and localStorage access
 web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node"] }
+
+# UI Component Library
+remind-me-ui = { path = "./crates/ui" }
+
+# Official Dioxus Components (now compatible with Dioxus 0.7)
+dioxus_components = "0.1.2"
+
+# Panic hook for better error messages in WASM
+console_error_panic_hook = "0.1"
 
 [profile.release]
 opt-level = "z"
@@ -32,13 +48,20 @@ inherits = "dev"
 opt-level = 1
 incremental = true
 codegen-units = 16  # More units = faster compilation, slightly larger binary
+lto = false                        # Disable for dev builds
 
-# WASM release profile - strip disabled for WASM compatibility
-# Lighthouse: Enable debug info for source maps
+# WASM release profile - optimized for size and performance
+# Note: Source maps are generated separately (.wasm.map files), so we don't need debug=true
+# debug=false reduces WASM size significantly (from ~10MB to ~700KB) while still generating source maps
 [profile.wasm-release]
 inherits = "release"
-strip = false  # WASM doesn't support strip the same way as native binaries
-debug = true   # Enable source maps for Lighthouse optimization
+opt-level = "s"                    # Optimize for size (common for WASM)
+lto = "thin"                       # Thin LTO for WASM
+codegen-units = 1                  # Better optimization
+strip = false                      # WASM handles stripping differently
+debug = false                      # You're already doing this
+panic = "abort"                    # Smaller WASM binary
+overflow-checks = false            # Better performance
 
 [profile.server-dev]
 inherits = "dev"

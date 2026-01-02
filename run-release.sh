@@ -48,25 +48,44 @@ if [ $? -eq 0 ]; then
         # LCP Optimization: Optimize WASM bundle with wasm-opt (if available)
         # This can reduce WASM file size by 10-30% and improve LCP significantly
         # Note: If wasm-opt fails, we continue with unoptimized WASM (non-critical optimization)
-        if command -v wasm-opt &> /dev/null; then
+        # WARNING: wasm-opt can cause runtime "unreachable" errors with DWARF debug info
+        # Disabled by default - enable with ENABLE_WASM_OPT=true if needed
+        ENABLE_WASM_OPT="${ENABLE_WASM_OPT:-false}"
+        if [ "$ENABLE_WASM_OPT" = "true" ] && command -v wasm-opt &> /dev/null; then
             echo ""
             echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
-            if wasm-opt "$WASM_FILE" -o "$WASM_FILE.tmp" -Oz --strip-debug 2>&1; then
+            # Try wasm-opt with different strategies to handle DWARF debug info issues
+            # Strategy 1: Try with --strip-debug (may fail with DWARF issues)
+            if wasm-opt "$WASM_FILE" -o "$WASM_FILE.tmp" -Oz --strip-debug 2>/dev/null; then
                 mv "$WASM_FILE.tmp" "$WASM_FILE"
                 OPTIMIZED_SIZE=$(ls -lh "$WASM_FILE" | awk '{print $5}')
                 echo "✅ WASM optimization complete!"
                 echo "📦 Optimized WASM file size: $OPTIMIZED_SIZE (reduced from $ORIGINAL_SIZE)"
+            # Strategy 2: Try without --strip-debug (keeps debug info but still optimizes)
+            elif wasm-opt "$WASM_FILE" -o "$WASM_FILE.tmp" -Oz 2>/dev/null; then
+                mv "$WASM_FILE.tmp" "$WASM_FILE"
+                OPTIMIZED_SIZE=$(ls -lh "$WASM_FILE" | awk '{print $5}')
+                echo "✅ WASM optimization complete! (debug info preserved)"
+                echo "📦 Optimized WASM file size: $OPTIMIZED_SIZE (reduced from $ORIGINAL_SIZE)"
             else
-                echo "⚠️  wasm-opt optimization failed, using original file"
+                echo "⚠️  wasm-opt optimization failed (DWARF debug info incompatibility)"
                 echo "   This is non-critical - the app will work without optimization"
+                echo "   The build already includes size optimizations from Rust compiler"
                 rm -f "$WASM_FILE.tmp"
             fi
         else
-            echo ""
-            echo "💡 TIP: Install wasm-opt for even better performance (10-30% smaller WASM):"
-            echo "   macOS: brew install binaryen"
-            echo "   npm:   npm install -g wasm-opt"
-            echo "   This can help you achieve 100% performance score!"
+            if [ "$ENABLE_WASM_OPT" != "true" ]; then
+                echo ""
+                echo "ℹ️  wasm-opt optimization is disabled by default (can cause runtime errors)"
+                echo "   To enable: ENABLE_WASM_OPT=true ./run-release.sh"
+                echo "   The build already includes size optimizations from Rust compiler"
+            else
+                echo ""
+                echo "💡 TIP: Install wasm-opt for even better performance (10-30% smaller WASM):"
+                echo "   macOS: brew install binaryen"
+                echo "   npm:   npm install -g wasm-opt"
+                echo "   This can help you achieve 100% performance score!"
+            fi
         fi
     fi
     
