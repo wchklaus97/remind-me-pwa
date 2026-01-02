@@ -1,6 +1,25 @@
 use chrono::TimeZone;
 use crate::models::{Reminder, Statistics};
 
+/// Convert datetime-local format (YYYY-MM-DDTHH:MM) to RFC3339 format
+/// Returns the RFC3339 string, or the original string if parsing fails
+pub fn convert_datetime_local_to_rfc3339(date_str: &str) -> String {
+    if date_str.is_empty() {
+        return String::new();
+    }
+    
+    // Try parsing as datetime-local format (YYYY-MM-DDTHH:MM)
+    if let Ok(naive_dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+        // Convert to local timezone, then to UTC
+        if let Some(local_dt) = chrono::Local.from_local_datetime(&naive_dt).single() {
+            return local_dt.with_timezone(&chrono::Utc).to_rfc3339();
+        }
+    }
+    
+    // If already in RFC3339 format or parsing fails, return as-is
+    date_str.to_string()
+}
+
 pub fn format_date(date_str: &str) -> String {
     if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
         dt.format("%Y-%m-%d %H:%M").to_string()
