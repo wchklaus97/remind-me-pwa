@@ -159,6 +159,21 @@ pub fn App() -> Element {
                                 }
                             }
 
+                            // Content Security Policy (CSP) for WebAssembly support
+                            // wasm-unsafe-eval is required for WebAssembly.instantiate() to work
+                            let existing_csp = document.query_selector("meta[http-equiv='Content-Security-Policy']");
+                            if let Ok(None) = existing_csp {
+                                if let Ok(meta) = document.create_element("meta") {
+                                    let _ = meta.set_attribute("http-equiv", "Content-Security-Policy");
+                                    // CSP policy:
+                                    // - default-src 'self': Only allow resources from same origin
+                                    // - script-src 'self' 'wasm-unsafe-eval': Allow scripts from same origin and WASM eval (required for WebAssembly)
+                                    // - style-src 'self' 'unsafe-inline': Allow styles from same origin and inline styles (needed for Dioxus)
+                                    let _ = meta.set_attribute("content", "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline';");
+                                    let _ = head_element.append_child(&meta);
+                                }
+                            }
+
                             // Get base URL for absolute image URLs
                             let base_url = window
                                 .location()
