@@ -42,7 +42,8 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+            # Note: We exclude target/ from cache to ensure base_path changes take effect
+            # target/ contains build artifacts that depend on Dioxus.toml configuration
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
@@ -69,9 +70,31 @@ jobs:
           echo "✅ binaryen (wasm-opt) installed"
 
       - name: Configure base_path for GitHub Pages
+        env:
+          # Set this environment variable to configure base_path for GitHub Pages
+          # If not set, base_path will remain empty (for local development)
+          GITHUB_PAGES_BASE_PATH: "/remind-me-pwa"
         run: |
-          sed -i 's|base_path = ""|base_path = "/remind-me-pwa"|' Dioxus.toml
-          echo "✅ Updated base_path to /remind-me-pwa"
+          # Clean any previous build artifacts to ensure base_path change takes effect
+          # This is important because cached target/ might contain old builds with wrong base_path
+          if [ -d "target" ]; then
+            echo "🧹 Cleaning target/ directory to ensure fresh build with correct base_path..."
+            rm -rf target/dx/*/release/web/public 2>/dev/null || true
+            rm -rf target/dx/*/wasm-release/web/public 2>/dev/null || true
+            echo "✅ Cleaned build output directories"
+          fi
+          
+          if [ -n "$GITHUB_PAGES_BASE_PATH" ]; then
+            # Update base_path in Dioxus.toml using the environment variable
+            sed -i "s|base_path = \".*\"|base_path = \"$GITHUB_PAGES_BASE_PATH\"|" Dioxus.toml
+            echo "✅ Updated base_path to: $GITHUB_PAGES_BASE_PATH"
+            echo "   Dioxus will automatically prepend this to all asset URLs"
+          else
+            echo "ℹ️  GITHUB_PAGES_BASE_PATH not set, using default base_path from Dioxus.toml"
+          fi
+          # Verify the change
+          echo "📋 Current base_path in Dioxus.toml:"
+          grep "base_path" Dioxus.toml || echo "   (not found)"
 
       - name: Build web pages
         run: |
