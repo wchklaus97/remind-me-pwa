@@ -23,9 +23,13 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
             },
             CardContent {
                 FormField {
+                    id: "reminder_title".to_string(),
+                    name: "title".to_string(),
                     label: i18n.t("form.title.label"),
                     required: true,
                     Input {
+                        id: "reminder_title".to_string(),
+                        name: "title".to_string(),
                         r#type: "text",
                         placeholder: i18n.t("form.title.placeholder"),
                         value: "{title()}",
@@ -34,8 +38,12 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                 }
 
                 FormField {
+                    id: "reminder_description".to_string(),
+                    name: "description".to_string(),
                     label: i18n.t("form.description.label"),
                     Textarea {
+                        id: "reminder_description".to_string(),
+                        name: "description".to_string(),
                         placeholder: i18n.t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
@@ -44,8 +52,12 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>, i18n: I18n) -> Element {
                 }
 
                 FormField {
+                    id: "reminder_due_date".to_string(),
+                    name: "due_date".to_string(),
                     label: i18n.t("form.due_date.label"),
                     Input {
+                        id: "reminder_due_date".to_string(),
+                        name: "due_date".to_string(),
                         r#type: "datetime-local",
                         value: "{due_date()}",
                         oninput: move |value| due_date.set(value),
@@ -109,9 +121,13 @@ pub fn EditReminderForm(
             },
             CardContent {
                 FormField {
+                    id: "edit_reminder_title".to_string(),
+                    name: "title".to_string(),
                     label: i18n.t("form.title.label"),
                     required: true,
                     Input {
+                        id: "edit_reminder_title".to_string(),
+                        name: "title".to_string(),
                         r#type: "text",
                         placeholder: i18n.t("form.title.placeholder"),
                         value: "{title()}",
@@ -120,8 +136,12 @@ pub fn EditReminderForm(
                 }
 
                 FormField {
+                    id: "edit_reminder_description".to_string(),
+                    name: "description".to_string(),
                     label: i18n.t("form.description.label"),
                     Textarea {
+                        id: "edit_reminder_description".to_string(),
+                        name: "description".to_string(),
                         placeholder: i18n.t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
@@ -130,8 +150,12 @@ pub fn EditReminderForm(
                 }
 
                 FormField {
+                    id: "edit_reminder_due_date".to_string(),
+                    name: "due_date".to_string(),
                     label: i18n.t("form.due_date.label"),
                     Input {
+                        id: "edit_reminder_due_date".to_string(),
+                        name: "due_date".to_string(),
                         r#type: "datetime-local",
                         value: "{due_date()}",
                         oninput: move |value| due_date.set(value),

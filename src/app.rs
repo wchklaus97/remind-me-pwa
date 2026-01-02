@@ -316,12 +316,6 @@ pub fn App() -> Element {
     let mobile_bg_str = format!("{}", MOBILE_BG);
     let desktop_bg_str = format!("{}", DESKTOP_BG);
     
-    #[cfg(target_arch = "wasm32")]
-    {
-        web_sys::console::log_1(&format!("🖼️  Mobile BG URL: {}", mobile_bg_str).into());
-        web_sys::console::log_1(&format!("🖼️  Desktop BG URL: {}", desktop_bg_str).into());
-    }
-    
     rsx! {
         div {
             class: "dioxus-root app-background",

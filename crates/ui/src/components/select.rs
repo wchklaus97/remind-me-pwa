@@ -48,6 +48,14 @@ pub struct SelectProps {
     #[props(default)]
     pub class: String,
     
+    /// Select ID (for label association)
+    #[props(default)]
+    pub id: String,
+    
+    /// Select name (for form submission)
+    #[props(default)]
+    pub name: String,
+    
     /// Select change event handler
     pub onchange: Option<EventHandler<String>>,
 }
@@ -88,6 +96,8 @@ pub fn Select(props: SelectProps) -> Element {
         div {
             class: "space-y-2",
             select {
+                id: if !props.id.is_empty() { Some(props.id.as_str()) } else { None },
+                name: if !props.name.is_empty() { Some(props.name.as_str()) } else { None },
                 class: "{base_classes} {border_classes} {props.class}",
                 disabled: props.disabled,
                 required: props.required,

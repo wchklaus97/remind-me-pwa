@@ -42,6 +42,14 @@ pub struct InputProps {
     #[props(default)]
     pub class: String,
     
+    /// Input ID (for label association)
+    #[props(default)]
+    pub id: String,
+    
+    /// Input name (for form submission)
+    #[props(default)]
+    pub name: String,
+    
     /// Input change event handler
     pub oninput: Option<EventHandler<String>>,
 }
@@ -79,6 +87,8 @@ pub fn Input(props: InputProps) -> Element {
         div {
             class: "space-y-2",
             input {
+                id: if !props.id.is_empty() { Some(props.id.as_str()) } else { None },
+                name: if !props.name.is_empty() { Some(props.name.as_str()) } else { None },
                 class: "{base_classes} {border_classes} {props.class}",
                 r#type: "{props.r#type}",
                 placeholder: "{props.placeholder}",
