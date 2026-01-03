@@ -57,10 +57,11 @@ jobs:
       - name: Install Dioxus CLI
         run: |
           if ! command -v dx &> /dev/null; then
-            # Use dioxus-cli 0.7.x to match dioxus crate version 0.7
-            # Version mismatch causes asset! macro to fail with placeholder error message
-            cargo binstall dioxus-cli --version 0.7.0 --no-confirm 2>&1 || \
-            cargo install dioxus-cli --version 0.7.0 --locked --jobs "$(nproc)"
+            # Match dioxus-cli to the dioxus crate patch version (Cargo.lock shows 0.7.2).
+            # Patch-level mismatch can prevent dx from replacing asset!() placeholders, producing:
+            # "This should be replaced by dx as part of the build process..."
+            cargo binstall dioxus-cli --version 0.7.2 --no-confirm 2>&1 || \
+            cargo install dioxus-cli --version 0.7.2 --locked --jobs "$(nproc)"
           fi
           dx --version
 
