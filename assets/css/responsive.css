@@ -1,0 +1,404 @@
+@media (max-width: 900px) {
+    .features-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .footer-grid {
+        /* Tablet layout:
+           - Row 1: brand (icon + title + description) spans full width
+           - Row 2: Product / Resources / Legal as 3 columns
+        */
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        /* Add vertical breathing room between brand row and link columns row */
+        gap: 22px 16px;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
+
+    .landing-footer-inner {
+        /* Match navbar horizontal padding on tablet */
+        padding: 44px var(--landing-x-pad) 40px var(--landing-x-pad);
+    }
+}
+
+@media (max-width: 700px) {
+    /* Smaller tablets / large phones: 2 columns for link sections */
+    .footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 520px) {
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* CTA Section */
+.cta-section {
+    text-align: center;
+    animation: fade-in-up 0.8s ease-out 0.4s both;
+}
+
+.cta-subtitle {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 400;
+}
+
+/* Responsive Design for Landing Page */
+@media (max-width: 768px) {
+    :root {
+        /* Leave a bit more horizontal breathing room on mobile */
+        --landing-x-pad: 1rem;
+    }
+
+    .landing-container {
+        padding: 0;
+    }
+    
+    .landing-header {
+        padding: 0;
+    }
+
+    .landing-header-inner {
+        max-width: none;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 6px var(--landing-x-pad);
+    }
+
+    .landing-shell {
+        /* Header stays single-row on mobile */
+        padding-top: 72px;
+        padding-bottom: 0;
+    }
+
+    #features,
+    #how,
+    #pricing,
+    #faq {
+        scroll-margin-top: 104px;
+    }
+
+    .landing-footer {
+        padding-bottom: calc(84px + env(safe-area-inset-bottom));
+    }
+    
+    .tagline {
+        font-size: 0.82rem;
+    }
+    
+    .landing-main {
+        gap: 48px;
+        padding: 22px 14px 34px 14px;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .hero-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero-highlights {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+    }
+
+    .nav-links {
+        width: auto;
+        flex: 1 1 auto;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .nav-right {
+        /* Keep CTA visible without overlap */
+        width: auto;
+        justify-content: flex-end;
+    }
+
+    /* Hide non-essential actions to keep one-row header */
+    .nav-right .nav-link {
+        display: none;
+    }
+
+    .landing-shell {
+        margin-top: 0;
+        margin-bottom: 0;
+        border-radius: 0;
+        overflow: visible;
+        box-sizing: content-box;
+        width: fit-content;
+        border: 0;
+        box-shadow: none;
+    }
+    
+    .features-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .feature-card {
+        padding: 24px 20px;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+    
+    .feature-card h3 {
+        font-size: 1.25rem;
+        margin-bottom: 8px;
+    }
+    
+    .feature-card p {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 520px) {
+    /* Reduce header text density on small phones */
+    .brand-text .tagline {
+        display: none;
+    }
+}
+
+.features {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.feature {
+    text-align: center;
+    font-size: 1.125rem;
+    color: white;
+    min-width: 150px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.feature:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.feature br {
+    display: block;
+    margin: 8px 0;
+}
+
+.cta {
+    margin-top: 40px;
+}
+
+/* Form Labels */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+/* Ghost button variant (secondary buttons) */
+.btn-ghost {
+    background: transparent;
+    border: 2px solid var(--brand-blue);
+    color: var(--brand-blue);
+    box-shadow: none;
+}
+
+.btn-ghost:hover {
+    background: rgba(106, 124, 237, 0.1);
+    border-color: var(--brand-purple);
+    color: var(--brand-purple);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Statistics section */
+.statistics {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Controls section */
+.controls {
+    margin-bottom: 1.5rem;
+}
+
+.controls .flex {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.controls input[type="text"] {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Accessibility improvements */
+input[type="checkbox"] {
+    /* Lighthouse: Increase checkbox size */
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: var(--secondary-color); /* Bell Gold for checked state */
+}
+
+input[type="checkbox"]:checked {
+    accent-color: var(--secondary-color);
+}
+
+/* Utility Classes for Layout */
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+.text-sm { font-size: 0.875rem; }
+.text-gray-500 { color: var(--text-secondary); }
+.text-gray-600 { color: var(--text-secondary); }
+.font-semibold { font-weight: 600; }
+.line-through { text-decoration: line-through; }
+
+/* Enhanced empty state */
+.empty-state {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 60px 20px;
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--border-color);
+}
+
+@media (max-width: 600px) {
+    .app-container {
+        padding: 10px;
+    }
+
+    .app-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .app-header h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .reminder-header {
+        flex-wrap: wrap;
+    }
+
+    .landing-header h1 {
+        font-size: 2rem;
+    }
+
+    .hero h2 {
+        font-size: 1.75rem;
+    }
+
+    .features {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .controls .flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+

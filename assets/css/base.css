@@ -1,0 +1,125 @@
+/* Reset all margins and padding globally */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Background is now set via Dioxus background_image attribute in Rust code */
+/* CSS only handles responsive switching and ensures proper sizing */
+html {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    /* Light background when no image layer is used */
+    background: #f7f6ff !important;
+}
+
+:root {
+    /* Bell Crab Color Palette - Warm & Friendly */
+    --primary-color: #FA8A59;  /* Crab Coral - Primary Action */
+    --primary-dark: #E8774A;   /* Darker shade for hover states */
+    --secondary-color: #F4D273; /* Bell Gold - Premium/Success */
+    --brand-blue: #6A7CED;     /* Clay Blue - Brand Color A */
+    --brand-purple: #9E75E9;   /* Soft Amethyst - Brand Color B */
+    --danger-color: #FF6B6B;   /* Soft red for danger (matches warm palette) */
+    --success-color: #F4D273;  /* Bell Gold for success */
+    --bg-color: #F9F9FC;       /* Off-White - Background UI (fallback/utility) */
+    --bg-gradient-top: #5e5eb4; /* Top right - Deep blue-purple */
+    --bg-gradient-bottom: #8094ce; /* Bottom left - Light blue */
+    --card-bg: #ffffff;        /* Pure White for cards */
+    --text-primary: #33334D;   /* Deep Slate - Primary Text */
+    --text-secondary: #5F5F7A; /* Medium Slate - Secondary Text */
+    --border-color: #E8E8F0;   /* Soft border matching palette */
+    --shadow: 0 2px 8px 0 rgba(106, 124, 237, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 25px -5px rgba(106, 124, 237, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 4px 12px 0 rgba(250, 138, 89, 0.12); /* Soft shadow with coral tint */
+    
+    /* Gradient for headers and banners */
+    --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+    
+    /* Border radius - soft, rounded 3D aesthetic */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+    
+    /* WCAG 2.2 AA: Touch target standards (minimum 24x24px with spacing) */
+    /* We use 48x48px for better UX, but ensure at least 24x24px with 8px spacing */
+    --touch-target-min: 24px;  /* WCAG 2.2 AA minimum */
+    --touch-target-min-preferred: 48px;  /* Better UX (Lighthouse recommendation) */
+    --touch-target-spacing: 8px;  /* Minimum spacing between targets */
+    
+    /* Shared horizontal padding for landing navbar + footer */
+    --landing-x-pad: 10rem;
+}
+
+body {
+    /* Performance: Use system fonts for instant rendering (no external font loading) */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    /* Light, fast default background (no full-screen image layer) */
+    background: linear-gradient(180deg, #f7f6ff 0%, #eef0ff 45%, #f7f6ff 100%) !important;
+    color: var(--text-primary);
+    line-height: 1.6;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 100vh;
+    width: 100% !important;
+    height: 100%;
+    /* Performance: Optimize font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Background images handled entirely via CSS with responsive breakpoints */
+/* background-size: cover automatically determines best fit (scales to cover, maintaining aspect ratio) */
+/* It intelligently chooses whether to scale based on width or height depending on viewport aspect ratio */
+
+/* Ensure other wrapper elements are transparent and have no padding/margin */
+#main,
+[id^="dioxus-"],
+body > div:first-child {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    /* Allow background div to escape stacking context */
+    z-index: 0;
+    /* Ensure main container doesn't block background */
+    overflow: visible;
+}
+
+/* Content wrapper - ensures content is above background */
+.app-content-wrapper {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    width: 100%;
+    /* Ensure content is above background */
+    background: transparent;
+}
+
+/* Prevent background scrolling when fullscreen menu is open */
+html[data-menu-open="true"] {
+    overflow: hidden !important;
+}
+
+/* Responsive Design for Landing Page */
+@media (max-width: 768px) {
+    :root {
+        /* Leave a bit more horizontal breathing room on mobile */
+        --landing-x-pad: 1rem;
+    }
+}
+

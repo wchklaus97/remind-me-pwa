@@ -15,7 +15,15 @@ assets/
 │   └── ui/          # UI icons (buttons, actions, etc.)
 ├── videos/          # Video files (MP4, WebM)
 ├── fonts/           # Custom font files (if needed)
-├── style.css        # Main stylesheet
+├── css/             # Stylesheets (split for better maintainability)
+│   ├── base.css     # Reset, variables, base HTML/body styles
+│   ├── components.css # Reusable components (buttons, forms, tabs)
+│   ├── app.css      # App-specific styles (reminder app)
+│   ├── landing.css  # Landing page styles
+│   ├── layout.css   # Navbar, footer, menu styles
+│   ├── utilities.css # Utility classes
+│   └── responsive.css # Media queries and responsive design
+├── style.css        # Legacy stylesheet (kept for reference, not used)
 ├── manifest.json    # PWA manifest
 ├── sw.js            # Service worker
 ├── robots.txt       # SEO robots file

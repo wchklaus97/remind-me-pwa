@@ -7,20 +7,23 @@ use std::sync::Arc;
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Locale {
     En,
-    Zh,
+    ZhHans,  // Simplified Chinese (简体中文)
+    ZhHant,  // Traditional Chinese (繁體中文)
 }
 
 impl Locale {
     pub fn as_str(&self) -> &'static str {
         match self {
             Locale::En => "en",
-            Locale::Zh => "zh",
+            Locale::ZhHans => "zh-Hans",
+            Locale::ZhHant => "zh-Hant",
         }
     }
 
     pub fn from_str(s: &str) -> Self {
         match s {
-            "zh" => Locale::Zh,
+            "zh-Hans" | "zh-CN" | "zh" => Locale::ZhHans, // Default "zh" to Simplified Chinese
+            "zh-Hant" | "zh-TW" => Locale::ZhHant,
             _ => Locale::En, // Default to English for any other value
         }
     }
@@ -70,10 +73,19 @@ impl I18nContext {
             .expect("Failed to parse English translations");
         translations.insert("en".to_string(), en_json);
 
-        // Load Chinese translations
-        let zh_json: Value = serde_json::from_str(include_str!("../assets/i18n/zh.json"))
-            .expect("Failed to parse Chinese translations");
-        translations.insert("zh".to_string(), zh_json);
+        // Load Simplified Chinese translations (zh-Hans)
+        let zh_hans_json: Value = serde_json::from_str(include_str!("../assets/i18n/zh-Hans.json"))
+            .expect("Failed to parse Simplified Chinese translations");
+        translations.insert("zh-Hans".to_string(), zh_hans_json.clone());
+        // Default "zh" to Simplified Chinese
+        translations.insert("zh".to_string(), zh_hans_json);
+
+        // Load Traditional Chinese translations (zh-Hant)
+        let zh_hant_json: Value = serde_json::from_str(include_str!("../assets/i18n/zh-Hant.json"))
+            .expect("Failed to parse Traditional Chinese translations");
+        translations.insert("zh-Hant".to_string(), zh_hant_json.clone());
+        // Also support zh-TW for Traditional Chinese
+        translations.insert("zh-TW".to_string(), zh_hant_json);
 
         translations
     }

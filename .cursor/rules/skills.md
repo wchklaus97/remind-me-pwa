@@ -1,6 +1,6 @@
 # Dioxus PWA Development Skills & Capabilities
 
-**Last Updated**: 2025-01-15  
+**Last Updated**: 2026-01-03  
 **Project Type**: Frontend PWA (Progressive Web App)  
 **Framework**: Dioxus 0.6 (Rust Web Framework)  
 **Target Platform**: Web (WASM)
@@ -225,6 +225,292 @@ let formatted = dt.format("%Y-%m-%d %H:%M").to_string();
 
 ---
 
+### 6. Internationalization (i18n)
+
+**Purpose**: Support multiple languages in the application.
+
+**Key Capabilities**:
+- ✅ **3 Languages**: English, Simplified Chinese (简体中文), Traditional Chinese (繁體中文)
+- ✅ **Locale Enum**: `Locale::En`, `Locale::ZhHans`, `Locale::ZhHant`
+- ✅ **Translation Files**: JSON files in `assets/i18n/`
+- ✅ **Translation Hook**: `use_t("key.path")` for getting translated strings
+- ✅ **Language Switcher**: `LanguageSwitcher` component for switching languages
+- ✅ **URL Integration**: Locale in URL path (e.g., `/en/app`, `/zh-Hans/app`)
+- ✅ **HTML Lang Attribute**: Automatically set based on locale
+
+**Translation File Structure**:
+```json
+{
+  "app": {
+    "title": "Remind Me PWA",
+    "tagline": "Reminder Assistant"
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "pricing": "Pricing"
+    }
+  },
+  "language": {
+    "switch": "Switch language",
+    "en": "English",
+    "zh-Hans": "简体中文",
+    "zh-Hant": "繁體中文"
+  }
+}
+```
+
+**Usage Pattern**:
+```rust
+use crate::i18n::use_t;
+
+#[component]
+fn MyComponent() -> Element {
+    rsx! {
+        h1 { {use_t("app.title")} }
+        p { {use_t("app.tagline")} }
+        button { {use_t("landing.nav.features")} }
+    }
+}
+```
+
+**Language Switcher Component**:
+```rust
+use crate::components::LanguageSwitcher;
+
+#[component]
+fn App() -> Element {
+    rsx! {
+        LanguageSwitcher { class: Some("nav-lang-switcher".to_string()) }
+    }
+}
+```
+
+**Locale System**:
+- Default `"zh"` maps to `zh-Hans` (Simplified Chinese)
+- BCP 47 codes: `en`, `zh-Hans`, `zh-Hant`
+- Locale persisted in localStorage
+- URL format: `/{locale}/app`, `/{locale}/privacy`, etc.
+
+**Translation File Locations**:
+- `assets/i18n/en.json` - English
+- `assets/i18n/zh-Hans.json` - Simplified Chinese (简体中文)
+- `assets/i18n/zh-Hant.json` - Traditional Chinese (繁體中文)
+
+---
+
+### 7. Media Caching & Loading
+
+**Purpose**: Efficiently cache and load images and videos with loading states and error handling.
+
+**Key Capabilities**:
+- ✅ **MediaCacheProvider**: Context provider for shared cache manager
+- ✅ **MediaCacheManager**: Deduplicates in-flight downloads across components
+- ✅ **ManagedCachedImage**: Image component with cache integration and shimmer loading
+- ✅ **ManagedCachedVideo**: Video component with cache integration and shimmer loading
+- ✅ **CachedImage**: Basic image component with loading states
+- ✅ **CachedVideo**: Basic video component with loading states
+- ✅ **Browser Cache Storage**: Uses Cache Storage API for persistent caching
+- ✅ **Shimmer Loading**: Shows skeleton placeholder while loading
+- ✅ **Error Handling**: Displays fallback text on load failure
+
+**MediaCacheProvider Setup**:
+```rust
+use crate::components::MediaCacheProvider;
+
+#[component]
+fn App() -> Element {
+    rsx! {
+        MediaCacheProvider {
+            // All child components can use ManagedCachedImage/Video
+            LandingPage {}
+        }
+    }
+}
+```
+
+**ManagedCachedImage Usage**:
+```rust
+use crate::components::ManagedCachedImage;
+use dioxus::asset::asset;
+
+#[component]
+fn MyComponent() -> Element {
+    static MY_IMAGE: Asset = asset!("/assets/images/logo.png");
+    
+    rsx! {
+        ManagedCachedImage {
+            src: MY_IMAGE,
+            alt: "Logo".to_string(),
+            class: Some("logo".to_string()),
+            width: Some("48".to_string()),
+            height: Some("48".to_string()),
+        }
+    }
+}
+```
+
+**ManagedCachedVideo Usage**:
+```rust
+use crate::components::ManagedCachedVideo;
+use dioxus::asset::asset;
+
+#[component]
+fn MyComponent() -> Element {
+    static VIDEO: Asset = asset!("/assets/videos/animation.mp4");
+    static POSTER: Asset = asset!("/assets/videos/poster.webp");
+    
+    rsx! {
+        ManagedCachedVideo {
+            src: VIDEO,
+            poster: POSTER,
+            aria_label: Some("Animation".to_string()),
+            title: Some("Loading animation".to_string()),
+            fallback_text: Some("Animation failed to load".to_string()),
+            class: Some("hero-animation".to_string()),
+            width: "120".to_string(),
+            height: "120".to_string(),
+        }
+    }
+}
+```
+
+**Media Cache Manager**:
+- **Deduplication**: Multiple components requesting the same URL only trigger one download
+- **State Management**: Tracks `Loading`, `Ready`, `Error` states per URL
+- **Cache Storage**: Uses browser Cache Storage API (`media-cache-v1`)
+- **Automatic**: Components automatically call `manager.ensure()` on mount
+
+**Service Layer** (`src/services/media_cache.rs`):
+- `ensure_cached()`: Ensures a URL is cached (checks cache, fetches if needed)
+- `prefetch_assets()`: Prefetches multiple assets (fire-and-forget)
+
+**CSS Classes**:
+- `.cached-media-wrap`: Wrapper for media element
+- `.media-skeleton`: Shimmer loading placeholder
+- `.media-fallback`: Error fallback text display
+- `.cached-media`: The actual media element
+
+---
+
+### 8. Page Templates
+
+**Purpose**: Create reusable page layouts with consistent navbar and footer.
+
+**Key Capabilities**:
+- ✅ **PublicPageTemplate**: Wraps content with navbar and footer
+- ✅ **Consistent Layout**: Same structure across public pages
+- ✅ **Navigation Integration**: Handles navigation events
+- ✅ **Section Highlighting**: Supports active section highlighting
+
+**PublicPageTemplate Usage**:
+```rust
+use crate::components::page_template::PublicPageTemplate;
+use crate::router::Route;
+
+#[component]
+fn PrivacyPolicyPage() -> Element {
+    let mut active_section = use_signal(|| "".to_string());
+    
+    rsx! {
+        PublicPageTemplate {
+            title: "Privacy Policy".to_string(),
+            active_section: active_section(),
+            on_enter_app: move |_| {
+                // Navigate to app
+            },
+            on_jump: move |section: &'static str| {
+                // Handle section navigation
+            },
+            on_navigate: move |route: Route| {
+                // Handle route navigation
+            },
+            // Page content here
+            div {
+                h3 { "Privacy Policy Content" }
+                p { "..." }
+            }
+        }
+    }
+}
+```
+
+**Template Structure**:
+- Wraps content in `landing-page` → `landing-container` → `landing-shell`
+- Includes `LandingNavbar` at top
+- Main content in `<main>` with `public-page-main` class
+- Content wrapped in `public-page-card` with title
+- Includes `LandingFooter` at bottom
+
+**CSS Classes**:
+- `.public-page-main`: Main content area
+- `.public-page-card`: Card container for content
+- `.public-page-title`: Page title styling
+- `.public-page-content`: Content area
+
+**When to Use**:
+- ✅ Privacy Policy pages
+- ✅ Terms of Use pages
+- ✅ Any public page that needs navbar + footer
+- ✅ Pages that should match landing page layout
+
+**When NOT to Use**:
+- ❌ Landing page (uses `LandingPage` component)
+- ❌ App pages (uses `ReminderApp` component)
+- ❌ Pages that need different layout
+
+---
+
+### 9. Routing & Navigation
+
+**Purpose**: Handle client-side routing with locale-aware URLs.
+
+**Key Capabilities**:
+- ✅ **Route Enum**: `Route::Landing`, `Route::App`, `Route::PrivacyPolicy`, `Route::TermsOfUse`
+- ✅ **Locale-Aware URLs**: Routes include locale prefix (e.g., `/en/app`, `/zh-Hans/app`)
+- ✅ **URL Parsing**: `get_initial_route()` extracts route and locale from URL
+- ✅ **URL Updates**: `update_url()` updates browser URL and history
+- ✅ **GitHub Pages Support**: Handles both path-based and hash-based routing
+- ✅ **Base Path Handling**: Strips base path for GitHub Pages deployment
+
+**Route Enum**:
+```rust
+#[derive(Clone, PartialEq)]
+pub enum Route {
+    Landing,        // Landing page (/)
+    App,            // Reminder app (/app)
+    PrivacyPolicy,  // Privacy Policy (/privacy)
+    TermsOfUse,     // Terms of Use (/terms)
+}
+```
+
+**Getting Initial Route**:
+```rust
+use crate::router::get_initial_route;
+
+let (route, locale) = get_initial_route();
+// Returns: (Route::App, "zh-Hans")
+```
+
+**Updating URL**:
+```rust
+use crate::router::{Route, update_url};
+
+update_url(&Route::App, "zh-Hans");
+// Updates URL to: /zh-Hans/app
+```
+
+**URL Format**:
+- With locale: `/{locale}/{route}` (e.g., `/en/app`, `/zh-Hans/app`)
+- Without locale: `/{route}` (defaults to English, e.g., `/app`)
+
+**Locale Mapping**:
+- `"zh"` → `"zh-Hans"` (defaults to Simplified Chinese)
+- `"zh-Hans"` → `"zh-Hans"` (preserved)
+- `"zh-Hant"` → `"zh-Hant"` (preserved)
+
+---
+
 ## 📋 Development Skills Checklist
 
 ### Required Skills for Dioxus PWA Development
@@ -261,25 +547,58 @@ let formatted = dt.format("%Y-%m-%d %H:%M").to_string();
 
 #### 5. **Styling**
 - [ ] Use CSS classes in `rsx!` (`class: "..."`)
-- [ ] Organize styles in external CSS file
+- [ ] Organize styles in modular CSS files (`assets/css/`)
 - [ ] Use responsive design patterns
 - [ ] Style components conditionally
+- [ ] Follow CSS file organization (base, components, app, landing, layout, utilities, responsive)
 
-#### 6. **Date/Time Handling**
+#### 6. **Internationalization (i18n)**
+- [ ] Use `use_t("key.path")` hook for translations
+- [ ] Add translation keys to all 3 language files (`en.json`, `zh-Hans.json`, `zh-Hant.json`)
+- [ ] Use `LanguageSwitcher` component for language switching
+- [ ] Ensure all user-facing text uses translation keys
+- [ ] Test language switching functionality
+- [ ] Verify URL updates with locale changes
+- [ ] Check HTML `lang` attribute is set correctly
+
+#### 7. **Media Caching & Loading**
+- [ ] Wrap app with `MediaCacheProvider`
+- [ ] Use `ManagedCachedImage` for images with caching
+- [ ] Use `ManagedCachedVideo` for videos with caching
+- [ ] Provide `aria_label`, `title`, and `fallback_text` for accessibility
+- [ ] Understand cache deduplication across components
+- [ ] Test loading states (shimmer skeleton)
+- [ ] Test error states (fallback text)
+
+#### 8. **Page Templates**
+- [ ] Use `PublicPageTemplate` for public pages
+- [ ] Provide required props (title, active_section, handlers)
+- [ ] Understand template structure (navbar + content + footer)
+- [ ] Use appropriate CSS classes for styling
+
+#### 9. **Routing & Navigation**
+- [ ] Use `get_initial_route()` to get route and locale from URL
+- [ ] Use `update_url()` for navigation
+- [ ] Understand locale-aware URL format (`/{locale}/{route}`)
+- [ ] Handle route changes in App component
+- [ ] Preserve locale when navigating between routes
+- [ ] Test with both path-based and hash-based routing
+
+#### 10. **Date/Time Handling**
 - [ ] Use chrono for date operations
 - [ ] Parse date strings
 - [ ] Format dates for display
 - [ ] Handle timezones correctly
 - [ ] Compare dates (overdue detection)
 
-#### 7. **Build & Deployment**
+#### 11. **Build & Deployment**
 - [ ] Build for production (`dx build --release`)
 - [ ] Configure base_path for GitHub Pages
 - [ ] Optimize WASM binary size
 - [ ] Test production builds locally
 - [ ] Deploy to GitHub Pages
 
-#### 8. **Error Handling**
+#### 12. **Error Handling**
 - [ ] Handle Option/Result types
 - [ ] Provide fallback values
 - [ ] Log errors appropriately
@@ -432,7 +751,7 @@ remind-me-pwa/
 
 ---
 
-**Last Updated**: 2025-01-15  
+**Last Updated**: 2026-01-03  
 **Dioxus Version**: 0.6  
 **Rust Edition**: 2021
 

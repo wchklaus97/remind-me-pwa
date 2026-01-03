@@ -47,6 +47,10 @@ This directory is the **authoritative operating manual** for this repo: how the 
 | Rule File | Purpose | Priority |
 |-----------|---------|----------|
 | `storage.mdc` | LocalStorage patterns & data persistence | ⭐⭐⭐⭐ |
+| `i18n.mdc` | Internationalization patterns (3 languages) | ⭐⭐⭐⭐ |
+| `media-caching.mdc` | Media caching & loading patterns (images/videos) | ⭐⭐⭐⭐ |
+| `page-templates.mdc` | Page template patterns (navbar + footer wrapper) | ⭐⭐⭐ |
+| `routing.mdc` | Routing patterns with locale-aware URLs | ⭐⭐⭐⭐ |
 | `pwa-development.mdc` | PWA development patterns | ⭐⭐⭐ |
 | `testing.mdc` | Testing patterns for Dioxus PWA | ⭐⭐⭐ |
 | `deployment.mdc` | Deployment patterns for GitHub Pages | ⭐⭐⭐ |
@@ -67,6 +71,18 @@ This directory is the **authoritative operating manual** for this repo: how the 
 - **New component**: Read `skills.md` → Component Development section
 - **State management**: Read `skills.md` → State Management section
 - **LocalStorage**: Read `skills.md` → Local Storage Integration section + `features/storage.mdc`
+- **Internationalization**: Read `skills.md` → Internationalization (i18n) section + `features/i18n.mdc`
+  - Use `use_t("key.path")` for translations
+  - Add keys to all 3 language files: `en.json`, `zh-Hans.json`, `zh-Hant.json`
+  - Use `LanguageSwitcher` component for language switching
+- **Media Caching**: Read `skills.md` → Media Caching & Loading section + `features/media-caching.mdc`
+  - Wrap app with `MediaCacheProvider`
+  - Use `ManagedCachedImage`/`ManagedCachedVideo` for cached media
+  - Provides shimmer loading and error handling
+- **Routing**: Read `features/routing.mdc` for locale-aware routing patterns
+  - Use `get_initial_route()` to get route and locale from URL
+  - Use `update_url()` for navigation
+  - Routes include locale prefix (e.g., `/en/app`, `/zh-Hans/app`)
 - **PWA features**: Read `skills.md` → PWA Configuration section
 - **Build & deploy**: Check `DEPLOYMENT.md` and `.github/workflows/github-pages-deploy.yml`
 
@@ -97,9 +113,14 @@ onclick: move |_| {
 
 ## 📚 Project Structure
 
-- **Single file architecture**: All components in `src/main.rs`
-- **Asset-based styling**: CSS in `assets/style.css`
+- **Modular architecture**: Components split into `src/components/`, routing in `src/app.rs`
+- **Modular CSS**: Split into 7 files in `assets/css/` for maintainability
+  - `base.css`, `components.css`, `app.css`, `landing.css`, `layout.css`, `utilities.css`, `responsive.css`
+- **Internationalization**: 3 languages supported (English, Simplified Chinese, Traditional Chinese)
+  - Translation files: `assets/i18n/en.json`, `zh-Hans.json`, `zh-Hant.json`
+  - Locale enum: `En`, `ZhHans`, `ZhHant`
+  - Use `use_t("key.path")` for translations
 - **PWA configuration**: Manifest and service worker in `assets/`
 - **Build output**: `docs/` directory for GitHub Pages
 
-**Last Updated**: 2025-01-15
+**Last Updated**: 2026-01-03

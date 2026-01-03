@@ -17,6 +17,11 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
 - 📱 PWA support - install on your device
 - ⚠️ Overdue reminders highlighting
 - 🎨 Modern, responsive UI
+- 🌐 Multi-language support (English, 简体中文, 繁體中文)
+- 🎬 Media caching with shimmer loading
+- 🧩 Modular component architecture
+- 🧭 Locale-aware routing
+- 📄 Reusable page templates
 
 ## Prerequisites
 
@@ -88,14 +93,47 @@ The included `.github/workflows/github-pages-deploy.yml` will automatically buil
 ```
 remind-me-pwa/
 ├── src/
-│   └── main.rs          # Main application code
+│   ├── main.rs          # Main application entry point
+│   ├── app.rs            # Main App component and routing
+│   ├── router.rs         # Routing logic with locale support
+│   ├── i18n.rs           # Internationalization system
+│   ├── components/       # Reusable components (organized by purpose)
+│   │   ├── landing.rs    # Landing page
+│   │   ├── landing_layout.rs # Navbar and footer
+│   │   ├── reminder_app.rs # Main reminder app
+│   │   ├── page_template.rs # Public page template
+│   │   ├── legal.rs      # Legal pages (Privacy, Terms)
+│   │   ├── language_switcher.rs # Language switcher
+│   │   ├── media.rs      # Media cache components
+│   │   ├── forms.rs      # Form components
+│   │   ├── cards.rs      # Card components
+│   │   ├── modals.rs     # Modal components
+│   │   └── statistics.rs # Statistics display
+│   └── services/         # Service modules
+│       └── media_cache.rs # Media caching service
 ├── assets/
-│   ├── style.css        # Styles
+│   ├── css/             # Stylesheets (split for maintainability)
+│   │   ├── base.css     # Reset, variables, base styles
+│   │   ├── components.css # Reusable components
+│   │   ├── app.css      # App-specific styles
+│   │   ├── landing.css  # Landing page styles
+│   │   ├── layout.css   # Navbar, footer, menu
+│   │   ├── utilities.css # Utility classes
+│   │   └── responsive.css # Media queries
+│   ├── i18n/            # Internationalization translations
+│   │   ├── en.json      # English translations
+│   │   ├── zh-Hans.json # Simplified Chinese (简体中文)
+│   │   └── zh-Hant.json # Traditional Chinese (繁體中文)
 │   ├── manifest.json    # PWA manifest
-│   └── sw.js           # Service worker
-├── Cargo.toml          # Rust dependencies
-├── Dioxus.toml         # Dioxus configuration
-└── README.md           # This file
+│   └── sw.js            # Service worker
+├── .cursor/
+│   └── rules/           # Cursor AI rules and documentation
+│       ├── core/        # Core development rules
+│       ├── features/    # Feature-specific rules
+│       └── skills.md    # Development skills reference
+├── Cargo.toml           # Rust dependencies
+├── Dioxus.toml          # Dioxus configuration
+└── README.md            # This file
 ```
 
 ## Configuration
@@ -106,19 +144,38 @@ Edit `Dioxus.toml` to change:
 - Output directory
 - PWA settings
 
+## Architecture Highlights
+
+### Component Organization
+- **Modular Architecture**: Components organized by purpose (pages, layouts, forms, cards, modals)
+- **Reusable Templates**: `PublicPageTemplate` for consistent page layouts
+- **Media Caching**: Shared cache manager with shimmer loading states
+- **Internationalization**: Full i18n support with 3 languages
+
+### Routing System
+- **Locale-Aware URLs**: Routes include locale prefix (e.g., `/en/app`, `/zh-Hans/app`)
+- **GitHub Pages Compatible**: Supports both path-based and hash-based routing
+- **Automatic Locale Detection**: Detects locale from URL or browser settings
+
+### CSS Organization
+- **7 Modular Files**: Split for maintainability (base, components, app, landing, layout, utilities, responsive)
+- **Mobile-First**: Responsive design with mobile-first approach
+- **Consistent Styling**: Shared variables and utility classes
+
 ## PWA Features
 
 - **Offline Support**: Works offline after first visit
 - **Installable**: Can be installed on mobile and desktop
 - **App-like Experience**: Standalone display mode
+- **Service Worker**: Automatic caching of assets
+- **Media Caching**: Efficient image/video loading with Cache Storage API
 
 ### PWA Icons
 
-To complete the PWA setup, you'll need to add icon files:
-- `assets/icon-192.png` (192x192 pixels)
-- `assets/icon-512.png` (512x512 pixels)
-
-You can create these using any image editor or online tool. The icons should represent your reminder app (e.g., a bell or calendar icon).
+Icons are located in `assets/icons/app/`:
+- `icon-192x192.avif` (192x192 pixels)
+- `icon-512x512.avif` (512x512 pixels)
+- `favicon-32x32.avif` and `favicon-16x16.avif`
 
 ## Browser Support
 
@@ -133,10 +190,14 @@ MIT License - feel free to use this project for your own purposes!
 
 ## Documentation
 
+- **[QUICK_START.md](./QUICK_START.md)**: Quick-start guide for new developers
 - **[CHANGELOG.md](./CHANGELOG.md)**: Detailed change history with dates
 - **[DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md)**: Roadmap and planned features
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)**: Deployment guide
 - **[.cursor/rules/](./.cursor/rules/)**: Development rules and patterns
+  - **Core Rules**: Project structure, code formatting, best practices
+  - **Feature Rules**: i18n, routing, media caching, page templates, storage, etc.
+  - **Skills Reference**: Complete Dioxus PWA development guide
 
 ## Contributing
 
