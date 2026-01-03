@@ -4,6 +4,8 @@
 
 use dioxus::prelude::*;
 
+use crate::utils::next_dom_id;
+
 /// Form field component props
 #[derive(PartialEq, Clone, Props)]
 pub struct FormFieldProps {
@@ -56,11 +58,14 @@ pub struct FormFieldProps {
 /// ```
 #[component]
 pub fn FormField(props: FormFieldProps) -> Element {
+    // Generate a stable id once per component instance (only used when caller didn't provide one).
+    let generated_id = use_signal(|| next_dom_id("field_"));
+
     // Use provided id or generate one
     let field_id = if !props.id.is_empty() {
         props.id.clone()
     } else {
-        format!("field_{}", uuid::Uuid::new_v4().to_string())
+        generated_id()
     };
     
     rsx! {

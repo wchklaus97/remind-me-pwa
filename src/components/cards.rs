@@ -1,4 +1,3 @@
-use chrono::TimeZone;
 use dioxus::prelude::*;
 use remind_me_ui::{
     Badge, BadgeVariant,
@@ -7,7 +6,7 @@ use remind_me_ui::{
     Checkbox,
 };
 use crate::models::Reminder;
-use crate::utils::format_date;
+use crate::utils::{format_date, is_overdue};
 use crate::i18n::use_t;
 
 #[component]
@@ -17,23 +16,9 @@ pub fn ReminderCard(
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
 ) -> Element {
-    let is_overdue = if !reminder.completed && !reminder.due_date.is_empty() {
-        if let Ok(due) = chrono::DateTime::parse_from_rfc3339(&reminder.due_date) {
-            due < chrono::Utc::now()
-        } else if let Ok(due) =
-            chrono::NaiveDateTime::parse_from_str(&reminder.due_date, "%Y-%m-%dT%H:%M")
-        {
-            if let Some(local_dt) = chrono::Local.from_local_datetime(&due).single() {
-                local_dt < chrono::Local::now()
-            } else {
-                false
-            }
-        } else {
-            false
-        }
-    } else {
-        false
-    };
+    let is_overdue = !reminder.completed
+        && !reminder.due_date.is_empty()
+        && is_overdue(&reminder.due_date);
 
     let card_class = if reminder.completed {
         "reminder-card completed"

@@ -150,6 +150,15 @@ pub fn update_url(route: &Route, locale: &str) {
         // If History API pushState fails for any reason, we fall back to hash routes.
         #[cfg(target_arch = "wasm32")]
         {
+            // On GitHub Pages, deep links like "/<repo>/en/app" are served via 404.html
+            // (often with a 404 status code), which prevents bfcache and can confuse audits.
+            // Prefer hash routing there to keep the initial document a 200 OK.
+            if crate::deployment::is_github_pages() {
+                let hash = route.to_hash(locale);
+                let _ = window.location().set_hash(&hash);
+                return;
+            }
+
             let location = window.location();
             let base_path = get_base_path();
             let path = route.to_path(locale);
@@ -185,29 +194,65 @@ pub fn update_url(route: &Route, locale: &str) {
 // ---- Landing page section (scroll) URL helpers --------------------------------
 //
 // We avoid hash fragments (#pricing) and instead use a query parameter:
-//   /en/section=pricing
+//   /en/?section=pricing
 //
 // This keeps URLs shareable + works with History API on GitHub Pages (SPA fallback).
 
 #[cfg(target_arch = "wasm32")]
 fn build_landing_section_url(locale: &str, section: Option<&str>) -> String {
     let base_path = get_base_path();
-    let base = Route::Landing.to_path(locale); // "/en/"
-    let mut url = if base_path.is_empty() {
-        base
+    // Important:
+    // - On GitHub Pages, path-based deep links ("/<repo>/en/…") are served via 404.html (often 404),
+    //   which causes extra reload-like behavior and prevents bfcache.
+    // - Prefer hash routing there: "/<repo>/#/en/…"
+    let mut url = if crate::deployment::is_github_pages() {
+        format!("{}{}", base_path, Route::Landing.to_hash(locale)) // "/<repo>#/en/"
     } else {
-        format!("{}{}", base_path, base)
+        let base = Route::Landing.to_path(locale); // "/en/"
+        if base_path.is_empty() {
+            base
+        } else {
+            format!("{}{}", base_path, base)
+        }
     };
 
     if let Some(section) = section {
         if !section.is_empty() {
-            url.push_str("section=");
+            url.push_str("?section=");
             url.push_str(section);
         }
     }
 
     url
 }
+
+/// Generate the correct, shareable landing section URL for the current environment.
+///
+/// - GitHub Pages: `/<repo>/#/en/?section=how`
+/// - Normal hosts: `/en/?section=how`
+pub fn landing_section_href(locale: &str, section: Option<&str>) -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        build_landing_section_url(locale, section)
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        // Non-WASM builds (tests/tools) – keep it simple.
+        let base = Route::Landing.to_path(locale);
+        if let Some(section) = section {
+            if !section.is_empty() {
+                return format!("{base}?section={section}");
+            }
+        }
+        base
+    }
+}
+
+// Used by the landing navbar/footer to provide correct href fallbacks.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+#[cfg_attr(target_arch = "wasm32", allow(dead_code))]
+const _LANDING_SECTION_HREF_USED: () = ();
 
 /// Read the current landing section from URL (query param preferred; hash fallback).
 /// Returns `None` if no valid section is present.
@@ -251,7 +296,19 @@ pub fn get_landing_section_from_url() -> Option<String> {
 
         // Fallback: legacy hash anchors (#pricing)
         if let Ok(hash) = location.hash() {
-            let section = hash.trim_start_matches('#').trim_start_matches('/');
+            let hash = hash.trim_start_matches('#').trim_start_matches('/');
+
+            // Support hash query: "#/en/?section=pricing"
+            if let Some((_, search)) = hash.split_once('?') {
+                if let Some(section) = get_query_param(search, "section") {
+                    if matches!(section.as_str(), "features" | "how" | "pricing" | "faq") {
+                        return Some(section);
+                    }
+                }
+            }
+
+            // Legacy: "#pricing"
+            let section = hash.trim_start_matches('/');
             if matches!(section, "features" | "how" | "pricing" | "faq") {
                 return Some(section.to_string());
             }

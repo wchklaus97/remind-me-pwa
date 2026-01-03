@@ -6,6 +6,7 @@ use remind_me_ui::{
 };
 use crate::models::Reminder;
 use crate::i18n::use_t;
+use crate::utils::{now_rfc3339, now_timestamp_millis, to_datetime_local_value};
 
 #[component]
 pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
@@ -72,12 +73,12 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
                         onclick: move |_| {
                             if !title().is_empty() {
                                 let reminder = Reminder {
-                                    id: format!("reminder_{}", chrono::Utc::now().timestamp_millis()),
+                                    id: format!("reminder_{}", now_timestamp_millis()),
                                     title: title(),
                                     description: description(),
                                     due_date: due_date(),
                                     completed: false,
-                                    created_at: chrono::Utc::now().to_rfc3339(),
+                                    created_at: now_rfc3339(),
                                 };
                                 on_add.call(reminder);
                                 title.set(String::new());
@@ -102,12 +103,7 @@ pub fn EditReminderForm(
     let mut title = use_signal(|| reminder.title.clone());
     let mut description = use_signal(|| reminder.description.clone());
     let mut due_date = use_signal(|| {
-        // Convert RFC3339 to datetime-local format
-        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(&reminder.due_date) {
-            dt.format("%Y-%m-%dT%H:%M").to_string()
-        } else {
-            reminder.due_date.clone()
-        }
+        to_datetime_local_value(&reminder.due_date)
     });
 
     rsx! {

@@ -4,6 +4,8 @@
 
 use dioxus::prelude::*;
 
+use crate::utils::next_dom_id;
+
 /// Checkbox component props
 #[derive(PartialEq, Clone, Props)]
 pub struct CheckboxProps {
@@ -45,16 +47,17 @@ pub struct CheckboxProps {
 /// ```
 #[component]
 pub fn Checkbox(props: CheckboxProps) -> Element {
-    let checkbox_id = format!("checkbox_{}", uuid::Uuid::new_v4().to_string());
+    // Generate a stable id once per component instance.
+    let checkbox_id = use_signal(|| next_dom_id("checkbox_"));
     
     rsx! {
         div {
             class: "flex items-center space-x-2 {props.class}",
             label {
                 class: "flex items-center space-x-2 cursor-pointer",
-                r#for: "{checkbox_id}",
+                r#for: "{checkbox_id()}",
                 input {
-                    id: "{checkbox_id}",
+                    id: "{checkbox_id()}",
                     class: "h-4 w-4 rounded border-gray-300 text-blue-600 \
                            focus:ring-2 focus:ring-blue-500 \
                            disabled:cursor-not-allowed disabled:opacity-50",

@@ -11,7 +11,7 @@ mod services;
 
 use app::App;
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(all(target_arch = "wasm32", debug_assertions))]
 fn set_panic_hook() {
     // Set a panic hook that logs to console instead of just aborting
     // This helps debug "unreachable" errors in WASM
@@ -19,7 +19,7 @@ fn set_panic_hook() {
 }
 
 fn main() {
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(all(target_arch = "wasm32", debug_assertions))]
     set_panic_hook();
     
     dioxus::launch(App);

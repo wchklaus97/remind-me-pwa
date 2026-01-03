@@ -1,27 +1,45 @@
-use chrono::TimeZone;
 use crate::models::{Reminder, Statistics};
 
+#[cfg(not(target_arch = "wasm32"))]
+use chrono::TimeZone;
+
 pub fn format_date(date_str: &str) -> String {
-    if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
-        dt.format("%Y-%m-%d %H:%M").to_string()
-    } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
-        dt.format("%Y-%m-%d %H:%M").to_string()
-    } else {
-        date_str.to_string()
+    #[cfg(target_arch = "wasm32")]
+    {
+        return format_date_wasm(date_str);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
+            dt.format("%Y-%m-%d %H:%M").to_string()
+        } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+            dt.format("%Y-%m-%d %H:%M").to_string()
+        } else {
+            date_str.to_string()
+        }
     }
 }
 
-pub fn parse_date_for_sort(date_str: &str) -> chrono::DateTime<chrono::Utc> {
-    if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
-        dt.with_timezone(&chrono::Utc)
-    } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
-        if let Some(local_dt) = chrono::Local.from_local_datetime(&dt).single() {
-            local_dt.with_timezone(&chrono::Utc)
+pub fn parse_date_for_sort(date_str: &str) -> i64 {
+    #[cfg(target_arch = "wasm32")]
+    {
+        return parse_date_for_sort_wasm(date_str);
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
+            dt.timestamp_millis()
+        } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+            if let Some(local_dt) = chrono::Local.from_local_datetime(&dt).single() {
+                local_dt.timestamp_millis()
+            } else {
+                i64::MAX
+            }
         } else {
-            chrono::Utc::now()
+            i64::MAX
         }
-    } else {
-        chrono::Utc::now()
     }
 }
 
@@ -35,19 +53,7 @@ pub fn calculate_statistics(reminders: &[Reminder]) -> Statistics {
             if r.completed || r.due_date.is_empty() {
                 return false;
             }
-            if let Ok(due) = chrono::DateTime::parse_from_rfc3339(&r.due_date) {
-                due < chrono::Utc::now()
-            } else if let Ok(due) =
-                chrono::NaiveDateTime::parse_from_str(&r.due_date, "%Y-%m-%dT%H:%M")
-            {
-                if let Some(local_dt) = chrono::Local.from_local_datetime(&due).single() {
-                    local_dt < chrono::Local::now()
-                } else {
-                    false
-                }
-            } else {
-                false
-            }
+            is_overdue(&r.due_date)
         })
         .count();
 
@@ -115,5 +121,123 @@ pub fn get_filtered_and_sorted_reminders(
     }
 
     filtered
+}
+
+pub fn now_timestamp_millis() -> i64 {
+    #[cfg(target_arch = "wasm32")]
+    {
+        return js_sys::Date::now() as i64;
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        return chrono::Utc::now().timestamp_millis();
+    }
+}
+
+pub fn now_rfc3339() -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        let d = js_sys::Date::new_0();
+        return d.to_iso_string().as_string().unwrap_or_default();
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        return chrono::Utc::now().to_rfc3339();
+    }
+}
+
+pub fn is_overdue(date_str: &str) -> bool {
+    let Some(due_ms) = parse_date_to_epoch_ms(date_str) else {
+        return false;
+    };
+    due_ms < now_timestamp_millis()
+}
+
+pub fn to_datetime_local_value(date_str: &str) -> String {
+    // If it's already a datetime-local value, keep it.
+    if date_str.len() >= 16 && date_str.as_bytes().get(10) == Some(&b'T') {
+        return date_str.chars().take(16).collect();
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        let Some(ms) = parse_date_to_epoch_ms(date_str) else {
+            return date_str.to_string();
+        };
+        let d = js_sys::Date::new(&wasm_bindgen::JsValue::from_f64(ms as f64));
+        return format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}",
+            d.get_full_year(),
+            d.get_month() + 1,
+            d.get_date(),
+            d.get_hours(),
+            d.get_minutes()
+        );
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        // Fallback: try chrono parse for consistent formatting.
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
+            return dt.format("%Y-%m-%dT%H:%M").to_string();
+        }
+        date_str.to_string()
+    }
+}
+
+fn parse_date_to_epoch_ms(date_str: &str) -> Option<i64> {
+    if date_str.trim().is_empty() {
+        return None;
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        let d = js_sys::Date::new(&wasm_bindgen::JsValue::from_str(date_str));
+        let ms = d.get_time();
+        if ms.is_nan() {
+            None
+        } else {
+            Some(ms as i64)
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
+            Some(dt.timestamp_millis())
+        } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+            chrono::Local
+                .from_local_datetime(&dt)
+                .single()
+                .map(|dt| dt.timestamp_millis())
+        } else {
+            None
+        }
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn format_date_wasm(date_str: &str) -> String {
+    let d = js_sys::Date::new(&wasm_bindgen::JsValue::from_str(date_str));
+    let ms = d.get_time();
+    if ms.is_nan() {
+        return date_str.to_string();
+    }
+
+    format!(
+        "{:04}-{:02}-{:02} {:02}:{:02}",
+        d.get_full_year(),
+        d.get_month() + 1,
+        d.get_date(),
+        d.get_hours(),
+        d.get_minutes()
+    )
+}
+
+#[cfg(target_arch = "wasm32")]
+fn parse_date_for_sort_wasm(date_str: &str) -> i64 {
+    parse_date_to_epoch_ms(date_str).unwrap_or(i64::MAX)
 }
 

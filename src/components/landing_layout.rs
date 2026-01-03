@@ -3,7 +3,9 @@ use dioxus::prelude::*;
 use crate::i18n::use_t;
 use crate::i18n::use_current_locale;
 use crate::router::Route;
+use crate::router::landing_section_href;
 use crate::components::{ManagedCachedVideo, LanguageSwitcher};
+use crate::components::ManagedCachedImage;
 
 static FAVICON_32: Asset = asset!("/assets/favicon-32x32.avif");
 
@@ -71,7 +73,7 @@ pub fn LandingNavbar(
                     aria_label: "Landing navigation",
                     class: "nav-links",
                     a {
-                        href: "section=features",
+                        href: "{landing_section_href(&use_current_locale(), Some(\"features\"))}",
                         class: if is_features { "active" } else { "" },
                         aria_label: "Go to Features section",
                         onclick: move |evt| {
@@ -81,7 +83,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.features")}
                     }
                     a {
-                        href: "section=how",
+                        href: "{landing_section_href(&use_current_locale(), Some(\"how\"))}",
                         class: if is_how { "active" } else { "" },
                         aria_label: "Go to How it works section",
                         onclick: move |evt| {
@@ -91,7 +93,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.how")}
                     }
                     a {
-                        href: "section=pricing",
+                        href: "{landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
                         class: if is_pricing { "active" } else { "" },
                         aria_label: "Go to Pricing section",
                         onclick: move |evt| {
@@ -101,7 +103,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.pricing")}
                     }
                     a {
-                        href: "section=faq",
+                        href: "{landing_section_href(&use_current_locale(), Some(\"faq\"))}",
                         class: if is_faq { "active" } else { "" },
                         aria_label: "Go to FAQ section",
                         onclick: move |evt| {
@@ -153,15 +155,14 @@ pub fn LandingNavbar(
                         div { class: "nav-menu-top",
                             div { class: "nav-menu-brand",
                                 div { class: "brand-mark", aria_hidden: "true",
-                                    ManagedCachedVideo {
-                                        src: BRAND_LOADING_MP4_48,
-                                        poster: BRAND_LOADING_POSTER_64,
-                                        aria_label: Some("Remind Me 吉祥物動畫".to_string()),
-                                        title: Some("Remind Me 吉祥物動畫".to_string()),
-                                        fallback_text: Some("Remind Me 吉祥物動畫".to_string()),
-                                        class: None,
-                                        width: "48".to_string(),
-                                        height: "48".to_string(),
+                                    // Avoid re-downloading the MP4 each time the menu mounts/unmounts.
+                                    // The poster image is enough for this context.
+                                    ManagedCachedImage {
+                                        src: BRAND_LOADING_POSTER_64,
+                                        alt: String::new(),
+                                        class: Some("brand-mark-poster".to_string()),
+                                        width: Some("48".to_string()),
+                                        height: Some("48".to_string()),
                                     }
                                 }
                                 div { class: "nav-menu-brand-text",
@@ -309,7 +310,7 @@ pub fn LandingFooter(
                         ul { class: "footer-links",
                             li {
                                 a {
-                                    href: "section=features",
+                                    href: "{landing_section_href(&use_current_locale(), Some(\"features\"))}",
                                     class: if is_features { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.features\")}",
                                     onclick: move |evt| {
@@ -321,7 +322,7 @@ pub fn LandingFooter(
                             }
                             li {
                                 a {
-                                    href: "section=how",
+                                    href: "{landing_section_href(&use_current_locale(), Some(\"how\"))}",
                                     class: if is_how { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.how\")}",
                                     onclick: move |evt| {
@@ -333,7 +334,7 @@ pub fn LandingFooter(
                             }
                             li {
                                 a {
-                                    href: "section=pricing",
+                                    href: "{landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
                                     class: if is_pricing { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.pricing\")}",
                                     onclick: move |evt| {

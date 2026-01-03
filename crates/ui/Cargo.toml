@@ -5,19 +5,13 @@ edition = "2021"
 
 [dependencies]
 # Dioxus 0.7 - Upgraded from 0.6
-dioxus = { version = "0.7", features = ["web"] }
+dioxus = { version = "0.7", default-features = false, features = ["web", "macro", "signals", "html", "hooks"] }
 
 serde = { version = "1.0", features = ["derive"] }
-chrono = { version = "0.4", features = ["serde", "clock"] }
-
-# Official Dioxus Components (now compatible with Dioxus 0.7)
-dioxus_components = "0.1.2"
 
 # Optional: Icons
 # materials_icons = "0.1"
 
 # Utilities
-# UUID with WASM support (js feature for random number generation)
-uuid = { version = "1.0", features = ["v4", "js"] }
-gloo-timers = "0.3"
+gloo-timers = { version = "0.3", features = ["futures"] }
 

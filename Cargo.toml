@@ -5,34 +5,35 @@ edition = "2021"
 
 [dependencies]
 # Dioxus 0.7 - All packages compatible with 0.7.x
-dioxus = { version = "0.7", features = ["web"] }
+dioxus = { version = "0.7", default-features = false, features = ["web", "macro", "signals", "html", "hooks", "asset", "launch"] }
 dioxus-router = "0.7"
 
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-chrono = { version = "0.4", features = ["serde", "clock"] }
 
 
 # Minimize web-sys features - only include what's absolutely necessary
 # Dioxus already provides most web APIs through wasm-bindgen, but we need web-sys
 # for DOM manipulation (removing Google Fonts links) and localStorage access
-web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node", "History", "Event", "Blob", "Url"] }
+web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node", "History", "Event", "Blob", "Url", "ScrollIntoViewOptions", "ScrollBehavior", "ScrollLogicalPosition", "DomRect", "DomRectReadOnly"] }
 
 # js-sys for JavaScript interop (used for History API push_state)
 js-sys = "0.3"
 
 # wasm-bindgen for closures and JavaScript interop
-wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 
 # UI Component Library
 remind-me-ui = { path = "./crates/ui" }
 
-# Official Dioxus Components (now compatible with Dioxus 0.7)
-dioxus_components = "0.1.2"
-
 # Panic hook for better error messages in WASM
+# Note: it's only *used* in debug builds (see `src/main.rs`), so it won't bloat release WASM.
 console_error_panic_hook = "0.1"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Keep `chrono` available for non-WASM targets (tests/tools), but do not ship it in WASM builds.
+chrono = { version = "0.4", features = ["serde", "clock"] }
 
 [profile.release]
 opt-level = "z"
@@ -55,18 +56,19 @@ incremental = true
 codegen-units = 16  # More units = faster compilation, slightly larger binary
 lto = false                        # Disable for dev builds
 
-# WASM release profile - optimized for size and performance
-# IMPORTANT: debug = true is required for Dioxus asset! macro to work correctly
-# The asset! macro needs debug symbols to resolve asset paths at runtime
-# Without debug symbols, asset URLs are replaced with placeholder error messages
-# Note: This increases WASM size but is necessary for assets to load correctly
+# WASM release profile - optimized for size and performance.
+# Notes:
+# - LCP is strongly influenced by WASM download + instantiation time, so smaller is better.
+# - If you ever see Dioxus `asset!()` URLs turning into placeholder error strings at runtime,
+#   try `debug = 1` here (smallest amount of debuginfo) and rebuild.
+# - Enabling debuginfo can increase WASM size and may make `wasm-opt` more fragile (DWARF).
 [profile.wasm-release]
 inherits = "release"
-opt-level = "s"                    # Optimize for size (common for WASM)
+opt-level = "z"                    # Optimize for *smallest* size (best for download/LCP)
 lto = "thin"                       # Thin LTO for WASM
 codegen-units = 1                  # Better optimization
 strip = false                      # WASM handles stripping differently
-debug = true                       # REQUIRED: Dioxus asset! macro needs debug symbols
+debug = false                      # Keep WASM small; enable only if you need debuginfo/sourcemaps
 panic = "abort"                    # Smaller WASM binary
 overflow-checks = false            # Better performance
 

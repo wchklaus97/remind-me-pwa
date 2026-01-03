@@ -6,6 +6,7 @@ pub mod components;
 pub mod layout;
 pub mod data;
 pub mod theme;
+pub mod utils;
 
 // Re-export commonly used components
 pub use components::*;
