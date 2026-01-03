@@ -158,11 +158,15 @@ jobs:
           # LCP Optimization: Optimize WASM bundle with wasm-opt
           # This reduces WASM file size by 10-30% and improves loading performance
           # Note: If wasm-opt fails, we continue with unoptimized WASM (non-critical optimization)
+          # IMPORTANT: Do NOT use --strip-debug as it removes symbols needed by Dioxus asset! macro
+          # The error message "This should be replaced by dx..." appears when symbols are stripped
           if command -v wasm-opt &> /dev/null; then
             echo "🔧 Optimizing WASM bundle with wasm-opt for better LCP..."
             find dist -name "*.wasm" -type f | while read wasm_file; do
               echo "  Optimizing: $(basename "$wasm_file")"
-              if wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz --strip-debug 2>&1; then
+              # Use -Oz for maximum size optimization but WITHOUT --strip-debug
+              # --strip-debug removes symbols that Dioxus asset! macro needs to resolve asset paths
+              if wasm-opt "$wasm_file" -o "$wasm_file.tmp" -Oz 2>&1; then
                 mv "$wasm_file.tmp" "$wasm_file"
                 echo "    ✅ Optimized successfully"
               else
