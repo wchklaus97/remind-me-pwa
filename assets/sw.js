@@ -1,4 +1,9 @@
-const CACHE_NAME = 'remind-me-pwa-v0.0.3';
+const CACHE_NAME = 'remind-me-pwa-v0.0.5';
+const MEDIA_CACHE_NAME = 'remind-me-pwa-media-v0.0.5';
+
+// Keep media caching bounded so Cache Storage cannot grow without limit.
+// This is a simple max-entries policy (best-effort "oldest first" based on Cache.keys() order).
+const MAX_MEDIA_ENTRIES = 12;
 
 // Derive base path from service worker scope so this works on:
 // - GitHub Pages: /<repo>/
@@ -59,6 +64,32 @@ function is_static_asset(request_url) {
   }
 }
 
+function is_media_asset(request_url) {
+  try {
+    const url = new URL(request_url);
+    if (url.origin !== self.location.origin) return false;
+    return url.pathname.endsWith('.mp4') || url.pathname.endsWith('.webm');
+  } catch (_) {
+    return false;
+  }
+}
+
+async function prune_cache_by_count(cache_name, max_entries) {
+  try {
+    const cache = await caches.open(cache_name);
+    const keys = await cache.keys();
+    const overflow = keys.length - max_entries;
+    if (overflow <= 0) return;
+
+    // Delete "oldest" entries. Cache.keys() ordering is not strictly guaranteed across browsers,
+    // but in practice this behaves like insertion order, which is good enough for a simple cap.
+    const to_delete = keys.slice(0, overflow);
+    await Promise.all(to_delete.map((req) => cache.delete(req)));
+  } catch (_) {
+    // ignore
+  }
+}
+
 async function with_long_cache_headers(response) {
   // We only do this for cached static assets. This helps "cache lifetime" audits for repeat visits,
   // but note: GitHub Pages' *network* Cache-Control headers cannot be changed.
@@ -72,6 +103,51 @@ async function with_long_cache_headers(response) {
     statusText: response.statusText,
     headers,
   });
+}
+
+function extract_precache_urls_from_html(html_text) {
+  // Extract src/href from HTML and turn them into absolute URLs.
+  // We only keep same-origin URLs under BASE_PATH (GitHub Pages subdir safe).
+  const urls = new Set();
+  const attr_re = /(href|src)\s*=\s*["']([^"']+)["']/gi;
+
+  const base_for_relative = `${self.location.origin}${BASE_PATH}/`;
+
+  let match;
+  while ((match = attr_re.exec(html_text)) !== null) {
+    const raw = (match[2] || '').trim();
+    if (!raw) continue;
+
+    // Skip non-network URLs.
+    if (raw.startsWith('data:') || raw.startsWith('blob:')) continue;
+    if (raw.startsWith('mailto:') || raw.startsWith('tel:')) continue;
+    if (raw.startsWith('javascript:')) continue;
+
+    // Normalize to absolute URL.
+    let abs;
+    try {
+      if (raw.startsWith('http://') || raw.startsWith('https://')) {
+        abs = raw;
+      } else if (raw.startsWith('/')) {
+        abs = new URL(raw, self.location.origin).toString();
+      } else {
+        abs = new URL(raw, base_for_relative).toString();
+      }
+    } catch (_) {
+      continue;
+    }
+
+    try {
+      const u = new URL(abs);
+      if (u.origin !== self.location.origin) continue;
+      if (!u.pathname.startsWith(`${BASE_PATH}/`)) continue;
+      urls.add(u.toString());
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  return Array.from(urls);
 }
 
 function parse_range_header(range_header) {
@@ -117,10 +193,48 @@ async function respond_with_range(full_response, range_header) {
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   self.skipWaiting();
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(urlsToCache);
+
+    // Best-effort precache of hashed build assets referenced by index.html.
+    // This makes "offline after install" work reliably for the app shell (wasm/js/icons),
+    // while still keeping the cache bounded for large media.
+    try {
+      const index_url = `${BASE_PATH}/index.html`;
+      const index_res = await fetch(index_url, { cache: 'no-store' });
+      if (!index_res || !index_res.ok) return;
+
+      const html_text = await index_res.text();
+      const precache_urls = extract_precache_urls_from_html(html_text).filter((u) => {
+        // Only cache likely-critical assets; avoid caching arbitrary HTML links.
+        return (
+          u.includes('/assets/') ||
+          u.endsWith('.wasm') ||
+          u.endsWith('.js') ||
+          u.endsWith('.css') ||
+          u.endsWith('.webp') ||
+          u.endsWith('.avif') ||
+          u.endsWith('.png') ||
+          u.endsWith('.ico')
+        );
+      });
+
+      await Promise.all(precache_urls.map(async (u) => {
+        try {
+          const res = await fetch(u, { cache: 'no-store' });
+          if (res && res.ok) {
+            const cacheable = await with_long_cache_headers(res);
+            await cache.put(u, cacheable);
+          }
+        } catch (_) {
+          // ignore
+        }
+      }));
+    } catch (_) {
+      // ignore
+    }
+  })());
 });
 
 // Fetch event - serve from cache, fallback to network
@@ -129,16 +243,33 @@ self.addEventListener('fetch', (event) => {
 
   // SPA navigation fallback (important for multi-locale path routing on static hosts)
   if (event.request.mode === 'navigate') {
-    event.respondWith(
-      fetch(event.request).catch(() => caches.match(`${BASE_PATH}/index.html`))
-    );
+    event.respondWith((async () => {
+      try {
+        const res = await fetch(event.request);
+        // Some hosts (GitHub Pages deep links) can return non-2xx for SPA routes.
+        // Treat those as "should use app shell" to keep offline-like behavior stable.
+        if (res && res.ok) return res;
+      } catch (_) {
+        // ignore
+      }
+
+      const cached = await caches.match(`${BASE_PATH}/index.html`);
+      if (cached) return cached;
+
+      return new Response('Offline', {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    })());
     return;
   }
 
   // Cache-first for static assets (best for repeat visits + LCP).
+  // Use a separate capped cache for large media files.
   if (is_static_asset(event.request.url)) {
     event.respondWith((async () => {
-      const cache = await caches.open(CACHE_NAME);
+      const cache_name = is_media_asset(event.request.url) ? MEDIA_CACHE_NAME : CACHE_NAME;
+      const cache = await caches.open(cache_name);
       // For Range requests (video), CacheStorage won't match/serve partial content automatically.
       // We cache the *full* response once, then serve byte ranges from it.
       const range = event.request.headers.get('range');
@@ -154,6 +285,9 @@ self.addEventListener('fetch', (event) => {
         if (full && full.ok) {
           const cacheable = await with_long_cache_headers(full.clone());
           await cache.put(url, cacheable);
+          if (cache_name === MEDIA_CACHE_NAME) {
+            event.waitUntil(prune_cache_by_count(MEDIA_CACHE_NAME, MAX_MEDIA_ENTRIES));
+          }
           return respond_with_range(full, range);
         }
         return full;
@@ -168,6 +302,9 @@ self.addEventListener('fetch', (event) => {
             if (network && network.ok) {
               const cacheable = await with_long_cache_headers(network.clone());
               await cache.put(event.request, cacheable);
+              if (cache_name === MEDIA_CACHE_NAME) {
+                await prune_cache_by_count(MEDIA_CACHE_NAME, MAX_MEDIA_ENTRIES);
+              }
             }
           } catch (_) {
             // ignore
@@ -181,6 +318,9 @@ self.addEventListener('fetch', (event) => {
       if (network && network.ok) {
         const cacheable = await with_long_cache_headers(network.clone());
         await cache.put(event.request, cacheable);
+        if (cache_name === MEDIA_CACHE_NAME) {
+          event.waitUntil(prune_cache_by_count(MEDIA_CACHE_NAME, MAX_MEDIA_ENTRIES));
+        }
       }
       return network;
     })());
@@ -216,12 +356,13 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (cacheName !== CACHE_NAME && cacheName !== MEDIA_CACHE_NAME) {
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => self.clients.claim())
+      .then(() => prune_cache_by_count(MEDIA_CACHE_NAME, MAX_MEDIA_ENTRIES))
   );
 });
 

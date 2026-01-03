@@ -61,12 +61,20 @@ fn get_route_seo(route: &Route, locale: &str) -> (String, String) {
 }
 
 // CSS files - split for better maintainability
+// Used via `Asset::to_string()` in the WASM-only <head> injection path.
+#[allow(dead_code)]
 static BASE_CSS: Asset = asset!("/assets/css/base.css");
+#[allow(dead_code)]
 static COMPONENTS_CSS: Asset = asset!("/assets/css/components.css");
+#[allow(dead_code)]
 static APP_CSS: Asset = asset!("/assets/css/app.css");
+#[allow(dead_code)]
 static LANDING_CSS: Asset = asset!("/assets/css/landing.css");
+#[allow(dead_code)]
 static LAYOUT_CSS: Asset = asset!("/assets/css/layout.css");
+#[allow(dead_code)]
 static UTILITIES_CSS: Asset = asset!("/assets/css/utilities.css");
+#[allow(dead_code)]
 static RESPONSIVE_CSS: Asset = asset!("/assets/css/responsive.css");
 
 // Favicon and manifest assets - registered with Dioxus asset system
@@ -359,8 +367,64 @@ pub fn App() -> Element {
                             let base_url = get_base_url();
                             let base_path = get_base_path();
                             
-                            let add_link_tag = |rel: &str, href: &str, sizes: Option<&str>, link_type: Option<&str>| {
+                            // IMPORTANT:
+                            // We must NOT append duplicate <link> tags on every re-render, or the browser will
+                            // repeatedly re-request favicons/CSS. Use an id-based upsert instead.
+                            let upsert_link_tag = |
+                                id: &str,
+                                rel: &str,
+                                href: &str,
+                                sizes: Option<&str>,
+                                link_type: Option<&str>,
+                                as_attr: Option<&str>,
+                            | {
+                                let selector = format!("link#{}", id);
+
+                                if let Ok(Some(existing)) = document.query_selector(&selector) {
+                                    // If we're replacing a blob: manifest URL, revoke the old one to avoid leaks.
+                                    if rel == "manifest" {
+                                        if let Some(old_href) = existing.get_attribute("href") {
+                                            if old_href.starts_with("blob:") && old_href != href {
+                                                let _ = web_sys::Url::revoke_object_url(&old_href);
+                                            }
+                                        }
+                                    }
+
+                                    let _ = existing.set_attribute("rel", rel);
+                                    let _ = existing.set_attribute("href", href);
+
+                                    match sizes {
+                                        Some(sizes_val) => {
+                                            let _ = existing.set_attribute("sizes", sizes_val);
+                                        }
+                                        None => {
+                                            let _ = existing.remove_attribute("sizes");
+                                        }
+                                    }
+
+                                    match link_type {
+                                        Some(type_val) => {
+                                            let _ = existing.set_attribute("type", type_val);
+                                        }
+                                        None => {
+                                            let _ = existing.remove_attribute("type");
+                                        }
+                                    }
+
+                                    match as_attr {
+                                        Some(as_val) => {
+                                            let _ = existing.set_attribute("as", as_val);
+                                        }
+                                        None => {
+                                            let _ = existing.remove_attribute("as");
+                                        }
+                                    }
+
+                                    return;
+                                }
+
                                 if let Ok(link) = document.create_element("link") {
+                                    let _ = link.set_attribute("id", id);
                                     let _ = link.set_attribute("rel", rel);
                                     let _ = link.set_attribute("href", href);
                                     if let Some(sizes_val) = sizes {
@@ -369,9 +433,8 @@ pub fn App() -> Element {
                                     if let Some(type_val) = link_type {
                                         let _ = link.set_attribute("type", type_val);
                                     }
-                                    // For preload, also add as="style" to indicate it's a stylesheet
-                                    if rel == "preload" && link_type == Some("text/css") {
-                                        let _ = link.set_attribute("as", "style");
+                                    if let Some(as_val) = as_attr {
+                                        let _ = link.set_attribute("as", as_val);
                                     }
                                     let _ = head_element.append_child(&link);
                                 }
@@ -420,32 +483,165 @@ pub fn App() -> Element {
                             let responsive_css_href = with_base_path(RESPONSIVE_CSS.to_string());
 
                             // Preload critical CSS files
-                            add_link_tag("preload", &base_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &components_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &app_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &landing_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &layout_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &utilities_css_href, None, Some("text/css"));
-                            add_link_tag("preload", &responsive_css_href, None, Some("text/css"));
+                            upsert_link_tag(
+                                "rm-preload-base-css",
+                                "preload",
+                                &base_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-components-css",
+                                "preload",
+                                &components_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-css",
+                                "preload",
+                                &app_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-landing-css",
+                                "preload",
+                                &landing_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-layout-css",
+                                "preload",
+                                &layout_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-utilities-css",
+                                "preload",
+                                &utilities_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-responsive-css",
+                                "preload",
+                                &responsive_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
 
                             // Inject stylesheet links with base_path (ensures correct paths on GitHub Pages)
                             // Dioxus document::Stylesheet should handle this, but we manually inject to ensure base_path is applied
-                            add_link_tag("stylesheet", &base_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &components_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &app_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &landing_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &layout_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &utilities_css_href, None, Some("text/css"));
-                            add_link_tag("stylesheet", &responsive_css_href, None, Some("text/css"));
+                            upsert_link_tag(
+                                "rm-css-base",
+                                "stylesheet",
+                                &base_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-components",
+                                "stylesheet",
+                                &components_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app",
+                                "stylesheet",
+                                &app_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-landing",
+                                "stylesheet",
+                                &landing_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-layout",
+                                "stylesheet",
+                                &layout_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-utilities",
+                                "stylesheet",
+                                &utilities_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-responsive",
+                                "stylesheet",
+                                &responsive_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
 
                             // Favicons (tab icon)
-                            add_link_tag("icon", &favicon_32_href, Some("32x32"), Some("image/avif"));
-                            add_link_tag("icon", &favicon_16_href, Some("16x16"), Some("image/avif"));
-                            add_link_tag("shortcut icon", &favicon_ico_href, None, Some("image/x-icon"));
+                            upsert_link_tag(
+                                "rm-favicon-32",
+                                "icon",
+                                &favicon_32_href,
+                                Some("32x32"),
+                                Some("image/avif"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-favicon-16",
+                                "icon",
+                                &favicon_16_href,
+                                Some("16x16"),
+                                Some("image/avif"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-favicon-ico",
+                                "shortcut icon",
+                                &favicon_ico_href,
+                                None,
+                                Some("image/x-icon"),
+                                None,
+                            );
 
                             // PWA / platform icons
-                            add_link_tag("icon", &icon_192_href, Some("192x192"), Some("image/avif"));
-                            add_link_tag("icon", &icon_512_href, Some("512x512"), Some("image/avif"));
+                            upsert_link_tag(
+                                "rm-icon-192",
+                                "icon",
+                                &icon_192_href,
+                                Some("192x192"),
+                                Some("image/avif"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-icon-512",
+                                "icon",
+                                &icon_512_href,
+                                Some("512x512"),
+                                Some("image/avif"),
+                                None,
+                            );
 
                             // Manifest:
                             // - The file itself is hashed by Dioxus (manifest-dxh....json)
@@ -486,40 +682,48 @@ pub fn App() -> Element {
                                     let parts = js_sys::Array::new();
                                     parts.push(&JsValue::from_str(&manifest_str));
                                     if let Ok(blob) = web_sys::Blob::new_with_str_sequence(&parts) {
-                                        if let Ok(url) =
+                                if let Ok(url) =
                                             web_sys::Url::create_object_url_with_blob(&blob)
                                         {
-                                            add_link_tag(
+                                            upsert_link_tag(
+                                                "rm-manifest",
                                                 "manifest",
                                                 &url,
                                                 None,
                                                 Some("application/manifest+json"),
+                                                None,
                                             );
                                         } else {
                                             // Fallback to hashed manifest file URL
-                                            add_link_tag(
+                                            upsert_link_tag(
+                                                "rm-manifest",
                                                 "manifest",
                                                 &manifest_href,
                                                 None,
                                                 Some("application/manifest+json"),
+                                                None,
                                             );
                                         }
                                     } else {
                                         // Fallback to hashed manifest file URL
-                                        add_link_tag(
+                                        upsert_link_tag(
+                                            "rm-manifest",
                                             "manifest",
                                             &manifest_href,
                                             None,
                                             Some("application/manifest+json"),
+                                            None,
                                         );
                                     }
                                 } else {
                                     // Fallback to hashed manifest file URL
-                                    add_link_tag(
+                                    upsert_link_tag(
+                                        "rm-manifest",
                                         "manifest",
                                         &manifest_href,
                                         None,
                                         Some("application/manifest+json"),
+                                        None,
                                     );
                                 }
                             }

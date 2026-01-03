@@ -46,6 +46,48 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
    dx build --release
    ```
 
+## SSR (Landing/Legal) + SPA (/app)
+
+This repo supports **Option A**:
+- **SSR** for public pages (Landing + Legal) to improve SEO
+- **SPA** for `/app` (the reminder app) because it relies on browser APIs like localStorage
+
+### Build + run SSR server (local)
+
+1. **Build web assets** (required so the server can serve hashed CSS/JS/WASM files):
+
+```bash
+dx build --release --platform web
+```
+
+2. **Run the SSR server**:
+
+```bash
+cargo run --features server --bin server
+```
+
+Defaults:
+- **URL**: `http://127.0.0.1:8080`
+- **PUBLIC_DIR**: `target/dx/remind-me-pwa/release/web/public`
+
+### Environment variables
+
+- **PUBLIC_DIR**: path to the Dioxus web build output (must contain `index.html` + `assets/`)
+- **HOST**: bind host (default `127.0.0.1`)
+- **PORT**: bind port (default `8080`)
+- **BASE_PATH**: optional subdirectory mount (example: `/remind-me-pwa`)
+
+Example:
+
+```bash
+PUBLIC_DIR=target/dx/remind-me-pwa/release/web/public PORT=8080 cargo run --features server --bin server
+```
+
+### Hosting note
+
+- **GitHub Pages**: static-only (no SSR). Use the default SPA build (`dx build`) + service worker.
+- **SSR server**: requires a host that can run a Rust server binary (e.g. Fly.io / Render / Railway / VPS).
+
 ## Deployment to GitHub Pages
 
 ### Manual Deployment

@@ -3,6 +3,22 @@ name = "remind-me-pwa"
 version = "0.0.1"
 edition = "2021"
 
+[[bin]]
+name = "server"
+path = "src/bin/server.rs"
+required-features = ["server"]
+
+[features]
+# Default is the client-side (WASM) SPA build used for GitHub Pages.
+default = ["web"]
+
+# Client-side web build (WASM).
+web = []
+
+# Server-side rendering for landing/legal pages (native binary).
+# This is intended for self-hosting (e.g. on a VPS) or a host that can run Rust servers.
+server = ["dep:axum", "dep:tokio", "dep:tower-http", "dep:dioxus-ssr"]
+
 [dependencies]
 # Dioxus 0.7 - All packages compatible with 0.7.x
 dioxus = { version = "0.7", default-features = false, features = ["web", "macro", "signals", "html", "hooks", "asset", "launch"] }
@@ -30,6 +46,13 @@ remind-me-ui = { path = "./crates/ui" }
 # Panic hook for better error messages in WASM
 # Note: it's only *used* in debug builds (see `src/main.rs`), so it won't bloat release WASM.
 console_error_panic_hook = "0.1"
+
+# --- Server-only deps (SSR) ---------------------------------------------------
+# These are optional and only enabled with `--features server`.
+axum = { version = "0.7", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+tower-http = { version = "0.5", features = ["fs"], optional = true }
+dioxus-ssr = { version = "0.7", optional = true }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 # Keep `chrono` available for non-WASM targets (tests/tools), but do not ship it in WASM builds.

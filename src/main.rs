@@ -1,15 +1,4 @@
-// Main entry point - minimal, delegates to modules
-mod models;
-mod router;
-mod storage;
-mod utils;
-mod i18n;
-mod components;
-mod app;
-mod deployment;
-mod services;
-
-use app::App;
+use remind_me_pwa::app::App;
 
 #[cfg(all(target_arch = "wasm32", debug_assertions))]
 fn set_panic_hook() {

@@ -45,24 +45,33 @@ pub struct I18nContext {
 impl I18nContext {
     pub fn new() -> Self {
         let translations = Self::load_translations();
-        let mut context = Self {
-            current_locale: Locale::En,
-            translations: Arc::new(translations),
-        };
 
         // Try to load locale from localStorage first, fallback to default
         #[cfg(target_arch = "wasm32")]
         {
+            let mut current_locale = Locale::En;
+
             if let Some(window) = web_sys::window() {
                 if let Ok(Some(storage)) = window.local_storage() {
                     if let Ok(Some(locale)) = storage.get_item("remind-me-locale") {
-                        context.current_locale = Locale::from_str(&locale);
+                        current_locale = Locale::from_str(&locale);
                     }
                 }
             }
+
+            return Self {
+                current_locale,
+                translations: Arc::new(translations),
+            };
         }
 
-        context
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            Self {
+                current_locale: Locale::En,
+                translations: Arc::new(translations),
+            }
+        }
     }
 
     fn load_translations() -> HashMap<String, Value> {
@@ -91,7 +100,6 @@ impl I18nContext {
     }
 
     pub fn set_locale(&mut self, locale: Locale) {
-        let locale_str = locale.as_str();
         self.current_locale = locale;
 
         // Persist locale preference to localStorage
@@ -99,7 +107,7 @@ impl I18nContext {
         {
             if let Some(window) = web_sys::window() {
                 if let Ok(Some(storage)) = window.local_storage() {
-                    let _ = storage.set_item("remind-me-locale", locale_str);
+                    let _ = storage.set_item("remind-me-locale", self.current_locale.as_str());
                 }
             }
         }
