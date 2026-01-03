@@ -1,4 +1,4 @@
-const CACHE_NAME = 'remind-me-pwa-v0.0.2';
+const CACHE_NAME = 'remind-me-pwa-v0.0.3';
 
 // Derive base path from service worker scope so this works on:
 // - GitHub Pages: /<repo>/
