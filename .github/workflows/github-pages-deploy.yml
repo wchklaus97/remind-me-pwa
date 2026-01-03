@@ -56,13 +56,29 @@ jobs:
 
       - name: Install Dioxus CLI
         run: |
-          if ! command -v dx &> /dev/null; then
-            # Match dioxus-cli to the dioxus crate patch version (Cargo.lock shows 0.7.2).
-            # Patch-level mismatch can prevent dx from replacing asset!() placeholders, producing:
-            # "This should be replaced by dx as part of the build process..."
-            cargo binstall dioxus-cli --version 0.7.2 --no-confirm 2>&1 || \
-            cargo install dioxus-cli --version 0.7.2 --locked --jobs "$(nproc)"
+          # IMPORTANT:
+          # We cache ~/.cargo/bin, so an old dx binary can persist across workflow runs.
+          # If dx exists but is the wrong version, asset!() placeholders may NOT be replaced,
+          # producing URLs like:
+          #   /assets/This should be replaced by dx as part of the build process...
+          DESIRED_DX_VERSION="0.7.2"
+
+          NEED_INSTALL="1"
+          if command -v dx &> /dev/null; then
+            CURRENT_DX_VERSION="$(dx --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
+            if [ "$CURRENT_DX_VERSION" = "$DESIRED_DX_VERSION" ]; then
+              NEED_INSTALL=""
+            else
+              echo "⚠️  dx version mismatch: found '${CURRENT_DX_VERSION}', want '${DESIRED_DX_VERSION}'"
+            fi
           fi
+
+          if [ -n "$NEED_INSTALL" ]; then
+            echo "🔧 Installing dioxus-cli ${DESIRED_DX_VERSION}..."
+            # Use cargo install --force to override any cached dx binary.
+            cargo install dioxus-cli --version "${DESIRED_DX_VERSION}" --locked --force --jobs "$(nproc)"
+          fi
+
           dx --version
 
       - name: Install binaryen (wasm-opt)
