@@ -344,9 +344,11 @@ pub fn App() -> Element {
                                     let _ = meta.set_attribute("http-equiv", "Content-Security-Policy");
                                     // CSP policy:
                                     // - default-src 'self': Only allow resources from same origin
-                                    // - script-src 'self' 'wasm-unsafe-eval': Allow scripts from same origin and WASM eval (required for WebAssembly)
+                                    // - script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval': Allow scripts from same origin, WASM eval, and eval (required for WebAssembly compilation)
                                     // - style-src 'self' 'unsafe-inline': Allow styles from same origin and inline styles (needed for Dioxus)
-                                    let _ = meta.set_attribute("content", "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline';");
+                                    // - img-src 'self' data: Allow images from same origin and data URIs
+                                    // - font-src 'self' data: Allow fonts from same origin and data URIs
+                                    let _ = meta.set_attribute("content", "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;");
                                     let _ = head_element.append_child(&meta);
                                 }
                             }

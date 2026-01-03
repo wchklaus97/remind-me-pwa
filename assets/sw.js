@@ -1,4 +1,4 @@
-const CACHE_NAME = 'remind-me-pwa-v0.0.1';
+const CACHE_NAME = 'remind-me-pwa-v0.0.2';
 
 // Derive base path from service worker scope so this works on:
 // - GitHub Pages: /<repo>/
@@ -13,6 +13,14 @@ const urlsToCache = [
   `${BASE_PATH}/404.html`,
   `${BASE_PATH}/assets/manifest.json`,
   `${BASE_PATH}/assets/sw.js`,
+  // CSS files - cache all stylesheets
+  `${BASE_PATH}/assets/css/base.css`,
+  `${BASE_PATH}/assets/css/components.css`,
+  `${BASE_PATH}/assets/css/app.css`,
+  `${BASE_PATH}/assets/css/landing.css`,
+  `${BASE_PATH}/assets/css/layout.css`,
+  `${BASE_PATH}/assets/css/utilities.css`,
+  `${BASE_PATH}/assets/css/responsive.css`,
 ];
 
 // Install event - cache resources
