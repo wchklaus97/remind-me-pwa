@@ -418,6 +418,16 @@ pub fn App() -> Element {
                             add_link_tag("preload", &utilities_css_href, None, Some("text/css"));
                             add_link_tag("preload", &responsive_css_href, None, Some("text/css"));
 
+                            // Inject stylesheet links with base_path (ensures correct paths on GitHub Pages)
+                            // Dioxus document::Stylesheet should handle this, but we manually inject to ensure base_path is applied
+                            add_link_tag("stylesheet", &base_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &components_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &app_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &landing_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &layout_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &utilities_css_href, None, Some("text/css"));
+                            add_link_tag("stylesheet", &responsive_css_href, None, Some("text/css"));
+
                             // Favicons (tab icon)
                             add_link_tag("icon", &favicon_32_href, Some("32x32"), Some("image/avif"));
                             add_link_tag("icon", &favicon_16_href, Some("16x16"), Some("image/avif"));
@@ -642,15 +652,9 @@ pub fn App() -> Element {
     });
 
     rsx! {
-        // Load global styles via Dioxus asset pipeline (hashed + cached + hot-reload)
-        // Split into multiple files for better maintainability
-        document::Stylesheet { href: BASE_CSS }
-        document::Stylesheet { href: COMPONENTS_CSS }
-        document::Stylesheet { href: APP_CSS }
-        document::Stylesheet { href: LANDING_CSS }
-        document::Stylesheet { href: LAYOUT_CSS }
-        document::Stylesheet { href: UTILITIES_CSS }
-        document::Stylesheet { href: RESPONSIVE_CSS }
+        // CSS stylesheets are manually injected in use_effect with base_path support
+        // This ensures correct paths on both local dev (base_path = "") and GitHub Pages (base_path = "/remind-me-pwa")
+        // The document::Stylesheet components were removed to avoid duplicates
 
         MediaCacheProvider {
             div {
