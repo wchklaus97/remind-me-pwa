@@ -8,9 +8,38 @@ alwaysApply: true
 ```
 remind-me-pwa/
 ├── src/
-│   └── main.rs              # Main application code (all components in one file)
+│   ├── main.rs              # Main application entry point
+│   ├── app.rs               # Main App component and routing
+│   ├── i18n.rs              # Internationalization system
+│   ├── router.rs             # Routing logic
+│   ├── components/           # Reusable components (organized by purpose)
+│   │   ├── landing.rs       # Landing page (main landing component)
+│   │   ├── landing_layout.rs # Landing layout (navbar, footer)
+│   │   ├── page_template.rs  # Public page template (navbar + footer wrapper)
+│   │   ├── reminder_app.rs   # Main reminder app component
+│   │   ├── legal.rs         # Legal pages (Privacy Policy, Terms of Use)
+│   │   ├── language_switcher.rs # Language switcher component
+│   │   ├── media.rs         # Media cache components (CachedImage, CachedVideo, etc.)
+│   │   ├── forms.rs         # Form components (AddReminderForm, EditReminderForm)
+│   │   ├── cards.rs         # Card components (ReminderCard)
+│   │   ├── modals.rs        # Modal components (DeleteConfirmModal)
+│   │   ├── statistics.rs     # Statistics display components
+│   │   └── mod.rs          # Component module exports
+│   └── services/            # Service modules
+│       └── media_cache.rs   # Media caching service (Cache Storage API)
 ├── assets/
-│   ├── style.css            # Application styles
+│   ├── css/                 # Stylesheets (split for maintainability)
+│   │   ├── base.css         # Reset, variables, base styles
+│   │   ├── components.css   # Reusable components
+│   │   ├── app.css          # App-specific styles
+│   │   ├── landing.css      # Landing page styles
+│   │   ├── layout.css       # Navbar, footer, menu
+│   │   ├── utilities.css    # Utility classes
+│   │   └── responsive.css   # Media queries
+│   ├── i18n/                # Internationalization translations
+│   │   ├── en.json          # English translations
+│   │   ├── zh-Hans.json     # Simplified Chinese (简体中文)
+│   │   └── zh-Hant.json     # Traditional Chinese (繁體中文)
 │   ├── manifest.json        # PWA manifest configuration
 │   └── sw.js                # Service worker for offline support
 ├── .cursor/
@@ -42,7 +71,18 @@ remind-me-pwa/
 - `lib.rs` - Library code (if splitting into modules later)
 
 ### Asset Files
-- `style.css` - Application styles
+- `css/` - Stylesheets directory (split into 7 files for maintainability)
+  - `base.css` - Reset, CSS variables, base HTML/body styles
+  - `components.css` - Reusable UI components (buttons, forms, tabs)
+  - `app.css` - App-specific styles (reminder app)
+  - `landing.css` - Landing page styles
+  - `layout.css` - Navbar, footer, mobile menu
+  - `utilities.css` - Utility classes
+  - `responsive.css` - Media queries and responsive design
+- `i18n/` - Internationalization translations
+  - `en.json` - English translations
+  - `zh-Hans.json` - Simplified Chinese (简体中文)
+  - `zh-Hant.json` - Traditional Chinese (繁體中文)
 - `manifest.json` - PWA manifest (JSON format)
 - `sw.js` - Service worker (JavaScript)
 
@@ -50,6 +90,43 @@ remind-me-pwa/
 - `Cargo.toml` - Rust package configuration
 - `Dioxus.toml` - Dioxus framework configuration
 - `.cargo/config.toml` - Cargo build settings
+
+## 🏗️ Application Architecture
+
+### Module Structure
+
+```
+src/
+├── main.rs          # Entry point, launches App
+├── app.rs           # Main App component (routing, i18n, providers)
+├── router.rs        # Route enum and URL handling
+├── i18n.rs          # Internationalization system
+├── storage.rs       # LocalStorage utilities
+├── models.rs        # Data models (Reminder, etc.)
+├── utils.rs         # Utility functions
+├── deployment.rs    # Deployment utilities (base path, etc.)
+├── components/     # UI components (organized by purpose)
+└── services/        # Service modules (media_cache, etc.)
+```
+
+### App Component Structure
+
+The `App` component (`src/app.rs`) is the root component that:
+1. **Initializes i18n** - Sets up internationalization context
+2. **Wraps with MediaCacheProvider** - Provides media caching
+3. **Handles routing** - Manages route state and URL updates
+4. **Loads CSS** - Loads all 7 CSS files
+5. **Renders routes** - Conditionally renders based on current route
+
+### Component Organization
+
+Components are organized by purpose:
+- **Pages**: `landing.rs`, `reminder_app.rs`, `legal.rs`
+- **Layouts**: `landing_layout.rs`, `page_template.rs`
+- **Forms**: `forms.rs` (AddReminderForm, EditReminderForm)
+- **Cards**: `cards.rs` (ReminderCard)
+- **Modals**: `modals.rs` (DeleteConfirmModal)
+- **UI Components**: `language_switcher.rs`, `media.rs`, `statistics.rs`
 
 ## 🎯 Code Organization in main.rs
 
@@ -175,9 +252,44 @@ fn ComponentName(
 ## 🗂️ Asset Organization
 
 ### CSS Structure
-- Global styles in `assets/style.css`
-- Component-specific styles using classes
-- Responsive design with media queries
+- **Modular CSS**: Split into 7 files in `assets/css/` for better maintainability
+  - `base.css`: Reset, CSS variables, base HTML/body styles
+  - `components.css`: Reusable UI components (buttons, forms, tabs, badges)
+  - `app.css`: App-specific styles (reminder app, cards, forms)
+  - `landing.css`: Landing page styles (hero, features, pricing, FAQ)
+  - `layout.css`: Layout components (navbar, footer, mobile menu)
+  - `utilities.css`: Utility classes (spacing, text, layout helpers)
+  - `responsive.css`: Media queries and responsive design rules
+- All CSS files are loaded in `src/app.rs` via Dioxus asset pipeline
+- Component-specific styles use classes, not inline styles
+- Responsive design with mobile-first approach
+
+### Internationalization (i18n)
+- **Translation Files**: Located in `assets/i18n/`
+  - `en.json`: English translations
+  - `zh-Hans.json`: Simplified Chinese (简体中文)
+  - `zh-Hant.json`: Traditional Chinese (繁體中文)
+- **Locale System**: 
+  - `Locale` enum: `En`, `ZhHans`, `ZhHant`
+  - Default `"zh"` maps to `zh-Hans` (Simplified Chinese)
+  - BCP 47 codes: `en`, `zh-Hans`, `zh-Hant`
+- **Language Switcher**: `LanguageSwitcher` component supports all 3 languages
+- **Usage**: Use `use_t("key.path")` hook to get translated strings
+- **Structure**: Nested JSON keys (e.g., `"landing.nav.features"`)
+
+### Media Caching
+- **MediaCacheProvider**: Context provider for shared cache manager
+- **MediaCacheManager**: Deduplicates in-flight downloads across components
+- **Components**: `ManagedCachedImage`, `ManagedCachedVideo` for cached media
+- **Service**: `src/services/media_cache.rs` - Cache Storage API integration
+- **Features**: Shimmer loading states, error fallbacks, persistent caching
+
+### Page Templates
+- **PublicPageTemplate**: Reusable template for public pages (Privacy Policy, Terms of Use)
+  - Wraps content with `LandingNavbar` and `LandingFooter`
+  - Provides consistent layout structure
+  - Used in `src/components/legal.rs` for legal pages
+  - Props: `title`, `active_section`, `on_enter_app`, `on_jump`, `on_navigate`, `children`
 
 ### PWA Files
 - `manifest.json`: App metadata, icons, display mode

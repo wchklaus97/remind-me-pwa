@@ -1,30 +1,88 @@
 use dioxus::prelude::*;
 use crate::router::{Route, get_initial_route, update_url};
 use crate::i18n::{use_init_i18n, use_i18n, Locale};
-use crate::components::{LandingPage, ReminderApp};
+use crate::components::{LandingPage, ReminderApp, PrivacyPolicyPage, TermsOfUsePage, MediaCacheProvider};
 use crate::deployment::get_base_path;
 #[cfg(target_arch = "wasm32")]
 use crate::deployment::get_base_url;
 
+#[cfg(target_arch = "wasm32")]
+fn scroll_to_top() {
+    if let Some(window) = web_sys::window() {
+        window.scroll_to_with_x_and_y(0.0, 0.0);
+    }
+}
+
 // Helper function to map locale code to BCP 47 language code
 // This ensures valid lang attribute values for Lighthouse
-// en -> en, zh -> zh-Hans (Simplified Chinese)
+// en -> en, zh-Hans -> zh-Hans, zh-Hant -> zh-Hant
 #[allow(dead_code)] // Used in #[cfg(target_arch = "wasm32")] blocks
 fn locale_to_bcp47(locale: &str) -> String {
     match locale {
-        "zh" => "zh-Hans".to_string(), // Simplified Chinese
-        "zh-CN" => "zh-Hans".to_string(),
-        "zh-TW" => "zh-Hant".to_string(), // Traditional Chinese
+        "zh" | "zh-CN" => "zh-Hans".to_string(), // Default "zh" to Simplified Chinese
+        "zh-Hans" => "zh-Hans".to_string(),
+        "zh-Hant" | "zh-TW" => "zh-Hant".to_string(), // Traditional Chinese
         "en" => "en".to_string(),
         _ => locale.to_string(), // Fallback to original if unknown
     }
 }
 
-// Background images using Dioxus 0.7 asset! macro for proper bundling
-// Using AVIF format for better performance (smaller file size, better compression)
-// Modern browsers support AVIF, with PNG as fallback if needed
-static MOBILE_BG: Asset = asset!("/assets/images/backgrounds/mobile.avif");
-static DESKTOP_BG: Asset = asset!("/assets/images/backgrounds/desktop.avif");
+// Get route-specific title and description for SEO
+#[allow(dead_code)] // Used in use_effect closure
+fn get_route_seo(route: &Route, locale: &str) -> (String, String) {
+    // Note: This function is called from use_effect which doesn't have access to i18n context
+    // So we use hardcoded strings here, but they match the i18n translations
+    match (route, locale) {
+        (Route::Landing, "zh") => (
+            "提醒我 PWA - 您的个人提醒助手".to_string(),
+            "一个简单优雅的提醒应用，帮助您保持条理。支持离线使用，可安装到设备，并保护您的数据隐私。".to_string(),
+        ),
+        (Route::Landing, _) => (
+            "Remind Me PWA - Your Personal Reminder Assistant".to_string(),
+            "A beautiful and functional Progressive Web App to help you manage your reminders. Works offline, installs on your device, and keeps your data private.".to_string(),
+        ),
+        (Route::App, "zh") => (
+            "提醒我 - 管理您的提醒事项".to_string(),
+            "一个简单优雅的提醒应用，帮助您保持条理。支持离线使用，数据存储在本地设备。".to_string(),
+        ),
+        (Route::App, _) => (
+            "Remind Me - Manage Your Reminders".to_string(),
+            "A simple and elegant reminder app to help you stay organized. Works offline, data stored locally on your device.".to_string(),
+        ),
+        (Route::PrivacyPolicy, _) => (
+            "Remind Me - Privacy Policy".to_string(),
+            "Privacy Policy for Remind Me PWA. Reminders are stored locally on your device and are not collected by us.".to_string(),
+        ),
+        (Route::TermsOfUse, _) => (
+            "Remind Me - Terms of Use".to_string(),
+            "Terms of Use for Remind Me PWA. Free, open-source, offline-first reminder app.".to_string(),
+        ),
+    }
+}
+
+// CSS files - split for better maintainability
+static BASE_CSS: Asset = asset!("/assets/css/base.css");
+static COMPONENTS_CSS: Asset = asset!("/assets/css/components.css");
+static APP_CSS: Asset = asset!("/assets/css/app.css");
+static LANDING_CSS: Asset = asset!("/assets/css/landing.css");
+static LAYOUT_CSS: Asset = asset!("/assets/css/layout.css");
+static UTILITIES_CSS: Asset = asset!("/assets/css/utilities.css");
+static RESPONSIVE_CSS: Asset = asset!("/assets/css/responsive.css");
+
+// Favicon and manifest assets - registered with Dioxus asset system
+// These ensure the files are included in builds and properly handled
+#[allow(dead_code)] // Used implicitly by Dioxus asset system and in JavaScript injection paths
+static FAVICON_32: Asset = asset!("/assets/favicon-32x32.avif");
+#[allow(dead_code)]
+static FAVICON_16: Asset = asset!("/assets/favicon-16x16.avif");
+#[allow(dead_code)]
+static FAVICON_ICO: Asset = asset!("/assets/favicon.ico");
+#[allow(dead_code)]
+static ICON_192: Asset = asset!("/assets/icons/app/icon-192x192.avif");
+#[allow(dead_code)]
+static ICON_512: Asset = asset!("/assets/icons/app/icon-512x512.avif");
+#[allow(dead_code)]
+static MANIFEST: Asset = asset!("/assets/manifest.json");
 
 #[component]
 pub fn App() -> Element {
@@ -139,11 +197,7 @@ pub fn App() -> Element {
                     }
 
                     // Always sync i18n with URL locale if it drifted (e.g. localStorage has a different locale).
-                    let desired_locale = if detected_locale == "zh" {
-                        Locale::Zh
-                    } else {
-                        Locale::En
-                    };
+                    let desired_locale = Locale::from_str(&detected_locale);
                     let i18n_current = i18n_signal.read().current_locale_str();
                     let desired_str = desired_locale.as_str();
                     if i18n_current != desired_str {
@@ -176,12 +230,8 @@ pub fn App() -> Element {
         }
 
         // Also sync the i18n context to match the URL locale even if current_locale already matched.
-        // This fixes the case where localStorage had "zh" but the URL is "/en/app".
-        let desired_locale = if detected_locale == "zh" {
-            Locale::Zh
-        } else {
-            Locale::En
-        };
+        // This fixes the case where localStorage had a different locale but the URL shows another.
+        let desired_locale = Locale::from_str(&detected_locale);
         let i18n_current = i18n.read().current_locale_str();
         let desired_str = desired_locale.as_str();
         if i18n_current != desired_str {
@@ -268,15 +318,22 @@ pub fn App() -> Element {
                             // Remove immediately (multiple times to catch any that appear)
                             remove_all_font_links();
 
-                            // LCP Optimization: Non-critical meta tags (these don't block rendering)
-                            // Set meta description if not exists
-                            let existing_meta = document.query_selector("meta[name='description']");
-                            if let Ok(None) = existing_meta {
-                                if let Ok(meta) = document.create_element("meta") {
-                                    let _ = meta.set_attribute("name", "description");
-                                    let _ = meta.set_attribute("content", "A simple and elegant reminder app to help you stay organized");
-                                    let _ = head_element.append_child(&meta);
-                                }
+                            // Update title and description based on current route and locale
+                            let route = current_route();
+                            let locale = current_locale();
+                            let (title, description) = get_route_seo(&route, &locale);
+                            
+                            // Update document title
+                            document.set_title(&title);
+                            
+                            // Update or create meta description
+                            let existing_desc = document.query_selector("meta[name='description']");
+                            if let Ok(Some(desc_meta)) = existing_desc {
+                                let _ = desc_meta.set_attribute("content", &description);
+                            } else if let Ok(desc_meta) = document.create_element("meta") {
+                                let _ = desc_meta.set_attribute("name", "description");
+                                let _ = desc_meta.set_attribute("content", &description);
+                                let _ = head_element.append_child(&desc_meta);
                             }
 
                             // Content Security Policy (CSP) for WebAssembly support
@@ -298,6 +355,130 @@ pub fn App() -> Element {
                             // Use utility functions for consistency across the app
                             let base_url = get_base_url();
                             let base_path = get_base_path();
+                            
+                            let add_link_tag = |rel: &str, href: &str, sizes: Option<&str>, link_type: Option<&str>| {
+                                if let Ok(link) = document.create_element("link") {
+                                    let _ = link.set_attribute("rel", rel);
+                                    let _ = link.set_attribute("href", href);
+                                    if let Some(sizes_val) = sizes {
+                                        let _ = link.set_attribute("sizes", sizes_val);
+                                    }
+                                    if let Some(type_val) = link_type {
+                                        let _ = link.set_attribute("type", type_val);
+                                    }
+                                    let _ = head_element.append_child(&link);
+                                }
+                            };
+
+                            // Important: Dioxus serves assets with hashed filenames (e.g. favicon-32x32-dxh....png).
+                            // If we link to the unhashed path (e.g. /assets/favicon-32x32.png), the dev server will
+                            // fall back to index.html, and the favicon/manifest won't load.
+                            //
+                            // So we MUST use the Dioxus Asset URLs here.
+                            let with_base_path = |href: String| -> String {
+                                if base_path.is_empty() {
+                                    href
+                                } else if href.starts_with(&base_path) {
+                                    href
+                                } else if href.starts_with('/') {
+                                    format!("{}{}", base_path, href)
+                                } else {
+                                    format!("{}/{}", base_path.trim_end_matches('/'), href)
+                                }
+                            };
+
+                            let favicon_32_href = with_base_path(FAVICON_32.to_string());
+                            let favicon_16_href = with_base_path(FAVICON_16.to_string());
+                            let favicon_ico_href = with_base_path(FAVICON_ICO.to_string());
+                            let icon_192_href = with_base_path(ICON_192.to_string());
+                            let icon_512_href = with_base_path(ICON_512.to_string());
+                            let manifest_href = with_base_path(MANIFEST.to_string());
+
+                            // Favicons (tab icon)
+                            add_link_tag("icon", &favicon_32_href, Some("32x32"), Some("image/avif"));
+                            add_link_tag("icon", &favicon_16_href, Some("16x16"), Some("image/avif"));
+                            add_link_tag("shortcut icon", &favicon_ico_href, None, Some("image/x-icon"));
+
+                            // PWA / platform icons
+                            add_link_tag("icon", &icon_192_href, Some("192x192"), Some("image/avif"));
+                            add_link_tag("icon", &icon_512_href, Some("512x512"), Some("image/avif"));
+
+                            // Manifest:
+                            // - The file itself is hashed by Dioxus (manifest-dxh....json)
+                            // - But the *contents* (icons src) should NOT hardcode hashes.
+                            //   Those hashes change whenever the icon files change (and sometimes between builds),
+                            //   so we generate a manifest at runtime that points at the current Asset URLs.
+                            #[allow(clippy::too_many_lines)]
+                            {
+                                use wasm_bindgen::JsValue;
+
+                                let manifest_json = serde_json::json!({
+                                    "name": "Remind Me PWA",
+                                    "short_name": "Remind Me",
+                                    "description": description,
+                                    "start_url": format!("{}/", base_path.trim_end_matches('/')),
+                                    "display": "standalone",
+                                    "background_color": "#5e5eb4",
+                                    "theme_color": "#5e5eb4",
+                                    "orientation": "portrait-primary",
+                                    "icons": [
+                                        {
+                                            "src": icon_192_href,
+                                            "sizes": "192x192",
+                                            "type": "image/avif",
+                                            "purpose": "any maskable"
+                                        },
+                                        {
+                                            "src": icon_512_href,
+                                            "sizes": "512x512",
+                                            "type": "image/avif",
+                                            "purpose": "any maskable"
+                                        }
+                                    ]
+                                });
+
+                                if let Ok(manifest_str) = serde_json::to_string(&manifest_json) {
+                                    // Create a blob URL for the manifest
+                                    let parts = js_sys::Array::new();
+                                    parts.push(&JsValue::from_str(&manifest_str));
+                                    if let Ok(blob) = web_sys::Blob::new_with_str_sequence(&parts) {
+                                        if let Ok(url) =
+                                            web_sys::Url::create_object_url_with_blob(&blob)
+                                        {
+                                            add_link_tag(
+                                                "manifest",
+                                                &url,
+                                                None,
+                                                Some("application/manifest+json"),
+                                            );
+                                        } else {
+                                            // Fallback to hashed manifest file URL
+                                            add_link_tag(
+                                                "manifest",
+                                                &manifest_href,
+                                                None,
+                                                Some("application/manifest+json"),
+                                            );
+                                        }
+                                    } else {
+                                        // Fallback to hashed manifest file URL
+                                        add_link_tag(
+                                            "manifest",
+                                            &manifest_href,
+                                            None,
+                                            Some("application/manifest+json"),
+                                        );
+                                    }
+                                } else {
+                                    // Fallback to hashed manifest file URL
+                                    add_link_tag(
+                                        "manifest",
+                                        &manifest_href,
+                                        None,
+                                        Some("application/manifest+json"),
+                                    );
+                                }
+                            }
 
                             // Open Graph meta tags for SEO and social sharing
                             let add_meta_tag =
@@ -326,18 +507,24 @@ pub fn App() -> Element {
                                     }
                                 };
 
-                            // Basic Open Graph tags
+                            // Basic Open Graph tags - use dynamic title and description
                             add_meta_tag("", Some("og:type"), "website");
-                            add_meta_tag(
-                                "",
-                                Some("og:title"),
-                                "Remind Me PWA - Your Personal Reminder Assistant",
-                            );
-                            add_meta_tag(
-                                "",
-                                Some("og:description"),
-                                "A simple and elegant reminder app to help you stay organized",
-                            );
+                            
+                            // Update or create og:title
+                            let existing_og_title = document.query_selector("meta[property='og:title']");
+                            if let Ok(Some(og_title_meta)) = existing_og_title {
+                                let _ = og_title_meta.set_attribute("content", &title);
+                            } else {
+                                add_meta_tag("", Some("og:title"), &title);
+                            }
+                            
+                            // Update or create og:description
+                            let existing_og_desc = document.query_selector("meta[property='og:description']");
+                            if let Ok(Some(og_desc_meta)) = existing_og_desc {
+                                let _ = og_desc_meta.set_attribute("content", &description);
+                            } else {
+                                add_meta_tag("", Some("og:description"), &description);
+                            }
                             add_meta_tag("", Some("og:url"), &format!("{}{}", base_url, base_path));
                             add_meta_tag(
                                 "",
@@ -358,18 +545,24 @@ pub fn App() -> Element {
                             add_meta_tag("", Some("og:site_name"), "Remind Me PWA");
                             add_meta_tag("", Some("og:locale"), "en_US");
 
-                            // Twitter Card meta tags
+                            // Twitter Card meta tags - use dynamic title and description
                             add_meta_tag("twitter:card", None, "summary_large_image");
-                            add_meta_tag(
-                                "twitter:title",
-                                None,
-                                "Remind Me PWA - Your Personal Reminder Assistant",
-                            );
-                            add_meta_tag(
-                                "twitter:description",
-                                None,
-                                "A simple and elegant reminder app to help you stay organized",
-                            );
+                            
+                            // Update or create twitter:title
+                            let existing_twitter_title = document.query_selector("meta[name='twitter:title']");
+                            if let Ok(Some(twitter_title_meta)) = existing_twitter_title {
+                                let _ = twitter_title_meta.set_attribute("content", &title);
+                            } else {
+                                add_meta_tag("twitter:title", None, &title);
+                            }
+                            
+                            // Update or create twitter:description
+                            let existing_twitter_desc = document.query_selector("meta[name='twitter:description']");
+                            if let Ok(Some(twitter_desc_meta)) = existing_twitter_desc {
+                                let _ = twitter_desc_meta.set_attribute("content", &description);
+                            } else {
+                                add_meta_tag("twitter:description", None, &description);
+                            }
                             add_meta_tag(
                                 "twitter:image",
                                 None,
@@ -418,53 +611,107 @@ pub fn App() -> Element {
                         }
                     }
 
-                    // Set title if not exists
-                    if document.title().is_empty() {
-                        document.set_title("Remind Me PWA - Your Personal Reminder Assistant");
-                    }
+                    // Title is set above in the use_effect based on route and locale
                 }
             }
         }
     });
 
-    // Background images using Dioxus 0.7 asset! macro - properly bundled and optimized
-    // Dioxus asset! macro automatically handles base_path when set in Dioxus.toml during build
-    // When base_path = "/remind-me-pwa" is set in CI/CD (via GITHUB_PAGES_BASE_PATH env var),
-    // Dioxus will automatically prepend it to all asset URLs at build time.
-    // 
-    // Build-time behavior:
-    // - Local dev (base_path = ""): "/assets/mobile-xxx.avif"
-    // - GitHub Pages (base_path = "/remind-me-pwa"): "/remind-me-pwa/assets/mobile-xxx.avif"
-    //
-    // We trust Dioxus to handle this correctly, so we use the asset URLs directly.
-    let mobile_bg_str = format!("{}", MOBILE_BG);
-    let desktop_bg_str = format!("{}", DESKTOP_BG);
-    
     rsx! {
-        div {
-            class: "dioxus-root app-background",
-            style: "position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100vw !important; height: 100vh !important; margin: 0 !important; padding: 0 !important; z-index: -999 !important; background-color: #5e5eb4 !important; background-image: url('{mobile_bg_str}') !important; background-size: cover !important; background-position: center center !important; background-repeat: no-repeat !important; background-attachment: fixed !important; pointer-events: none !important; display: block !important; visibility: visible !important; opacity: 1 !important; --mobile-bg: url('{mobile_bg_str}'); --desktop-bg: url('{desktop_bg_str}');",
-        }
-        div {
-            class: "app-content-wrapper",
-            if current_route() == Route::Landing {
-                LandingPage {
-                    on_enter_app: move |_| {
-                        // Get current locale from i18n context
-                        let i18n_read = i18n.read();
-                        let locale = i18n_read.current_locale_str().to_string();
+        // Load global styles via Dioxus asset pipeline (hashed + cached + hot-reload)
+        // Split into multiple files for better maintainability
+        document::Stylesheet { href: BASE_CSS }
+        document::Stylesheet { href: COMPONENTS_CSS }
+        document::Stylesheet { href: APP_CSS }
+        document::Stylesheet { href: LANDING_CSS }
+        document::Stylesheet { href: LAYOUT_CSS }
+        document::Stylesheet { href: UTILITIES_CSS }
+        document::Stylesheet { href: RESPONSIVE_CSS }
 
-                        // Update current_locale signal to match i18n
-                        current_locale.set(locale.clone());
+        MediaCacheProvider {
+            div {
+                class: "app-content-wrapper",
+                match current_route() {
+                    Route::Landing => rsx! {
+                        LandingPage {
+                            on_enter_app: move |_| {
+                                // Get current locale from i18n context
+                                let i18n_read = i18n.read();
+                                let locale = i18n_read.current_locale_str().to_string();
 
-                        // Update route and URL with the locale from i18n
-                        // The URL will show the locale (e.g., /en/app or /zh/app)
-                        current_route.set(Route::App);
-                        update_url(&Route::App, &locale);
+                                // Update current_locale signal to match i18n
+                                current_locale.set(locale.clone());
+
+                                // Update route and URL with the locale from i18n
+                                current_route.set(Route::App);
+                                update_url(&Route::App, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                scroll_to_top();
+                            },
+                            on_navigate: move |route: Route| {
+                                let locale = current_locale();
+                                current_route.set(route.clone());
+                                update_url(&route, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                if matches!(route, Route::App | Route::PrivacyPolicy | Route::TermsOfUse) {
+                                    scroll_to_top();
+                                }
+                            }
+                        }
+                    },
+                    Route::App => rsx! { ReminderApp {} },
+                    Route::PrivacyPolicy => rsx! {
+                        PrivacyPolicyPage {
+                            on_enter_app: move |_| {
+                                let locale = current_locale();
+                                current_route.set(Route::App);
+                                update_url(&Route::App, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                scroll_to_top();
+                            },
+                            on_jump: move |section: &'static str| {
+                                let locale = current_locale();
+                                current_route.set(Route::Landing);
+                                // LandingPage will handle scrolling on mount based on the URL.
+                                crate::router::push_landing_section_url(&locale, Some(section));
+                            },
+                            on_navigate: move |route: Route| {
+                                let locale = current_locale();
+                                current_route.set(route.clone());
+                                update_url(&route, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                if matches!(route, Route::App | Route::PrivacyPolicy | Route::TermsOfUse) {
+                                    scroll_to_top();
+                                }
+                            }
+                        }
+                    },
+                    Route::TermsOfUse => rsx! {
+                        TermsOfUsePage {
+                            on_enter_app: move |_| {
+                                let locale = current_locale();
+                                current_route.set(Route::App);
+                                update_url(&Route::App, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                scroll_to_top();
+                            },
+                            on_jump: move |section: &'static str| {
+                                let locale = current_locale();
+                                current_route.set(Route::Landing);
+                                crate::router::push_landing_section_url(&locale, Some(section));
+                            },
+                            on_navigate: move |route: Route| {
+                                let locale = current_locale();
+                                current_route.set(route.clone());
+                                update_url(&route, &locale);
+                                #[cfg(target_arch = "wasm32")]
+                                if matches!(route, Route::App | Route::PrivacyPolicy | Route::TermsOfUse) {
+                                    scroll_to_top();
+                                }
+                            }
+                        }
                     },
                 }
-            } else {
-                ReminderApp {}
             }
         }
     }

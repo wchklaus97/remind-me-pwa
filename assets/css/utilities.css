@@ -1,0 +1,123 @@
+/* Form Labels */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9375rem;
+}
+
+/* Ghost button variant (secondary buttons) */
+.btn-ghost {
+    background: transparent;
+    border: 2px solid var(--brand-blue);
+    color: var(--brand-blue);
+    box-shadow: none;
+}
+
+.btn-ghost:hover {
+    background: rgba(106, 124, 237, 0.1);
+    border-color: var(--brand-purple);
+    color: var(--brand-purple);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Statistics section */
+.statistics {
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.2s;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+.stat-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Controls section */
+.controls {
+    margin-bottom: 1.5rem;
+}
+
+.controls .flex {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.controls input[type="text"] {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Accessibility improvements */
+input[type="checkbox"] {
+    /* Lighthouse: Increase checkbox size */
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: var(--secondary-color); /* Bell Gold for checked state */
+}
+
+input[type="checkbox"]:checked {
+    accent-color: var(--secondary-color);
+}
+
+/* Utility Classes for Layout */
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.items-start { align-items: flex-start; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-end { justify-content: flex-end; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+.text-sm { font-size: 0.875rem; }
+.text-gray-500 { color: var(--text-secondary); }
+.text-gray-600 { color: var(--text-secondary); }
+.font-semibold { font-weight: 600; }
+.line-through { text-decoration: line-through; }

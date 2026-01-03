@@ -1,5 +1,4 @@
 // Use deployment utilities for GitHub Pages detection and base path
-use crate::deployment::is_github_pages;
 #[cfg(target_arch = "wasm32")]
 use crate::deployment::get_base_path;
 
@@ -34,6 +33,8 @@ fn path_has_locale_prefix(path: &str) -> bool {
 pub enum Route {
     Landing,
     App,
+    PrivacyPolicy,
+    TermsOfUse,
 }
 
 impl Route {
@@ -52,12 +53,9 @@ impl Route {
             // Check if first part is a valid locale code
             if first_part == "en" || first_part == "zh" || first_part.starts_with("zh-") {
                 let locale = if first_part == "zh" {
-                    "zh".to_string() // Keep "zh" for compatibility
-                } else if first_part.starts_with("zh-") {
-                    // Map zh-Hans/zh-Hant back to "zh" for i18n
-                    "zh".to_string()
+                    "zh-Hans".to_string() // Default "zh" to Simplified Chinese
                 } else {
-                    first_part.to_string()
+                    first_part.to_string() // Preserve zh-Hans, zh-Hant, etc.
                 };
                 
                 // Check if there's a route after locale
@@ -65,6 +63,8 @@ impl Route {
                     let route_str = parts[1];
                     match route_str {
                         "app" => return (Route::App, locale),
+                        "privacy" => return (Route::PrivacyPolicy, locale),
+                        "terms" => return (Route::TermsOfUse, locale),
                         _ => return (Route::Landing, locale),
                     }
                 } else {
@@ -83,19 +83,23 @@ impl Route {
         (Route::Landing, "en".to_string())
     }
     
-    #[allow(dead_code)] // Reserved for future use (e.g., server-side routing)
     pub fn to_path(&self, locale: &str) -> String {
         match self {
             Route::Landing => format!("/{}/", locale),
             Route::App => format!("/{}/app", locale),
+            Route::PrivacyPolicy => format!("/{}/privacy", locale),
+            Route::TermsOfUse => format!("/{}/terms", locale),
         }
     }
     
-    #[allow(dead_code)] // Only used as a WASM fallback when History API navigation fails
+    // Used only in WASM builds as a History API fallback.
+    #[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
     pub fn to_hash(&self, locale: &str) -> String {
         match self {
             Route::Landing => format!("#/{}/", locale),
             Route::App => format!("#/{}/app", locale),
+            Route::PrivacyPolicy => format!("#/{}/privacy", locale),
+            Route::TermsOfUse => format!("#/{}/terms", locale),
         }
     }
 }
@@ -173,7 +177,137 @@ pub fn update_url(route: &Route, locale: &str) {
         #[cfg(not(target_arch = "wasm32"))]
         {
             // Non-WASM fallback (shouldn't happen in web builds)
-            let _ = (window, route, locale, is_github_pages);
+            let _ = (window, route, locale);
         }
+    }
+}
+
+// ---- Landing page section (scroll) URL helpers --------------------------------
+//
+// We avoid hash fragments (#pricing) and instead use a query parameter:
+//   /en/section=pricing
+//
+// This keeps URLs shareable + works with History API on GitHub Pages (SPA fallback).
+
+#[cfg(target_arch = "wasm32")]
+fn build_landing_section_url(locale: &str, section: Option<&str>) -> String {
+    let base_path = get_base_path();
+    let base = Route::Landing.to_path(locale); // "/en/"
+    let mut url = if base_path.is_empty() {
+        base
+    } else {
+        format!("{}{}", base_path, base)
+    };
+
+    if let Some(section) = section {
+        if !section.is_empty() {
+            url.push_str("section=");
+            url.push_str(section);
+        }
+    }
+
+    url
+}
+
+/// Read the current landing section from URL (query param preferred; hash fallback).
+/// Returns `None` if no valid section is present.
+#[cfg(target_arch = "wasm32")]
+pub fn get_landing_section_from_url() -> Option<String> {
+    fn get_query_param(search: &str, key: &str) -> Option<String> {
+        let search = search.strip_prefix('?').unwrap_or(search);
+        if search.is_empty() {
+            return None;
+        }
+
+        for pair in search.split('&') {
+            if pair.is_empty() {
+                continue;
+            }
+
+            let mut iter = pair.splitn(2, '=');
+            let k = iter.next().unwrap_or("");
+            let v = iter.next().unwrap_or("");
+            if k == key {
+                return Some(v.to_string());
+            }
+        }
+
+        None
+    }
+
+    if let Some(window) = web_sys::window() {
+        let location = window.location();
+
+        // Prefer query parameter (section=pricing)
+        if let Ok(search) = location.search() {
+            if !search.is_empty() {
+                if let Some(section) = get_query_param(&search, "section") {
+                    if matches!(section.as_str(), "features" | "how" | "pricing" | "faq") {
+                        return Some(section);
+                    }
+                }
+            }
+        }
+
+        // Fallback: legacy hash anchors (#pricing)
+        if let Ok(hash) = location.hash() {
+            let section = hash.trim_start_matches('#').trim_start_matches('/');
+            if matches!(section, "features" | "how" | "pricing" | "faq") {
+                return Some(section.to_string());
+            }
+        }
+    }
+
+    None
+}
+
+/// Update the landing section in the URL without triggering navigation.
+///
+/// - Use **push** on click (user intent)
+/// - Use **replace** on scrollspy (avoid spamming history)
+pub fn push_landing_section_url(locale: &str, section: Option<&str>) {
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            if let Ok(history) = window.history() {
+                use wasm_bindgen::JsValue;
+                let url = build_landing_section_url(locale, section);
+                let _ = history.push_state_with_url(&JsValue::NULL, "", Some(&url));
+            }
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = (locale, section);
+    }
+}
+
+// Used only on the Landing page (WASM build); allow unused in other builds.
+#[cfg_attr(not(target_arch = "wasm32"), allow(dead_code))]
+pub fn replace_landing_section_url(locale: &str, section: Option<&str>) {
+    #[cfg(target_arch = "wasm32")]
+    {
+        if let Some(window) = web_sys::window() {
+            // Avoid unnecessary replaceState calls if already correct.
+            let current = window.location();
+            let desired = build_landing_section_url(locale, section);
+            let current_path = current.pathname().unwrap_or_default();
+            let current_search = current.search().unwrap_or_default();
+            let current_full = format!("{}{}", current_path, current_search);
+
+            // For GitHub Pages the pathname includes the base_path, which matches desired.
+            if current_full != desired {
+                if let Ok(history) = window.history() {
+                    use wasm_bindgen::JsValue;
+                    let _ = history.replace_state_with_url(&JsValue::NULL, "", Some(&desired));
+                }
+            }
+        }
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        let _ = (locale, section);
     }
 }

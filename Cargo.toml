@@ -16,13 +16,14 @@ chrono = { version = "0.4", features = ["serde", "clock"] }
 # Minimize web-sys features - only include what's absolutely necessary
 # Dioxus already provides most web APIs through wasm-bindgen, but we need web-sys
 # for DOM manipulation (removing Google Fonts links) and localStorage access
-web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node", "History", "Event"] }
+web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node", "History", "Event", "Blob", "Url"] }
 
 # js-sys for JavaScript interop (used for History API push_state)
 js-sys = "0.3"
 
 # wasm-bindgen for closures and JavaScript interop
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+wasm-bindgen-futures = "0.4"
 
 # UI Component Library
 remind-me-ui = { path = "./crates/ui" }

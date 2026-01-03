@@ -1,0 +1,450 @@
+{
+  "app": {
+    "title": "提醒我 PWA - 您的个人提醒助手",
+    "description": "一个简单优雅的提醒应用，帮助您保持条理",
+    "tagline": "您的个人提醒助手",
+    "header": {
+      "title": "🔔 提醒我",
+      "new_reminder": "+ 新建提醒",
+      "cancel": "取消"
+    }
+  },
+  "landing": {
+    "nav": {
+      "features": "功能",
+      "how": "使用方法",
+      "pricing": "价格",
+      "faq": "常见问题"
+    },
+    "hero": {
+      "title": "保持条理,",
+      "highlight": "永不忘记",
+      "description": "一个美观实用的渐进式 Web 应用，帮助您管理提醒。支持离线使用，可安装到设备，并保护您的数据隐私。",
+      "chip": "🔔 再也不会忘记",
+      "add_to_home": "加到主画面",
+      "try_now": "立即体验",
+      "highlights": {
+        "no_accounts": "✅ 无需账号。所有资料都保存在您的装置上。",
+        "works_offline": "📶 离线可用。您的提醒随时与您同在。",
+        "add_to_home": "📱 加到主画面，享受原生应用般的体验。"
+      }
+    },
+    "feature": {
+      "manage": {
+        "title": "建立与管理",
+        "description": "轻松建立、编辑与删除提醒，界面直观又美观。"
+      },
+      "due": {
+        "title": "日期与时间",
+        "description": "设置到期日期与时间，重要事项不再错过。"
+      },
+      "filtering": {
+        "title": "智慧筛选",
+        "description": "按全部、进行中、已完成筛选，更专注当前要做的事。"
+      },
+      "pwa": {
+        "title": "PWA 支持",
+        "description": "安装到任何设备，像原生应用一样使用—也支持离线。"
+      },
+      "offline": {
+        "title": "本机储存",
+        "description": "资料保存在您的设备上，并自动进行本机储存。"
+      },
+      "privacy": {
+        "title": "逾期提醒",
+        "description": "逾期会明显标示，避免错过任何截止时间。"
+      }
+    },
+    "cta": {
+      "button": "开始使用",
+      "subtitle": "永久免费 • 无需注册 • 立即开始"
+    },
+    "sections": {
+      "features": {
+        "title": "你会喜欢的功能",
+        "subtitle": "满足你所有提醒需求的一切"
+      },
+      "how": {
+        "title": "使用方法",
+        "workflow_header": "🧾 我的提醒",
+        "workflow_tabs": {
+          "all": "全部",
+          "active": "进行中",
+          "completed": "已完成"
+        },
+        "workflow_items": {
+          "send_weekly": "发送周报",
+          "completed_2h_ago": "2 小时前完成",
+          "completed": "完成",
+          "grocery_this_week": "本周采购杂货",
+          "today_5pm": "今天 下午 5:00",
+          "call_mom": "给妈妈回电话",
+          "recurring_weekly": "周期：周 2 天",
+          "overdue": "逾期"
+        },
+        "right": {
+          "pill": "简单快捷",
+          "title": "几秒钟建立提醒",
+          "description": "设置标题、选择截止日期，就完成了。Remind Me 会处理剩下的一切。",
+          "features": {
+            "quick_input": "快速输入",
+            "date_picker": "日期选择",
+            "time_picker": "时间选择",
+            "smart_alerts": "智慧提醒"
+          }
+        }
+      },
+      "pricing": {
+        "title": "完全免费，永久使用",
+        "subtitle": "100% 开源，没有隐藏费用，没有广告。",
+        "pill": "开源项目",
+        "label": "开始使用所需的一切",
+        "features": {
+          "unlimited": "无限提醒",
+          "due_dates": "截止日期和时间",
+          "filtering": "状态筛选",
+          "local_storage": "本机储存"
+        }
+      },
+      "faq": {
+        "title": "常见问题",
+        "subtitle": "对 Remind Me 有疑问？这里是最常见问题的答案。",
+        "items": {
+          "offline": {
+            "q": "Remind Me 可以离线使用吗？",
+            "a": "可以，所有资料都保存在本机，离线可用。"
+          },
+          "storage": {
+            "q": "我的资料储存在哪里？",
+            "a": "储存在浏览器的本地储存，不会上传到服务器。"
+          },
+          "install": {
+            "q": "如何在手机上安装 Remind Me？",
+            "a": "使用浏览器的「加入主画面」即可一键安装。"
+          },
+          "free": {
+            "q": "Remind Me 真的免费吗？",
+            "a": "是的，完全免费且开源，没有广告。"
+          }
+        }
+      },
+      "final_cta": {
+        "title": "准备好永不忘记了吗？",
+        "description": "加入成千上万信赖我们的愉快用户，让它帮你保持井井有条。"
+      },
+      "testimonials": {
+        "title": "大家都爱用 Remind Me",
+        "subtitle": "看看其他用户怎么说",
+        "items": {
+          "at": {
+            "quote": "「终于有一款可以离线使用的提醒 App，真的太喜欢了！」",
+            "person": "AT · 产品经理"
+          },
+          "mg": {
+            "quote": "「逾期标示非常醒目，我再也不会错过截止时间。」",
+            "person": "MG · 自由工作者"
+          },
+          "dp": {
+            "quote": "「用 Rust + Dioxus 打造的 PWA，在手机上真的像原生 App 一样顺。」",
+            "person": "DP · 开发者"
+          }
+        }
+      }
+    },
+    "footer": {
+      "description": "一款干净、快速的 PWA 提醒应用。可离线使用、可安装到主画面，资料只存本机。",
+      "products": "产品",
+      "resources": "资源",
+      "legal": "法律信息",
+      "links": {
+        "features": "功能",
+        "how": "使用方法",
+        "pricing": "价格",
+        "changelog": "更新记录",
+        "github": "GitHub",
+        "docs": "文档",
+        "roadmap": "Roadmap",
+        "report_issue": "回报问题",
+        "privacy": "隐私政策",
+        "terms": "使用条款",
+        "mit": "MIT 授权"
+      },
+      "aria": {
+        "products": "产品链接",
+        "resources": "资源链接",
+        "legal": "法律信息链接",
+        "features": "前往 功能",
+        "how": "前往 使用方法",
+        "pricing": "前往 价格",
+        "changelog": "在新分页开启 更新记录",
+        "github": "在新分页开启 GitHub",
+        "docs": "在新分页开启 文档",
+        "roadmap": "在新分页开启 Roadmap",
+        "report_issue": "在新分页开启 回报问题",
+        "privacy": "开启 隐私政策",
+        "terms": "开启 使用条款",
+        "mit": "在新分页开启 MIT 授权"
+      }
+    },
+    "mascot": {
+      "animation": "Remind Me 吉祥物动画"
+    }
+  },
+  "stats": {
+    "total": "总计",
+    "active": "进行中",
+    "completed": "已完成",
+    "overdue": "已逾期"
+  },
+  "filter": {
+    "all": "全部",
+    "active": "进行中",
+    "completed": "已完成"
+  },
+  "search": {
+    "placeholder": "搜索提醒..."
+  },
+  "sort": {
+    "date": "按日期排序",
+    "title": "按标题排序",
+    "status": "按状态排序"
+  },
+  "form": {
+    "new_reminder": {
+      "title": "新建提醒"
+    },
+    "edit_reminder": {
+      "title": "编辑提醒"
+    },
+    "title": {
+      "label": "标题",
+      "placeholder": "输入提醒标题"
+    },
+    "description": {
+      "label": "描述（可选）",
+      "placeholder": "输入提醒描述"
+    },
+    "due_date": {
+      "label": "到期日期（可选）"
+    },
+    "save": "保存更改",
+    "add": "添加提醒",
+    "cancel": "取消"
+  },
+  "empty": {
+    "title": "还没有提醒",
+    "description": "添加您的第一个提醒开始使用！",
+    "action": "添加提醒"
+  },
+  "toast": {
+    "added": "提醒添加成功！",
+    "updated": "提醒更新成功！",
+    "deleted": "提醒删除成功！",
+    "completed": "已完成",
+    "marked_active": "已标记为进行中",
+    "success": "成功",
+    "error": "错误",
+    "warning": "警告",
+    "info": "信息"
+  },
+  "delete": {
+    "title": "删除提醒",
+    "message": "您确定要删除此提醒吗？此操作无法撤销。",
+    "confirm": "删除",
+    "cancel": "取消"
+  },
+  "reminder": {
+    "overdue": "⚠️ 已逾期",
+    "due": "到期："
+  },
+  "language": {
+    "switch": "切换语言",
+    "en": "English",
+    "zh-Hans": "简体中文",
+    "zh-Hant": "繁體中文"
+  },
+  "legal": {
+    "privacy": {
+      "title": "隐私政策",
+      "last_updated": "最后更新：2026年1月2日",
+      "summary": {
+        "title": "摘要",
+        "no_data_collection": {
+          "label": "不收集资料。",
+          "text": "我们不会收集、出售或分享您的资料。"
+        },
+        "local_storage": {
+          "label": "仅本地储存。",
+          "text": "提醒事项储存在此装置的浏览器储存空间中。"
+        },
+        "offline_first": {
+          "label": "离线优先。",
+          "text": "应用程序无需服务器即可运作，且不需要账号。"
+        }
+      },
+      "definitions": {
+        "title": "定义",
+        "app": {
+          "label": "\"应用程序\"",
+          "text": "指 Remind Me PWA。"
+        },
+        "device": {
+          "label": "\"装置\"",
+          "text": "指您用来访问应用程序的电话、平板电脑或电脑。"
+        },
+        "local_storage": {
+          "label": "\"本地储存\"",
+          "text": "指您装置上的浏览器储存空间（例如 localStorage）。"
+        }
+      },
+      "introduction": {
+        "title": "简介",
+        "text": "欢迎使用 Remind Me（「我们」或「我们的」）。我们致力于保护您的隐私。本隐私政策说明当您使用我们的渐进式 Web 应用程序（PWA）时，我们如何处理信息。"
+      },
+      "data_collection": {
+        "title": "资料收集",
+        "label": "Remind Me 不会收集任何个人资料。",
+        "text": "您的所有提醒事项和设置都使用浏览器的本地储存空间储存在您的装置上。我们无法访问这些资料，且资料永远不会离开您的装置。"
+      },
+      "local_storage": {
+        "title": "本地储存",
+        "intro": "我们使用您的浏览器本地储存空间来储存：",
+        "items": {
+          "reminders": "您的提醒事项和任务",
+          "preferences": "应用程序偏好设置和设置",
+          "filter": "筛选和查看状态"
+        },
+        "note": "此资料保留在您的装置上，不会传输到任何服务器。您可以随时通过清除浏览器的本地储存空间来清除此资料。"
+      },
+      "information_you_provide": {
+        "title": "您提供的信息",
+        "text": "您在应用程序中输入的任何文字（例如提醒标题、描述和日期）仅储存到您的本地浏览器储存空间。我们不会接收或处理此信息。"
+      },
+      "network_requests": {
+        "title": "网络请求",
+        "text": "应用程序设计为可离线运作，不会将您的提醒资料传送到任何后端服务。如果您选择点击外部链接（例如 GitHub），您的浏览器将连接到这些网站，并适用其隐私政策。"
+      },
+      "no_account_required": {
+        "title": "无需账号",
+        "text": "Remind Me 不需要您建立账号、提供电子邮件地址或分享任何个人信息。应用程序完全离线且本地运作。"
+      },
+      "third_party_services": {
+        "title": "第三方服务",
+        "text": "我们不使用任何第三方分析、追踪或广告服务。应用程序不会向外部服务发出任何网络请求。"
+      },
+      "data_retention": {
+        "title": "资料保留与删除",
+        "text": "您的资料会保留在您的装置上，直到您删除为止。您可以在应用程序内删除提醒事项，或通过清除浏览器设置中的网站资料来移除所有资料。卸载 PWA 也可能会根据您的浏览器/装置移除储存的资料。"
+      },
+      "security": {
+        "title": "安全性",
+        "text": "由于资料储存在本地，安全性取决于您的装置和浏览器。我们建议保持您的装置操作系统和浏览器为最新版本，并在可用时启用装置层级安全性（PIN/生物识别）。"
+      },
+      "children_privacy": {
+        "title": "儿童隐私",
+        "text": "应用程序不針对 13 岁以下的儿童。我们不会故意收集儿童的个人信息，且应用程序不需要账号。"
+      },
+      "international_users": {
+        "title": "国际用户",
+        "text": "应用程序完全在您的装置上运作。由于我们不为您的提醒资料运营服务器，因此我们不会在国际间传输您的提醒内容。"
+      },
+      "open_source": {
+        "title": "开源",
+        "text": "Remind Me 是开源软件。您可以查看我们的代码以验证我们的隐私做法：",
+        "github_aria": "在新分页中开启 GitHub 储存庫",
+        "github_link": "GitHub 储存庫"
+      },
+      "changes": {
+        "title": "本政策的变更",
+        "text": "我们可能会不时更新本隐私政策。任何变更都将在此页面上发布，并附上更新的修订日期。"
+      },
+      "contact": {
+        "title": "联系我们",
+        "text": "如果您有问题或疑虑，可以在这里联系我们：",
+        "github_aria": "在新分页中开启 GitHub 问题",
+        "github_link": "GitHub 问题（支持 / 联系）"
+      }
+    },
+    "terms": {
+      "title": "使用条款",
+      "last_updated": "最后更新：2026年1月2日",
+      "summary": {
+        "title": "摘要",
+        "free_opensource": "免费且开源，以「现状」提供。",
+        "data_control": "您控制您的资料（储存在您装置的本地）。",
+        "no_warranty": "无保修；责任有限。"
+      },
+      "acceptance": {
+        "title": "接受条款",
+        "text": "通过访问和使用 Remind Me（「应用程序」），您接受并同意受这些使用条款的约束。如果您不同意这些条款，请勿使用应用程序。"
+      },
+      "eligibility": {
+        "title": "资格",
+        "text": "如果您在法律上能够在您的管辖范围内形成具有约束力的协议，则可以使用应用程序。"
+      },
+      "description": {
+        "title": "服务说明",
+        "text": "Remind Me 是一个免费、开源的渐进式 Web 应用程序（PWA），可帮助您管理提醒事项和任务。应用程序可离线运作，并将所有资料储存在您装置的本地。"
+      },
+      "license": {
+        "title": "授权",
+        "intro": "Remind Me 在 MIT 授权下发布。这意味着您可以自由：",
+        "use_any_purpose": "将应用程序用于任何目的",
+        "copy_modify": "复制和修改源代码",
+        "distribute": "分发应用程序",
+        "commercial": "商业使用",
+        "related_links": "相关链接：",
+        "mit_aria": "在新分页中开启 MIT 授权",
+        "mit_link": "MIT 授权",
+        "github_aria": "在新分页中开启 GitHub 储存庫",
+        "github_link": "GitHub 上的源代码"
+      },
+      "user_responsibilities": {
+        "title": "用户责任",
+        "intro": "您负责：",
+        "backup": "备份您自己的资料（提醒事项储存在本地）",
+        "laws": "根据适用法律使用应用程序",
+        "security": "维护您装置的安全性"
+      },
+      "acceptable_use": {
+        "title": "可接受的使用",
+        "text": "您同意不滥用应用程序。例如，您不得尝试干扰应用程序的运作，或以违反法律或第三方权利的方式使用它。"
+      },
+      "data_storage": {
+        "title": "资料储存",
+        "text": "所有资料都储存在您装置的本地。我们不提供云端备份或同步服务。如果您清除浏览器资料或卸载应用程序，您的提醒事项将会遗失。我们建议定期备份重要信息。"
+      },
+      "intellectual_property": {
+        "title": "知识产权",
+        "text": "应用程序在 MIT 授权下开源。任何商标、标志或品牌可能受其各自所有者的权利约束。"
+      },
+      "disclaimer": {
+        "title": "免责声明",
+        "text": "应用程序以「现状」提供，不提供任何明示或暗示的保修。我们不保证应用程序无错误、不中断或符合您的特定要求。"
+      },
+      "limitation": {
+        "title": "责任限制",
+        "text": "在任何情况下，作者或版权持有者均不对因使用应用程序而产生的任何索赔、损害或其他责任负责。这包括但不限于错过的提醒或遗失的资料。"
+      },
+      "termination": {
+        "title": "终止",
+        "text": "您可以随时停止使用应用程序。这些条款在必要的范围内仍然有效，以涵盖免责声明、责任限制和其他本质上应持续存在的条款。"
+      },
+      "governing_law": {
+        "title": "管辖法律",
+        "text": "这些条款旨在以符合适用法律的方式解释。如果发现任何条款无法执行，其余条款将继续有效。"
+      },
+      "changes": {
+        "title": "条款变更",
+        "text": "我们保留随时修改这些使用条款的权利。变更将在此页面上发布，并附上更新的修订日期。变更後继续使用应用程序即表示接受新条款。"
+      },
+      "contact": {
+        "title": "联系",
+        "text": "如有关于这些使用条款的问题，请在此处联系我们：",
+        "github_aria": "在新分页中开启 GitHub 问题",
+        "github_link": "GitHub 问题（支持 / 联系）"
+      }
+    }
+  }
+}
+

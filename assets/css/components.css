@@ -1,0 +1,129 @@
+.btn {
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 14px 24px;
+    margin: var(--touch-target-spacing);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--primary-color);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;  /* Ensure padding is included in size */
+    box-shadow: var(--shadow-soft);
+}
+
+.btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    box-shadow: 0 2px 8px 0 rgba(255, 107, 107, 0.25);
+    /* Lighthouse 100%: MANDATORY - small buttons still need large touch area */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 12px;
+    margin: var(--touch-target-spacing);
+    box-sizing: border-box;  /* Ensure padding is included in size */
+}
+
+.btn-danger:hover {
+    background: #FF5555;
+    box-shadow: 0 4px 12px 0 rgba(255, 107, 107, 0.35);
+}
+
+.btn-small {
+    /* Lighthouse 100%: MANDATORY - small buttons still need large touch area */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 12px;
+    font-size: 0.875rem;
+    box-sizing: border-box;  /* Ensure padding is included in size */
+}
+
+.btn-large {
+    min-width: 200px;
+    min-height: var(--touch-target-min);
+    padding: 16px 32px;
+    font-size: 1.125rem;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.tab {
+    flex: 1;
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 12px 20px;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;  /* Ensure padding is included in size */
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, 0.5);
+    color: var(--text-primary);
+}
+
+.tab.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow-soft);
+}
+

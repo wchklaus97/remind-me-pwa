@@ -2,7 +2,7 @@
   "app": {
     "title": "Remind Me PWA - Your Personal Reminder Assistant",
     "description": "A simple and elegant reminder app to help you stay organized",
-    "tagline": "Your Personal Reminder Assistant",
+    "tagline": "Reminder Assistant",
     "header": {
       "title": "🔔 Remind Me",
       "new_reminder": "+ New Reminder",
@@ -10,28 +10,184 @@
     }
   },
   "landing": {
+    "nav": {
+      "features": "Features",
+      "how": "How it works",
+      "pricing": "Pricing",
+      "faq": "FAQ"
+    },
     "hero": {
       "title": "Stay Organized,",
       "highlight": "Never Forget",
-      "description": "A beautiful and functional Progressive Web App to help you manage your reminders. Works offline, installs on your device, and keeps your data private."
+      "description": "A beautiful and functional Progressive Web App to help you manage your reminders. Works offline, installs on your device, and keeps your data private.",
+      "chip": "🔔 Never forget again",
+      "add_to_home": "Add to Home Screen",
+      "try_now": "Try it now",
+      "highlights": {
+        "no_accounts": "✅ No accounts. Everything stays on your device.",
+        "works_offline": "📶 Works offline. Your reminders are always with you.",
+        "add_to_home": "📱 Add to Home Screen for a native-like feel."
+      }
     },
     "feature": {
+      "manage": {
+        "title": "Create & Manage",
+        "description": "Easily create, edit, and delete reminders with a beautiful, intuitive interface."
+      },
+      "due": {
+        "title": "Due Dates & Times",
+        "description": "Set specific due dates and times so you never miss an important deadline."
+      },
+      "filtering": {
+        "title": "Smart Filtering",
+        "description": "Filter reminders by All, Active, or Completed to focus on what matters now."
+      },
       "pwa": {
-        "title": "Installable PWA",
-        "description": "Install on any device and access like a native app"
+        "title": "PWA Support",
+        "description": "Install on any device and use it just like a native app—works offline too!"
       },
       "offline": {
-        "title": "Offline Support",
-        "description": "Works seamlessly even without internet connection"
+        "title": "Local Storage",
+        "description": "Your data stays on your device with automatic local storage persistence."
       },
       "privacy": {
-        "title": "Private & Secure",
-        "description": "Your data stays on your device, always"
+        "title": "Overdue Alerts",
+        "description": "Never miss a deadline with prominent overdue reminder highlighting."
       }
     },
     "cta": {
-      "button": "Get Started",
+      "button": "Try it",
       "subtitle": "Free forever • No sign-up required • Start immediately"
+    },
+    "sections": {
+      "features": {
+        "title": "Features You'll Love",
+        "subtitle": "Everything you need to manage your reminders"
+      },
+      "how": {
+        "title": "How it Works",
+        "workflow_header": "🧾 My Reminders",
+        "workflow_tabs": {
+          "all": "All",
+          "active": "Active",
+          "completed": "Completed"
+        },
+        "workflow_items": {
+          "send_weekly": "Send weekly report",
+          "completed_2h_ago": "Completed 2 hours ago",
+          "completed": "Completed",
+          "grocery_this_week": "Grocery shopping this week",
+          "today_5pm": "Today at 5:00 PM",
+          "call_mom": "Call mom back",
+          "recurring_weekly": "Recurring: Every 2 days",
+          "overdue": "Overdue"
+        },
+        "right": {
+          "pill": "Simple & Fast",
+          "title": "Create reminders in seconds",
+          "description": "Set a title, choose a due date, and you're done. Remind Me handles the rest.",
+          "features": {
+            "quick_input": "Quick Input",
+            "date_picker": "Date Picker",
+            "time_picker": "Time Picker",
+            "smart_alerts": "Smart Alerts"
+          }
+        }
+      },
+      "pricing": {
+        "title": "Completely Free, Forever",
+        "subtitle": "100% open source, no hidden fees, no ads.",
+        "pill": "Open Source Project",
+        "label": "Everything you need to get started",
+        "features": {
+          "unlimited": "Unlimited reminders",
+          "due_dates": "Due dates and times",
+          "filtering": "Status filtering",
+          "local_storage": "Local storage"
+        }
+      },
+      "faq": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Have questions about Remind Me? Here are answers to the most common questions.",
+        "items": {
+          "offline": {
+            "q": "Can Remind Me be used offline?",
+            "a": "Yes, all data is stored locally and works offline."
+          },
+          "storage": {
+            "q": "Where is my data stored?",
+            "a": "Stored in your browser's local storage, never uploaded to servers."
+          },
+          "install": {
+            "q": "How do I install Remind Me on my phone?",
+            "a": "Use your browser's 'Add to Home Screen' feature to install with one tap."
+          },
+          "free": {
+            "q": "Is Remind Me really free?",
+            "a": "Yes, completely free and open source, with no ads."
+          }
+        }
+      },
+      "final_cta": {
+        "title": "Ready to never forget again?",
+        "description": "Join thousands of happy users who trust us to help them stay organized."
+      },
+      "testimonials": {
+        "title": "Loved by productive people",
+        "subtitle": "See what others are saying about Remind Me",
+        "items": {
+          "at": {
+            "quote": "\"Finally, a reminder app that works offline. Absolutely love it.\"",
+            "person": "AT · Product Manager"
+          },
+          "mg": {
+            "quote": "\"The overdue highlighting is a game-changer. I never miss deadlines anymore.\"",
+            "person": "MG · Freelancer"
+          },
+          "dp": {
+            "quote": "\"Built with Rust and Dioxus—the PWA feels like a native app on my phone.\"",
+            "person": "DP · Developer"
+          }
+        }
+      }
+    },
+    "footer": {
+      "description": "A clean, fast PWA reminder app. Works offline, installable to home screen, data stored locally.",
+      "products": "Products",
+      "resources": "Resources",
+      "legal": "Legal",
+      "links": {
+        "features": "Features",
+        "how": "How it works",
+        "pricing": "Pricing",
+        "changelog": "Changelog",
+        "github": "GitHub",
+        "docs": "Documentation",
+        "roadmap": "Roadmap",
+        "report_issue": "Report issue",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Use",
+        "mit": "MIT License"
+      },
+      "aria": {
+        "products": "Product links",
+        "resources": "Resource links",
+        "legal": "Legal links",
+        "features": "Go to Features",
+        "how": "Go to How it works",
+        "pricing": "Go to Pricing",
+        "changelog": "Open Changelog in a new tab",
+        "github": "Open GitHub in a new tab",
+        "docs": "Open Documentation in a new tab",
+        "roadmap": "Open Roadmap in a new tab",
+        "report_issue": "Open Report issue in a new tab",
+        "privacy": "Open Privacy Policy",
+        "terms": "Open Terms of Use",
+        "mit": "Open MIT License in a new tab"
+      }
+    },
+    "mascot": {
+      "animation": "Remind Me Mascot Animation"
     }
   },
   "stats": {
@@ -100,6 +256,195 @@
   "reminder": {
     "overdue": "⚠️ Overdue",
     "due": "Due:"
+  },
+  "language": {
+    "switch": "Switch language",
+    "en": "English",
+    "zh-Hans": "简体中文",
+    "zh-Hant": "繁體中文"
+  },
+  "legal": {
+    "privacy": {
+      "title": "Privacy Policy",
+      "last_updated": "Last updated: January 2, 2026",
+      "summary": {
+        "title": "Summary",
+        "no_data_collection": {
+          "label": "No data collection.",
+          "text": "We do not collect, sell, or share your data."
+        },
+        "local_storage": {
+          "label": "Local-only storage.",
+          "text": "Reminders are stored in your browser storage on this device."
+        },
+        "offline_first": {
+          "label": "Offline-first.",
+          "text": "The app works without a server and does not require an account."
+        }
+      },
+      "definitions": {
+        "title": "Definitions",
+        "app": {
+          "label": "\"App\"",
+          "text": "means Remind Me PWA."
+        },
+        "device": {
+          "label": "\"Device\"",
+          "text": "means the phone, tablet, or computer you use to access the App."
+        },
+        "local_storage": {
+          "label": "\"Local storage\"",
+          "text": "means browser storage on your Device (e.g., localStorage)."
+        }
+      },
+      "introduction": {
+        "title": "Introduction",
+        "text": "Welcome to Remind Me (\"we,\" \"our,\" or \"us\"). We are committed to protecting your privacy. This Privacy Policy explains how we handle information when you use our Progressive Web App (PWA)."
+      },
+      "data_collection": {
+        "title": "Data Collection",
+        "label": "Remind Me does not collect any personal data.",
+        "text": "All your reminders and settings are stored locally on your device using your browser's local storage. We do not have access to this data, and it never leaves your device."
+      },
+      "local_storage": {
+        "title": "Local Storage",
+        "intro": "We use your browser's local storage to save:",
+        "items": {
+          "reminders": "Your reminders and tasks",
+          "preferences": "App preferences and settings",
+          "filter": "Filter and view states"
+        },
+        "note": "This data remains on your device and is not transmitted to any server. You can clear this data at any time by clearing your browser's local storage."
+      },
+      "information_you_provide": {
+        "title": "Information You Provide",
+        "text": "Any text you type into the App (for example reminder titles, descriptions, and dates) is saved only to your local browser storage. We do not receive or process this information."
+      },
+      "network_requests": {
+        "title": "Network Requests",
+        "text": "The App is designed to work offline and does not send your reminder data to any backend service. If you choose to click external links (for example GitHub), your browser will connect to those websites and their privacy policies will apply."
+      },
+      "no_account_required": {
+        "title": "No Account Required",
+        "text": "Remind Me does not require you to create an account, provide an email address, or share any personal information. The app works entirely offline and locally."
+      },
+      "third_party_services": {
+        "title": "Third-Party Services",
+        "text": "We do not use any third-party analytics, tracking, or advertising services. The app does not make any network requests to external services."
+      },
+      "data_retention": {
+        "title": "Data Retention & Deletion",
+        "text": "Your data remains on your device until you delete it. You can delete reminders within the App, or remove all data by clearing the site's data in your browser settings. Uninstalling the PWA may also remove stored data depending on your browser/device."
+      },
+      "security": {
+        "title": "Security",
+        "text": "Because data is stored locally, security depends on your device and browser. We recommend keeping your device OS and browser up to date, and enabling device-level security (PIN/biometrics) if available."
+      },
+      "children_privacy": {
+        "title": "Children's Privacy",
+        "text": "The App is not directed to children under the age of 13. We do not knowingly collect personal information from children, and the App does not require accounts."
+      },
+      "international_users": {
+        "title": "International Users",
+        "text": "The App runs entirely on your device. Because we do not operate a server for your reminder data, we do not transfer your reminder content internationally."
+      },
+      "open_source": {
+        "title": "Open Source",
+        "text": "Remind Me is open source software. You can review our code to verify our privacy practices:",
+        "github_aria": "Open GitHub repository in a new tab",
+        "github_link": "GitHub repository"
+      },
+      "changes": {
+        "title": "Changes to This Policy",
+        "text": "We may update this Privacy Policy from time to time. Any changes will be posted on this page with an updated revision date."
+      },
+      "contact": {
+        "title": "Contact Us",
+        "text": "If you have questions or concerns, you can contact us here:",
+        "github_aria": "Open GitHub issues in a new tab",
+        "github_link": "GitHub Issues (support / contact)"
+      }
+    },
+    "terms": {
+      "title": "Terms of Use",
+      "last_updated": "Last updated: January 2, 2026",
+      "summary": {
+        "title": "Summary",
+        "free_opensource": "Free and open-source, provided \"as is\".",
+        "data_control": "You control your data (stored locally on your device).",
+        "no_warranty": "No warranty; limited liability."
+      },
+      "acceptance": {
+        "title": "Acceptance of Terms",
+        "text": "By accessing and using Remind Me (\"the App\"), you accept and agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use the App."
+      },
+      "eligibility": {
+        "title": "Eligibility",
+        "text": "You may use the App if you are legally capable of forming a binding agreement in your jurisdiction."
+      },
+      "description": {
+        "title": "Description of Service",
+        "text": "Remind Me is a free, open-source Progressive Web App (PWA) that helps you manage reminders and tasks. The App works offline and stores all data locally on your device."
+      },
+      "license": {
+        "title": "License",
+        "intro": "Remind Me is released under the MIT License. This means you are free to:",
+        "use_any_purpose": "Use the App for any purpose",
+        "copy_modify": "Copy and modify the source code",
+        "distribute": "Distribute the App",
+        "commercial": "Use it commercially",
+        "related_links": "Related links:",
+        "mit_aria": "Open MIT License in a new tab",
+        "mit_link": "MIT License",
+        "github_aria": "Open GitHub repository in a new tab",
+        "github_link": "Source code on GitHub"
+      },
+      "user_responsibilities": {
+        "title": "User Responsibilities",
+        "intro": "You are responsible for:",
+        "backup": "Backing up your own data (reminders are stored locally)",
+        "laws": "Using the App in accordance with applicable laws",
+        "security": "Maintaining the security of your device"
+      },
+      "acceptable_use": {
+        "title": "Acceptable Use",
+        "text": "You agree not to misuse the App. For example, you must not attempt to interfere with the App's operation, or use it in a way that violates laws or third-party rights."
+      },
+      "data_storage": {
+        "title": "Data Storage",
+        "text": "All data is stored locally on your device. We do not provide cloud backup or synchronization services. If you clear your browser data or uninstall the App, your reminders will be lost. We recommend regularly backing up important information."
+      },
+      "intellectual_property": {
+        "title": "Intellectual Property",
+        "text": "The App is open-source under the MIT License. Any trademarks, logos, or branding may be subject to their respective owners' rights."
+      },
+      "disclaimer": {
+        "title": "Disclaimer of Warranties",
+        "text": "THE APP IS PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT GUARANTEE THAT THE APP WILL BE ERROR-FREE, UNINTERRUPTED, OR MEET YOUR SPECIFIC REQUIREMENTS."
+      },
+      "limitation": {
+        "title": "Limitation of Liability",
+        "text": "IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM THE USE OF THE APP. THIS INCLUDES, BUT IS NOT LIMITED TO, MISSED REMINDERS OR LOST DATA."
+      },
+      "termination": {
+        "title": "Termination",
+        "text": "You may stop using the App at any time. These Terms remain effective to the extent necessary to cover disclaimers, limitations of liability, and other provisions that by their nature should survive."
+      },
+      "governing_law": {
+        "title": "Governing Law",
+        "text": "These Terms are intended to be interpreted in a manner consistent with applicable law. If any provision is found unenforceable, the remaining provisions will remain in effect."
+      },
+      "changes": {
+        "title": "Changes to Terms",
+        "text": "We reserve the right to modify these Terms of Use at any time. Changes will be posted on this page with an updated revision date. Continued use of the App after changes constitutes acceptance of the new terms."
+      },
+      "contact": {
+        "title": "Contact",
+        "text": "For questions about these Terms of Use, contact us here:",
+        "github_aria": "Open GitHub issues in a new tab",
+        "github_link": "GitHub Issues (support / contact)"
+      }
+    }
   }
 }
 

@@ -7,6 +7,7 @@ mod i18n;
 mod components;
 mod app;
 mod deployment;
+mod services;
 
 use app::App;
 
