@@ -38,7 +38,6 @@ jobs:
         id: cache
         with:
           path: |
-            ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
@@ -49,9 +48,11 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Install cargo-binstall
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          if ! command -v cargo-binstall &> /dev/null; then
+            curl -L --proto '=https' --tlsv1.2 -sSf \
+              https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          fi
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Install Dioxus CLI
@@ -63,19 +64,13 @@ jobs:
           #   /assets/This should be replaced by dx as part of the build process...
           DESIRED_DX_VERSION="0.7.2"
 
-          NEED_INSTALL="1"
-          if command -v dx &> /dev/null; then
-            CURRENT_DX_VERSION="$(dx --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
-            if [ "$CURRENT_DX_VERSION" = "$DESIRED_DX_VERSION" ]; then
-              NEED_INSTALL=""
-            else
-              echo "⚠️  dx version mismatch: found '${CURRENT_DX_VERSION}', want '${DESIRED_DX_VERSION}'"
-            fi
-          fi
-
-          if [ -n "$NEED_INSTALL" ]; then
-            echo "🔧 Installing dioxus-cli ${DESIRED_DX_VERSION}..."
-            # Use cargo install --force to override any cached dx binary.
+          # Fast path: always prefer cargo-binstall (downloads a prebuilt dx binary).
+          # This avoids slow 'cargo install dioxus-cli' compilation on CI.
+          echo "🔧 Ensuring dioxus-cli ${DESIRED_DX_VERSION} (prefer prebuilt via cargo-binstall)..."
+          if command -v cargo-binstall &> /dev/null; then
+            cargo binstall dioxus-cli --version "${DESIRED_DX_VERSION}" --no-confirm --force
+          else
+            echo "⚠️  cargo-binstall not available; falling back to cargo install (slow)"
             cargo install dioxus-cli --version "${DESIRED_DX_VERSION}" --locked --force --jobs "$(nproc)"
           fi
 
