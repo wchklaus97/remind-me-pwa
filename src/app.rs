@@ -348,7 +348,8 @@ pub fn App() -> Element {
                                     // - style-src 'self' 'unsafe-inline': Allow styles from same origin and inline styles (needed for Dioxus)
                                     // - img-src 'self' data: Allow images from same origin and data URIs
                                     // - font-src 'self' data: Allow fonts from same origin and data URIs
-                                    let _ = meta.set_attribute("content", "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;");
+                                    // - manifest-src 'self' blob: Allow manifest from same origin and blob URLs (needed for dynamic manifest generation)
+                                    let _ = meta.set_attribute("content", "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; manifest-src 'self' blob:;");
                                     let _ = head_element.append_child(&meta);
                                 }
                             }
@@ -381,14 +382,23 @@ pub fn App() -> Element {
                             // fall back to index.html, and the favicon/manifest won't load.
                             //
                             // So we MUST use the Dioxus Asset URLs here.
+                            // Note: When base_path is set in Dioxus.toml, Dioxus should automatically
+                            // include it in Asset.to_string(). However, we apply it manually here
+                            // to ensure it works correctly on GitHub Pages regardless of build configuration.
                             let with_base_path = |href: String| -> String {
+                                // If base_path is empty, return href as-is (local dev)
                                 if base_path.is_empty() {
-                                    href
-                                } else if href.starts_with(&base_path) {
-                                    href
-                                } else if href.starts_with('/') {
+                                    return href;
+                                }
+                                // If href already starts with base_path, return as-is (Dioxus already applied it)
+                                if href.starts_with(&base_path) {
+                                    return href;
+                                }
+                                // If href starts with '/', prepend base_path
+                                if href.starts_with('/') {
                                     format!("{}{}", base_path, href)
                                 } else {
+                                    // Otherwise, insert base_path before the href
                                     format!("{}/{}", base_path.trim_end_matches('/'), href)
                                 }
                             };
