@@ -56,15 +56,17 @@ codegen-units = 16  # More units = faster compilation, slightly larger binary
 lto = false                        # Disable for dev builds
 
 # WASM release profile - optimized for size and performance
-# Note: Source maps are generated separately (.wasm.map files), so we don't need debug=true
-# debug=false reduces WASM size significantly (from ~10MB to ~700KB) while still generating source maps
+# IMPORTANT: debug = true is required for Dioxus asset! macro to work correctly
+# The asset! macro needs debug symbols to resolve asset paths at runtime
+# Without debug symbols, asset URLs are replaced with placeholder error messages
+# Note: This increases WASM size but is necessary for assets to load correctly
 [profile.wasm-release]
 inherits = "release"
 opt-level = "s"                    # Optimize for size (common for WASM)
 lto = "thin"                       # Thin LTO for WASM
 codegen-units = 1                  # Better optimization
 strip = false                      # WASM handles stripping differently
-debug = false                      # You're already doing this
+debug = true                       # REQUIRED: Dioxus asset! macro needs debug symbols
 panic = "abort"                    # Smaller WASM binary
 overflow-checks = false            # Better performance
 

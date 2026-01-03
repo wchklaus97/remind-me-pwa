@@ -116,7 +116,9 @@ jobs:
           # - capture the exit code
           # - proceed if output exists
           set +e
-          # Build for production - omit --debug-symbols to disable debug symbols
+          # Build for production
+          # Note: debug symbols are enabled in Cargo.toml (wasm-release profile)
+          # This is REQUIRED for Dioxus asset! macro to work correctly
           dx build --release --platform web 2>&1 | tee build.log
           DX_EXIT="${PIPESTATUS[0]}"
           set -e
