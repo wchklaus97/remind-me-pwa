@@ -85,6 +85,7 @@ lto = false                        # Disable for dev builds
 # - If you ever see Dioxus `asset!()` URLs turning into placeholder error strings at runtime,
 #   try `debug = 1` here (smallest amount of debuginfo) and rebuild.
 # - Enabling debuginfo can increase WASM size and may make `wasm-opt` more fragile (DWARF).
+# - panic = "unwind" is required for proper error handling in WASM (prevents "unreachable" errors)
 [profile.wasm-release]
 inherits = "release"
 opt-level = "z"                    # Optimize for *smallest* size (best for download/LCP)
@@ -92,7 +93,7 @@ lto = "thin"                       # Thin LTO for WASM
 codegen-units = 1                  # Better optimization
 strip = false                      # WASM handles stripping differently
 debug = false                      # Keep WASM small; enable only if you need debuginfo/sourcemaps
-panic = "abort"                    # Smaller WASM binary
+panic = "unwind"                   # Required for WASM error handling (prevents "unreachable" runtime errors)
 overflow-checks = false            # Better performance
 
 [profile.server-dev]
