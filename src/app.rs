@@ -368,6 +368,10 @@ pub fn App() -> Element {
                                     if let Some(type_val) = link_type {
                                         let _ = link.set_attribute("type", type_val);
                                     }
+                                    // For preload, also add as="style" to indicate it's a stylesheet
+                                    if rel == "preload" && link_type == Some("text/css") {
+                                        let _ = link.set_attribute("as", "style");
+                                    }
                                     let _ = head_element.append_child(&link);
                                 }
                             };
@@ -395,6 +399,24 @@ pub fn App() -> Element {
                             let icon_192_href = with_base_path(ICON_192.to_string());
                             let icon_512_href = with_base_path(ICON_512.to_string());
                             let manifest_href = with_base_path(MANIFEST.to_string());
+
+                            // Preload CSS files for faster loading
+                            let base_css_href = with_base_path(BASE_CSS.to_string());
+                            let components_css_href = with_base_path(COMPONENTS_CSS.to_string());
+                            let app_css_href = with_base_path(APP_CSS.to_string());
+                            let landing_css_href = with_base_path(LANDING_CSS.to_string());
+                            let layout_css_href = with_base_path(LAYOUT_CSS.to_string());
+                            let utilities_css_href = with_base_path(UTILITIES_CSS.to_string());
+                            let responsive_css_href = with_base_path(RESPONSIVE_CSS.to_string());
+
+                            // Preload critical CSS files
+                            add_link_tag("preload", &base_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &components_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &app_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &landing_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &layout_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &utilities_css_href, None, Some("text/css"));
+                            add_link_tag("preload", &responsive_css_href, None, Some("text/css"));
 
                             // Favicons (tab icon)
                             add_link_tag("icon", &favicon_32_href, Some("32x32"), Some("image/avif"));
