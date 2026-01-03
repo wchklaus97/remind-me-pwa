@@ -57,8 +57,10 @@ jobs:
       - name: Install Dioxus CLI
         run: |
           if ! command -v dx &> /dev/null; then
-            cargo binstall dioxus-cli --version 0.6.3 --no-confirm 2>&1 || \
-            cargo install dioxus-cli --version 0.6.3 --locked --jobs "$(nproc)"
+            # Use dioxus-cli 0.7.x to match dioxus crate version 0.7
+            # Version mismatch causes asset! macro to fail with placeholder error message
+            cargo binstall dioxus-cli --version 0.7.0 --no-confirm 2>&1 || \
+            cargo install dioxus-cli --version 0.7.0 --locked --jobs "$(nproc)"
           fi
           dx --version
 
