@@ -90,6 +90,10 @@ static ICON_192: Asset = asset!("/assets/icons/app/icon-192x192.avif");
 #[allow(dead_code)]
 static ICON_512: Asset = asset!("/assets/icons/app/icon-512x512.avif");
 #[allow(dead_code)]
+static ICON_192_PNG: Asset = asset!("/assets/icons/app/icon-192x192.png");
+#[allow(dead_code)]
+static ICON_512_PNG: Asset = asset!("/assets/icons/app/icon-512x512.png");
+#[allow(dead_code)]
 static MANIFEST: Asset = asset!("/assets/manifest.json");
 
 #[component]
@@ -471,6 +475,8 @@ pub fn App() -> Element {
                             let favicon_ico_href = with_base_path(FAVICON_ICO.to_string());
                             let icon_192_href = with_base_path(ICON_192.to_string());
                             let icon_512_href = with_base_path(ICON_512.to_string());
+                            let icon_192_png_href = with_base_path(ICON_192_PNG.to_string());
+                            let icon_512_png_href = with_base_path(ICON_512_PNG.to_string());
                             let manifest_href = with_base_path(MANIFEST.to_string());
 
                             // Preload CSS files for faster loading
@@ -634,12 +640,40 @@ pub fn App() -> Element {
                                 Some("image/avif"),
                                 None,
                             );
+                            // PNG fallback (better install icon compatibility on older devices)
+                            upsert_link_tag(
+                                "rm-icon-192-png",
+                                "icon",
+                                &icon_192_png_href,
+                                Some("192x192"),
+                                Some("image/png"),
+                                None,
+                            );
                             upsert_link_tag(
                                 "rm-icon-512",
                                 "icon",
                                 &icon_512_href,
                                 Some("512x512"),
                                 Some("image/avif"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-icon-512-png",
+                                "icon",
+                                &icon_512_png_href,
+                                Some("512x512"),
+                                Some("image/png"),
+                                None,
+                            );
+
+                            // iOS home-screen icon (Safari ignores manifest icons; requires apple-touch-icon)
+                            // PNG is required for best compatibility.
+                            upsert_link_tag(
+                                "rm-apple-touch-icon",
+                                "apple-touch-icon",
+                                &icon_192_png_href,
+                                Some("192x192"),
+                                Some("image/png"),
                                 None,
                             );
 
@@ -669,9 +703,21 @@ pub fn App() -> Element {
                                             "purpose": "any maskable"
                                         },
                                         {
+                                            "src": icon_192_png_href,
+                                            "sizes": "192x192",
+                                            "type": "image/png",
+                                            "purpose": "any maskable"
+                                        },
+                                        {
                                             "src": icon_512_href,
                                             "sizes": "512x512",
                                             "type": "image/avif",
+                                            "purpose": "any maskable"
+                                        },
+                                        {
+                                            "src": icon_512_png_href,
+                                            "sizes": "512x512",
+                                            "type": "image/png",
                                             "purpose": "any maskable"
                                         }
                                     ]
