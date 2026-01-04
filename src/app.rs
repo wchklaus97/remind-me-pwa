@@ -1,4 +1,8 @@
 use dioxus::prelude::*;
+#[cfg(target_arch = "wasm32")]
+use dioxus::dioxus_core::use_hook_with_cleanup;
+#[cfg(target_arch = "wasm32")]
+use std::rc::Rc;
 use crate::router::{Route, get_initial_route, update_url};
 use crate::i18n::{use_init_i18n, use_i18n, Locale};
 use crate::components::{LandingPage, ReminderApp, PrivacyPolicyPage, TermsOfUsePage, MediaCacheProvider};
@@ -188,17 +192,22 @@ pub fn App() -> Element {
     // Listen for browser back/forward navigation (popstate events)
     // This ensures path-based routing works correctly with browser navigation
     // When user navigates back/forward, the URL changes and we need to update the route
-    use_effect(move || {
-        #[cfg(target_arch = "wasm32")]
-        {
+    #[cfg(target_arch = "wasm32")]
+    let _popstate_listener = use_hook_with_cleanup(
+        move || {
+            use wasm_bindgen::closure::Closure;
             use wasm_bindgen::JsCast;
 
-            if let Some(window) = web_sys::window() {
-                let mut current_route_signal = current_route;
-                let mut current_locale_signal = current_locale;
-                let mut i18n_signal = i18n;
+            let Some(window) = web_sys::window() else {
+                return None::<(web_sys::Window, Rc<Closure<dyn FnMut(web_sys::Event)>>)>;
+            };
 
-                let closure = wasm_bindgen::closure::Closure::wrap(Box::new(move |_e: web_sys::Event| {
+            let mut current_route_signal = current_route;
+            let mut current_locale_signal = current_locale;
+            let mut i18n_signal = i18n;
+
+            let handler: Rc<Closure<dyn FnMut(web_sys::Event)>> = Rc::new(Closure::wrap(
+                Box::new(move |_e: web_sys::Event| {
                     // When user navigates back/forward, update route from URL
                     let (detected_route, detected_locale) = get_initial_route();
                     current_route_signal.set(detected_route);
@@ -216,13 +225,28 @@ pub fn App() -> Element {
                         let mut ctx = i18n_signal.write();
                         ctx.set_locale(desired_locale);
                     }
-                }) as Box<dyn FnMut(_)>);
+                }) as Box<dyn FnMut(_)>));
 
-                window.add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref()).ok();
-                closure.forget(); // Keep closure alive
-            }
-        }
-    });
+            let cb = handler.as_ref().as_ref().unchecked_ref();
+            window
+                .add_event_listener_with_callback("popstate", cb)
+                .ok();
+
+            Some((window, handler))
+        },
+        |state: Option<(web_sys::Window, Rc<wasm_bindgen::closure::Closure<dyn FnMut(web_sys::Event)>>)>| {
+            use wasm_bindgen::JsCast;
+
+            let Some((window, handler)) = state else {
+                return;
+            };
+            let cb = handler.as_ref().as_ref().unchecked_ref();
+            let _ = window.remove_event_listener_with_callback("popstate", cb);
+        },
+    );
+
+    #[cfg(not(target_arch = "wasm32"))]
+    let _popstate_listener = ();
 
     use_effect(move || {
         // LCP Optimization: Detect route asynchronously after initial render

@@ -8,6 +8,10 @@ use crate::router::push_landing_section_url;
 use crate::router::{get_landing_section_from_url, replace_landing_section_url};
 use crate::components::landing_layout::{LandingFooter, LandingNavbar};
 use crate::components::ManagedCachedVideo;
+#[cfg(target_arch = "wasm32")]
+use dioxus::dioxus_core::use_hook_with_cleanup;
+#[cfg(target_arch = "wasm32")]
+use std::rc::Rc;
 
 static HERO_LOADING_MP4_120: Asset = asset!("/assets/videos/optimized/clay_crab_loading_peek_120.mp4");
 static HERO_LOADING_POSTER_160: Asset =
@@ -86,22 +90,31 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
 
     // Scrollspy: highlight nav item based on scroll position.
     // Uses scroll event + getBoundingClientRect (no IntersectionObserver features needed).
-    use_effect(move || {
-        #[cfg(target_arch = "wasm32")]
+    #[cfg(target_arch = "wasm32")]
+    let _scrollspy_listener = use_hook_with_cleanup(
         {
-            use wasm_bindgen::closure::Closure;
-            use wasm_bindgen::JsCast;
+            let locale_scrollspy = locale_scrollspy.clone();
+            move || {
+                use wasm_bindgen::closure::Closure;
+                use wasm_bindgen::JsCast;
 
-            if let Some(window) = web_sys::window() {
-                if let Some(document) = window.document() {
-                    let mut active_section_signal = active_section;
-                    let locale_for_url = locale_scrollspy.clone();
+                let Some(window) = web_sys::window() else {
+                    return None::<(web_sys::Window, Rc<Closure<dyn FnMut(web_sys::Event)>>)>;
+                };
+                let Some(document) = window.document() else {
+                    return None::<(web_sys::Window, Rc<Closure<dyn FnMut(web_sys::Event)>>)>;
+                };
 
-                    let handler = Closure::wrap(Box::new(move |_e: web_sys::Event| {
+                let document_for_handler = document.clone();
+                let mut active_section_signal = active_section;
+                let locale_for_url = locale_scrollspy.clone();
+
+                let handler: Rc<Closure<dyn FnMut(web_sys::Event)>> = Rc::new(Closure::wrap(
+                    Box::new(move |_e: web_sys::Event| {
                         let header_offset_px = 90.0_f64; // fixed header + spacing
 
                         let get_top = |id: &str| -> Option<f64> {
-                            let el = document.get_element_by_id(id)?;
+                            let el = document_for_handler.get_element_by_id(id)?;
                             Some(el.get_bounding_client_rect().top())
                         };
 
@@ -135,20 +148,34 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
                                 replace_landing_section_url(&locale_for_url, section_param);
                             }
                         }
-                    }) as Box<dyn FnMut(_)>);
+                    }) as Box<dyn FnMut(_)>));
 
-                    let cb = handler.as_ref().unchecked_ref();
-                    let _ = window.add_event_listener_with_callback("scroll", cb);
-                    let _ = window.add_event_listener_with_callback("resize", cb);
+                let cb = handler.as_ref().as_ref().unchecked_ref();
+                let _ = window.add_event_listener_with_callback("scroll", cb);
+                let _ = window.add_event_listener_with_callback("resize", cb);
 
-                    // Run once on mount.
-                    let _ = window.dispatch_event(&web_sys::Event::new("scroll").unwrap());
-
-                    handler.forget();
+                // Run once on mount.
+                if let Ok(ev) = web_sys::Event::new("scroll") {
+                    let _ = window.dispatch_event(&ev);
                 }
+
+                Some((window, handler))
             }
-        }
-    });
+        },
+        |state: Option<(web_sys::Window, Rc<wasm_bindgen::closure::Closure<dyn FnMut(web_sys::Event)>>)>| {
+            use wasm_bindgen::JsCast;
+
+            let Some((window, handler)) = state else {
+                return;
+            };
+            let cb = handler.as_ref().as_ref().unchecked_ref();
+            let _ = window.remove_event_listener_with_callback("scroll", cb);
+            let _ = window.remove_event_listener_with_callback("resize", cb);
+        },
+    );
+
+    #[cfg(not(target_arch = "wasm32"))]
+    let _scrollspy_listener = ();
 
     // On mount: if URL contains a section param, scroll to it.
     use_effect(move || {
