@@ -8,6 +8,15 @@ pub struct Reminder {
     pub due_date: String,
     pub completed: bool,
     pub created_at: String,
+    #[serde(default)]
+    pub tag_ids: Vec<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Tag {
+    pub id: String,
+    pub name: String,
+    pub color: String, // Hex color code (e.g., "#FA8A59")
 }
 
 #[derive(Clone, Debug)]

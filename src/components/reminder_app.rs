@@ -4,7 +4,7 @@ use remind_me_ui::{
     EmptyState, Toast, ToastPosition, ToastVariant,
 };
 use crate::models::Reminder;
-use crate::storage::{load_reminders, save_reminders};
+use crate::storage::{load_reminders, save_reminders, load_tags};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
 use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, ReminderCard, DeleteConfirmModal};
@@ -13,6 +13,7 @@ use crate::i18n::use_t;
 #[component]
 pub fn ReminderApp() -> Element {
     let mut reminders = use_signal(load_reminders);
+    let tags = use_signal(load_tags);
     let mut show_add_form = use_signal(|| false);
     let mut filter = use_signal(|| "all".to_string());
     let mut search_query = use_signal(String::new);
@@ -150,6 +151,7 @@ pub fn ReminderApp() -> Element {
                     ) {
                         ReminderCard {
                             reminder: reminder.clone(),
+                            tags: tags(),
                             on_toggle: move |id: String| {
                                 let mut updated = reminders();
                                 if let Some(r) = updated.iter_mut().find(|r| r.id == id) {

@@ -79,6 +79,7 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
                                     due_date: due_date(),
                                     completed: false,
                                     created_at: now_rfc3339(),
+                                    tag_ids: Vec::new(),
                                 };
                                 on_add.call(reminder);
                                 title.set(String::new());
@@ -176,6 +177,7 @@ pub fn EditReminderForm(
                                     due_date: due_date(),
                                     completed: reminder.completed,
                                     created_at: reminder.created_at.clone(),
+                                    tag_ids: reminder.tag_ids.clone(),
                                 };
                                 on_save.call(updated);
                                 title.set(String::new());

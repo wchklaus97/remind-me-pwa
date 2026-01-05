@@ -5,13 +5,14 @@ use remind_me_ui::{
     Card, CardContent,
     Checkbox,
 };
-use crate::models::Reminder;
+use crate::models::{Reminder, Tag};
 use crate::utils::{format_date, is_overdue};
 use crate::i18n::use_t;
 
 #[component]
 pub fn ReminderCard(
     reminder: Reminder,
+    tags: Vec<Tag>,
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
@@ -72,6 +73,20 @@ pub fn ReminderCard(
                                         class: "text-sm text-gray-500",
                                         {
                                             format!("{} {}", use_t("reminder.due"), format_date(&reminder.due_date))
+                                        }
+                                    }
+                                }
+                            }
+                            if !reminder.tag_ids.is_empty() {
+                                div {
+                                    class: "mt-2 flex flex-wrap gap-2",
+                                    for tag_id in reminder.tag_ids.iter() {
+                                        if let Some(tag) = tags.iter().find(|t| t.id == *tag_id) {
+                                            span {
+                                                class: "tag-chip",
+                                                style: format!("background-color: {}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;", tag.color),
+                                                {tag.name.clone()}
+                                            }
                                         }
                                     }
                                 }
