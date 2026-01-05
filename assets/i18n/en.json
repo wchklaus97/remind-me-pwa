@@ -5,7 +5,7 @@
     "tagline": "Reminder Assistant",
     "header": {
       "title": "🔔 Remind Me",
-      "new_reminder": "+ New Reminder",
+      "new_reminder": "New Reminder",
       "cancel": "Cancel"
     }
   },
@@ -19,14 +19,27 @@
     "hero": {
       "title": "Stay Organized,",
       "highlight": "Never Forget",
-      "description": "A beautiful and functional Progressive Web App to help you manage your reminders. Works offline, installs on your device, and keeps your data private.",
+      "description": "Set reminders effortlessly with our cute crab friend. Stay organized, never miss important moments, and bring joy to your daily routine.",
       "chip": "🔔 Never forget again",
       "add_to_home": "Add to Home Screen",
       "try_now": "Try it now",
       "highlights": {
-        "no_accounts": "✅ No accounts. Everything stays on your device.",
-        "works_offline": "📶 Works offline. Your reminders are always with you.",
-        "add_to_home": "📱 Add to Home Screen for a native-like feel."
+        "works_offline": "Works Offline",
+        "due_dates_times": "Due Dates & Times",
+        "install_any_device": "Install on Any Device"
+      },
+      "example_card": {
+        "title": "Example Reminders",
+        "items": {
+          "complete_proposal": "Complete project proposal",
+          "team_meeting": "Team meeting at 3pm",
+          "pay_bill": "Pay electricity bill"
+        },
+        "meta": {
+          "today": "Today",
+          "time_2_45": "2:45 PM",
+          "overdue": "Overdue"
+        }
       }
     },
     "feature": {
@@ -57,6 +70,7 @@
     },
     "cta": {
       "button": "Try it",
+      "add_to_home": "Add to Home Screen",
       "subtitle": "Free forever • No sign-up required • Start immediately"
     },
     "sections": {
@@ -66,20 +80,21 @@
       },
       "how": {
         "title": "How it Works",
-        "workflow_header": "🧾 My Reminders",
+        "workflow_header": "My Reminders",
+        "workflow_item_count": "3 items",
         "workflow_tabs": {
           "all": "All",
           "active": "Active",
-          "completed": "Completed"
+          "completed": "Done"
         },
         "workflow_items": {
+          "buy_groceries": "Buy groceries for the week",
+          "today_5pm": "Today, 5:00 PM",
           "send_weekly": "Send weekly report",
           "completed_2h_ago": "Completed 2 hours ago",
-          "completed": "Completed",
-          "grocery_this_week": "Grocery shopping this week",
-          "today_5pm": "Today at 5:00 PM",
+          "done": "Done",
           "call_mom": "Call mom back",
-          "recurring_weekly": "Recurring: Every 2 days",
+          "days_overdue": "2 days overdue",
           "overdue": "Overdue"
         },
         "right": {
@@ -99,19 +114,27 @@
         "subtitle": "100% open source, no hidden fees, no ads.",
         "pill": "Open Source Project",
         "label": "Everything you need to get started",
+        "button": "Get Started Free",
+        "forever": "/forever",
         "features": {
           "unlimited": "Unlimited reminders",
-          "due_dates": "Due dates and times",
-          "filtering": "Status filtering",
-          "local_storage": "Local storage"
+          "due_dates": "Due dates & times",
+          "filtering": "Filter by status",
+          "local_storage": "Local storage",
+          "offline": "Offline support",
+          "pwa": "Install as PWA"
         }
       },
       "faq": {
         "title": "Frequently Asked Questions",
         "subtitle": "Have questions about Remind Me? Here are answers to the most common questions.",
         "items": {
+          "pwa": {
+            "q": "What is a Progressive Web App (PWA)?",
+            "a": "A PWA is a web application that can be installed on your device and works like a native app. Remind Me is a PWA, so you can install it on your phone, tablet, or computer and use it offline."
+          },
           "offline": {
-            "q": "Can Remind Me be used offline?",
+            "q": "Does Remind Me work offline?",
             "a": "Yes, all data is stored locally and works offline."
           },
           "storage": {
@@ -125,6 +148,10 @@
           "free": {
             "q": "Is Remind Me really free?",
             "a": "Yes, completely free and open source, with no ads."
+          },
+          "contribute": {
+            "q": "Can I contribute to the project?",
+            "a": "Absolutely! Check out our GitHub repository to see the development plan, submit issues, or create pull requests. We welcome contributions!"
           }
         }
       },
@@ -136,17 +163,155 @@
         "title": "Loved by productive people",
         "subtitle": "See what others are saying about Remind Me",
         "items": {
-          "at": {
-            "quote": "\"Finally, a reminder app that works offline. Absolutely love it.\"",
-            "person": "AT · Product Manager"
+          "0": {
+            "name": "Alex Thompson",
+            "role": "Product Manager",
+            "quote": "\"Finally, a reminder app that works offline. Absolutely love it.\""
           },
-          "mg": {
-            "quote": "\"The overdue highlighting is a game-changer. I never miss deadlines anymore.\"",
-            "person": "MG · Freelancer"
+          "1": {
+            "name": "Maria Garcia",
+            "role": "Freelancer",
+            "quote": "\"The overdue highlighting is a game-changer. I never miss deadlines anymore.\""
           },
-          "dp": {
-            "quote": "\"Built with Rust and Dioxus—the PWA feels like a native app on my phone.\"",
-            "person": "DP · Developer"
+          "2": {
+            "name": "David Park",
+            "role": "Developer",
+            "quote": "\"Built with Rust and Dioxus—the PWA feels like a native app on my phone.\""
+          },
+          "3": {
+            "name": "Jessica Smith",
+            "role": "Teacher",
+            "quote": "\"Simple and elegant. Perfect for keeping track of my lesson plans.\""
+          },
+          "4": {
+            "name": "Alex Kim",
+            "role": "Student",
+            "quote": "\"Free and open source? This is exactly what I needed for my studies.\""
+          },
+          "5": {
+            "name": "Lisa Rodriguez",
+            "role": "Designer",
+            "quote": "\"Beautiful UI and works perfectly offline. Highly recommended!\""
+          },
+          "6": {
+            "name": "Chris Wilson",
+            "role": "Engineer",
+            "quote": "\"The local storage feature gives me complete control over my data.\""
+          },
+          "7": {
+            "name": "Sarah Brown",
+            "role": "Writer",
+            "quote": "\"No ads, no tracking. Just a clean reminder app. Love it!\""
+          },
+          "8": {
+            "name": "Daniel Martinez",
+            "role": "Consultant",
+            "quote": "\"Installable as a PWA? This is the future of web apps.\""
+          },
+          "9": {
+            "name": "Jennifer Kim",
+            "role": "Manager",
+            "quote": "\"Helps me stay organized without any subscription fees.\""
+          },
+          "10": {
+            "name": "Paul Taylor",
+            "role": "Entrepreneur",
+            "quote": "\"Open source and privacy-focused. Everything I want in an app.\""
+          },
+          "11": {
+            "name": "Rachel White",
+            "role": "Doctor",
+            "quote": "\"Reliable and fast. Perfect for managing my busy schedule.\""
+          },
+          "12": {
+            "name": "Kevin Lee",
+            "role": "Developer",
+            "quote": "\"Rust + Dioxus = Amazing performance. This app is lightning fast.\""
+          },
+          "13": {
+            "name": "Michelle Nguyen",
+            "role": "Designer",
+            "quote": "\"The UI is so clean and modern. Really well done!\""
+          },
+          "14": {
+            "name": "Oliver Patel",
+            "role": "Student",
+            "quote": "\"Free forever? Sign me up! This is incredible.\""
+          },
+          "15": {
+            "name": "Quinn Roberts",
+            "role": "Teacher",
+            "quote": "\"Works great on my phone and tablet. No complaints!\""
+          },
+          "16": {
+            "name": "Sophie Turner",
+            "role": "Writer",
+            "quote": "\"Simple interface, powerful features. Exactly what I needed.\""
+          },
+          "17": {
+            "name": "Uma Verma",
+            "role": "Consultant",
+            "quote": "\"The offline functionality is a lifesaver during travels.\""
+          },
+          "18": {
+            "name": "William Xu",
+            "role": "Engineer",
+            "quote": "\"Clean code, clean UI. This project is well-maintained.\""
+          },
+          "19": {
+            "name": "Yuki Zhang",
+            "role": "Designer",
+            "quote": "\"Love the minimalist design. Less is more!\""
+          },
+          "20": {
+            "name": "Anna Bell",
+            "role": "Manager",
+            "quote": "\"No data collection, no tracking. True privacy.\""
+          },
+          "21": {
+            "name": "Carlos Diaz",
+            "role": "Entrepreneur",
+            "quote": "\"The PWA install is seamless. Works like a native app.\""
+          },
+          "22": {
+            "name": "Emily Foster",
+            "role": "Doctor",
+            "quote": "\"Reliable reminders that work even without internet.\""
+          },
+          "23": {
+            "name": "George Harris",
+            "role": "Developer",
+            "quote": "\"Open source means I can trust this with my data.\""
+          },
+          "24": {
+            "name": "Isabella Jones",
+            "role": "Teacher",
+            "quote": "\"Perfect for classroom management. Students love it too!\""
+          },
+          "25": {
+            "name": "Lucas Moore",
+            "role": "Student",
+            "quote": "\"Free, fast, and functional. What more could you ask for?\""
+          },
+          "26": {
+            "name": "Nina Ortiz",
+            "role": "Designer",
+            "quote": "\"The UX is intuitive. No learning curve at all.\""
+          },
+          "27": {
+            "name": "Peter Quinn",
+            "role": "Consultant",
+            "quote": "\"Works offline, installs easily. Perfect for my workflow.\""
+          },
+          "28": {
+            "name": "Rebecca Scott",
+            "role": "Writer",
+            "quote": "\"No distractions, just clean reminders. Love it!\""
+          },
+          "29": {
+            "name": "Thomas Underwood",
+            "role": "Engineer",
+            "quote": "\"Rust performance with beautiful UI. Best of both worlds.\""
           }
         }
       }

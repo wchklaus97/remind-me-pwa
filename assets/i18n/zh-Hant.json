@@ -5,7 +5,7 @@
     "tagline": "您的個人提醒助手",
     "header": {
       "title": "🔔 提醒我",
-      "new_reminder": "+ 新建提醒",
+      "new_reminder": "新建提醒",
       "cancel": "取消"
     }
   },
@@ -19,14 +19,27 @@
     "hero": {
       "title": "保持條理,",
       "highlight": "永不忘記",
-      "description": "一個美觀實用的漸進式 Web 應用，幫助您管理提醒。支持離線使用，可安裝到設備，並保護您的數據隱私。",
+      "description": "與可愛的螃蟹朋友一起輕鬆設置提醒。保持井井有條，不錯過重要時刻，為您的日常生活增添樂趣。",
       "chip": "🔔 再也不會忘記",
       "add_to_home": "加到主畫面",
       "try_now": "立即體驗",
       "highlights": {
-        "no_accounts": "✅ 無需帳號。所有資料都保存在您的裝置上。",
-        "works_offline": "📶 離線可用。您的提醒隨時與您同在。",
-        "add_to_home": "📱 加到主畫面，享受原生應用般的體驗。"
+        "works_offline": "離線可用",
+        "due_dates_times": "日期與時間",
+        "install_any_device": "安裝到任何設備"
+      },
+      "example_card": {
+        "title": "示例提醒",
+        "items": {
+          "complete_proposal": "完成項目提案",
+          "team_meeting": "下午3點團隊會議",
+          "pay_bill": "支付電費"
+        },
+        "meta": {
+          "today": "今天",
+          "time_2_45": "下午 2:45",
+          "overdue": "已逾期"
+        }
       }
     },
     "feature": {
@@ -66,20 +79,21 @@
       },
       "how": {
         "title": "使用方法",
-        "workflow_header": "🧾 我的提醒",
+        "workflow_header": "我的提醒",
+        "workflow_item_count": "3 項",
         "workflow_tabs": {
           "all": "全部",
           "active": "進行中",
           "completed": "已完成"
         },
         "workflow_items": {
+          "buy_groceries": "本週採購雜貨",
+          "today_5pm": "今天，下午 5:00",
           "send_weekly": "發送週報",
           "completed_2h_ago": "2 小時前完成",
-          "completed": "完成",
-          "grocery_this_week": "本週採購雜貨",
-          "today_5pm": "今天 下午 5:00",
+          "done": "完成",
           "call_mom": "給媽媽回電話",
-          "recurring_weekly": "週期：週 2 天",
+          "days_overdue": "逾期 2 天",
           "overdue": "逾期"
         },
         "right": {
@@ -99,17 +113,25 @@
         "subtitle": "100% 開源，没有隱藏費用，没有廣告。",
         "pill": "開源項目",
         "label": "開始使用所需的一切",
+        "button": "免費開始使用",
+        "forever": "/永久",
         "features": {
           "unlimited": "無限提醒",
           "due_dates": "截止日期和時間",
-          "filtering": "狀態篩選",
-          "local_storage": "本機儲存"
+          "filtering": "按狀態篩選",
+          "local_storage": "本地儲存",
+          "offline": "離線支持",
+          "pwa": "安裝為 PWA"
         }
       },
       "faq": {
         "title": "常見問題",
         "subtitle": "對 Remind Me 有疑問？這裡是最常見問題的答案。",
         "items": {
+          "pwa": {
+            "q": "什麼是漸進式 Web 應用（PWA）？",
+            "a": "PWA 是可以安裝到您的設備上並像原生應用一樣工作的 Web 應用。Remind Me 是一個 PWA，因此您可以將其安裝到手機、平板電腦或計算機上，並且可以離線使用。"
+          },
           "offline": {
             "q": "Remind Me 可以離線使用嗎？",
             "a": "可以，所有資料都保存在本機，離線可用。"
@@ -125,6 +147,10 @@
           "free": {
             "q": "Remind Me 真的免費嗎？",
             "a": "是的，完全免費且開源，没有廣告。"
+          },
+          "contribute": {
+            "q": "我可以為項目做出貢獻嗎？",
+            "a": "當然可以！查看我們的 GitHub 倉庫，了解開發計劃，提交問題或創建拉取請求。我們歡迎貢獻！"
           }
         }
       },
@@ -136,17 +162,155 @@
         "title": "大家都愛用 Remind Me",
         "subtitle": "看看其他用戶怎麼說",
         "items": {
-          "at": {
-            "quote": "「終於有一款可以離線使用的提醒 App，真的太喜歡了！」",
-            "person": "AT · 產品經理"
+          "0": {
+            "name": "Alex Thompson",
+            "role": "產品經理",
+            "quote": "「終於有一款可以離線使用的提醒 App，真的太喜歡了！」"
           },
-          "mg": {
-            "quote": "「逾期標示非常醒目，我再也不會錯過截止時間。」",
-            "person": "MG · 自由工作者"
+          "1": {
+            "name": "Maria Garcia",
+            "role": "自由工作者",
+            "quote": "「逾期標示非常醒目，我再也不會錯過截止時間。」"
           },
-          "dp": {
-            "quote": "「用 Rust + Dioxus 打造的 PWA，在手機上真的像原生 App 一樣順。」",
-            "person": "DP · 開發者"
+          "2": {
+            "name": "David Park",
+            "role": "開發者",
+            "quote": "「用 Rust + Dioxus 打造的 PWA，在手機上真的像原生 App 一樣順。」"
+          },
+          "3": {
+            "name": "Jessica Smith",
+            "role": "教師",
+            "quote": "「簡單優雅，完美適合記錄我的課程計劃。」"
+          },
+          "4": {
+            "name": "Alex Kim",
+            "role": "學生",
+            "quote": "「免費且開源？這正是我學習所需。」"
+          },
+          "5": {
+            "name": "Lisa Rodriguez",
+            "role": "設計師",
+            "quote": "「漂亮的界面，完美離線工作。強烈推薦！」"
+          },
+          "6": {
+            "name": "Chris Wilson",
+            "role": "工程師",
+            "quote": "「本地儲存功能讓我完全掌控我的數據。」"
+          },
+          "7": {
+            "name": "Sarah Brown",
+            "role": "作家",
+            "quote": "「沒有廣告，沒有追蹤。只是一個乾淨的提醒應用。太喜歡了！」"
+          },
+          "8": {
+            "name": "Daniel Martinez",
+            "role": "顧問",
+            "quote": "「可安裝為 PWA？這就是 Web 應用的未來。」"
+          },
+          "9": {
+            "name": "Jennifer Kim",
+            "role": "經理",
+            "quote": "「幫助我保持條理，無需任何訂閱費用。」"
+          },
+          "10": {
+            "name": "Paul Taylor",
+            "role": "企業家",
+            "quote": "「開源且注重隱私。這就是我想要的應用程序。」"
+          },
+          "11": {
+            "name": "Rachel White",
+            "role": "醫生",
+            "quote": "「可靠且快速。完美管理我繁忙的日程。」"
+          },
+          "12": {
+            "name": "Kevin Lee",
+            "role": "開發者",
+            "quote": "「Rust + Dioxus = 驚人的性能。這個應用速度極快。」"
+          },
+          "13": {
+            "name": "Michelle Nguyen",
+            "role": "設計師",
+            "quote": "「界面如此乾淨現代。做得真的很好！」"
+          },
+          "14": {
+            "name": "Oliver Patel",
+            "role": "學生",
+            "quote": "「永遠免費？算我一個！這太不可思議了。」"
+          },
+          "15": {
+            "name": "Quinn Roberts",
+            "role": "教師",
+            "quote": "「在我的手機和平板上都很好用。沒有抱怨！」"
+          },
+          "16": {
+            "name": "Sophie Turner",
+            "role": "作家",
+            "quote": "「簡單的界面，強大的功能。正是我需要的。」"
+          },
+          "17": {
+            "name": "Uma Verma",
+            "role": "顧問",
+            "quote": "「離線功能在旅行時是救星。」"
+          },
+          "18": {
+            "name": "William Xu",
+            "role": "工程師",
+            "quote": "「乾淨的代碼，乾淨的界面。這個項目維護得很好。」"
+          },
+          "19": {
+            "name": "Yuki Zhang",
+            "role": "設計師",
+            "quote": "「喜歡極簡設計。少即是多！」"
+          },
+          "20": {
+            "name": "Anna Bell",
+            "role": "經理",
+            "quote": "「不收集數據，不追蹤。真正的隱私。」"
+          },
+          "21": {
+            "name": "Carlos Diaz",
+            "role": "企業家",
+            "quote": "「PWA 安裝無縫。像原生應用一樣工作。」"
+          },
+          "22": {
+            "name": "Emily Foster",
+            "role": "醫生",
+            "quote": "「可靠的提醒，即使沒有互聯網也能工作。」"
+          },
+          "23": {
+            "name": "George Harris",
+            "role": "開發者",
+            "quote": "「開源意味著我可以信任這個應用處理我的數據。」"
+          },
+          "24": {
+            "name": "Isabella Jones",
+            "role": "教師",
+            "quote": "「完美適合課堂管理。學生們也喜歡！」"
+          },
+          "25": {
+            "name": "Lucas Moore",
+            "role": "學生",
+            "quote": "「免費、快速且功能強大。還能要求什麼？」"
+          },
+          "26": {
+            "name": "Nina Ortiz",
+            "role": "設計師",
+            "quote": "「用戶體驗直觀。完全沒有學習曲線。」"
+          },
+          "27": {
+            "name": "Peter Quinn",
+            "role": "顧問",
+            "quote": "「離線工作，易於安裝。完美適合我的工作流程。」"
+          },
+          "28": {
+            "name": "Rebecca Scott",
+            "role": "作家",
+            "quote": "「沒有干擾，只有乾淨的提醒。太喜歡了！」"
+          },
+          "29": {
+            "name": "Thomas Underwood",
+            "role": "工程師",
+            "quote": "「Rust 性能與美麗的界面。兩全其美。」"
           }
         }
       }
