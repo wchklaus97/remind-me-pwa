@@ -1,3 +1,18 @@
+/* Desktop: Full height sections */
+@media (min-width: 981px) {
+    .features-section,
+    .workflow-section,
+    .testimonials-section,
+    .pricing-section,
+    .faq-section,
+    .cta-final {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+}
+
 @media (max-width: 900px) {
     .features-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -19,6 +34,12 @@
     .landing-footer-inner {
         /* Match navbar horizontal padding on tablet */
         padding: 44px var(--landing-x-pad) 40px var(--landing-x-pad);
+    }
+
+    /* FAQ section: Switch to single column on smaller screens */
+    .faq-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
     }
 }
 
@@ -99,6 +120,42 @@
     .landing-main {
         gap: 48px;
         padding: 22px 14px 34px 14px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .landing-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .landing-shell {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    /* Hero Section Mobile */
+    .hero-section {
+        padding: 32px 20px;
+        width: 100%;
+        max-width: 100%;
+        left: 0;
+        transform: none;
+        position: relative;
+        box-sizing: border-box;
+    }
+
+    .hero-card {
+        padding: 24px 0 0 0;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .hero-title {
@@ -117,6 +174,127 @@
 
     .hero-description {
         font-size: 1rem;
+    }
+
+    /* Workflow Section Mobile */
+    .workflow-section {
+        padding: 40px 20px;
+        min-height: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .workflow-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 0;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .workflow-left.glass-panel {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .workflow-right {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Testimonials Section Mobile */
+    .testimonials-section {
+        padding: 60px 20px;
+        min-height: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    /* Pricing Section Mobile */
+    .pricing-section {
+        padding: 60px 20px;
+        min-height: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+    }
+
+    .pricing-card {
+        padding: 28px 24px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* FAQ Section Mobile */
+    .faq-section {
+        padding: 60px 20px;
+        min-height: auto;
+    }
+
+    .faq-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 0;
+    }
+
+    /* Final CTA Section Mobile */
+    .cta-final {
+        padding: 60px 20px;
+        min-height: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .cta-final-card {
+        max-width: 100%;
+        width: 100%;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .cta-final-icon {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 24px;
+    }
+
+    .cta-final-title {
+        font-size: clamp(1.75rem, 5vw, 2.5rem);
+        margin-bottom: 16px;
+        padding: 0 10px;
+    }
+
+    .cta-final-description {
+        font-size: 1rem;
+        margin-bottom: 32px;
+        line-height: 1.6;
+        padding: 0 10px;
+    }
+
+    .cta-final-actions {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        padding: 0 10px;
+        box-sizing: border-box;
+    }
+
+    .cta-final-actions .hero-primary,
+    .cta-final-actions .hero-secondary {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+        box-sizing: border-box;
     }
 
     .nav-links {
@@ -148,13 +326,29 @@
         box-shadow: none;
     }
     
+    /* Features Section Mobile */
+    .features-section {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
+        padding: 60px 20px;
+        min-height: auto;
+    }
+
     .features-grid {
         grid-template-columns: 1fr;
         gap: 20px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .feature-card {
         padding: 24px 20px;
+        max-width: 100%;
+        width: 100%;
+        box-sizing: border-box;
     }
     
     .feature-icon {
