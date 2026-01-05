@@ -84,7 +84,7 @@ pub fn ReminderCard(
                                         if let Some(tag) = tags.iter().find(|t| t.id == *tag_id) {
                                             span {
                                                 class: "tag-chip",
-                                                style: format!("background-color: {}; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;", tag.color),
+                                                style: format!("background-color: {};", tag.color),
                                                 {tag.name.clone()}
                                             }
                                         }

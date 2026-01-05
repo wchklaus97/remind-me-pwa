@@ -231,6 +231,18 @@ textarea.form-input {
     background: linear-gradient(to right, rgba(255, 107, 107, 0.05), var(--card-bg));
 }
 
+/* Tag chips styling */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+}
+
 .reminder-header {
     display: flex;
     align-items: flex-start;
