@@ -23,6 +23,54 @@ For detailed guidelines on writing changelog entries, see [.cursor/changelog-gui
 
 ---
 
+## [0.0.2] - 2026-01-06
+
+<details>
+<summary>Changed</summary>
+
+#### Landing Page Refactoring
+- **Component Architecture** (2026-01-06)
+  - Refactored `landing.rs` into modular section components for better maintainability
+  - Split landing page into 7 dedicated section components:
+    * `hero_section.rs` - Hero section with video, title, description, CTA buttons, highlights, and example reminder card
+    * `features_section.rs` - Features grid display with 6 feature cards
+    * `workflow_section.rs` - "How it works" section with interactive reminder card and feature pills
+    * `testimonials_section.rs` - Three-row infinite carousel displaying 30+ testimonials
+    * `pricing_section.rs` - Pricing card with feature list and CTA button
+    * `faq_section.rs` - Expandable FAQ items with video icon
+    * `final_cta_section.rs` - Final call-to-action section
+  - Reduced `landing.rs` from ~800 lines to ~240 lines
+  - Improved code organization and maintainability
+  - Each section component is self-contained and easier to modify
+
+#### Mobile Responsiveness
+- **Responsive Design Improvements** (2026-01-06)
+  - Fixed critical width overflow issues on mobile devices (17784px → 100% viewport)
+  - Added comprehensive mobile responsive styles for all landing sections
+  - Proper width constraints (`width: 100%`, `max-width: 100%`, `box-sizing: border-box`)
+  - Added `overflow-x: hidden` to prevent horizontal scrolling
+  - Removed `min-height: 100vh` constraints on mobile (kept on desktop)
+  - Adjusted padding and spacing for mobile viewports
+  - Changed workflow section to single-column layout on mobile
+  - Stacked buttons vertically on mobile for better UX
+  - Reduced icon sizes and font sizes for mobile devices
+
+</details>
+
+<details>
+<summary>Fixed</summary>
+
+#### Mobile Layout Issues
+- **Width Overflow** (2026-01-06)
+  - Fixed sections extending beyond viewport width on mobile
+  - Fixed horizontal scrolling issues on mobile devices
+  - Added proper constraints to all section containers and their children
+  - Ensured all sections are properly constrained within viewport
+
+</details>
+
+---
+
 ## [0.0.1] - 2025-01-02
 
 <details>
