@@ -7,6 +7,12 @@
       "title": "🔔 提醒我",
       "new_reminder": "新建提醒",
       "cancel": "取消"
+    },
+    "views": {
+      "list": "列表",
+      "card": "卡片",
+      "folder": "資料夾",
+      "untagged": "未標籤"
     }
   },
   "landing": {

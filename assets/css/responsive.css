@@ -593,6 +593,32 @@ input[type="checkbox"]:checked {
         flex-direction: column;
         align-items: stretch;
     }
+
+    /* View switcher responsive */
+    .view-switcher {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Card view responsive */
+    .card-grid {
+        grid-template-columns: 1fr; /* Single column on mobile */
+        gap: 16px;
+    }
+
+    /* Folder view responsive */
+    .folder-group {
+        padding: 16px;
+    }
+
+    .folder-group-header {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .folder-group-title {
+        font-size: 1.125rem;
+    }
 }
 
 

@@ -7,6 +7,12 @@
       "title": "🔔 Remind Me",
       "new_reminder": "New Reminder",
       "cancel": "Cancel"
+    },
+    "views": {
+      "list": "List",
+      "card": "Card",
+      "folder": "Folder",
+      "untagged": "Untagged"
     }
   },
   "landing": {

@@ -16,6 +16,7 @@ pub mod testimonials_section;
 pub mod pricing_section;
 pub mod faq_section;
 pub mod final_cta_section;
+pub mod app_views;
 
 pub use landing::LandingPage;
 pub use features_section::FeaturesSection;
@@ -34,4 +35,5 @@ pub use testimonials_section::TestimonialsSection;
 pub use pricing_section::PricingSection;
 pub use faq_section::FAQSection;
 pub use final_cta_section::FinalCTASection;
+pub use app_views::{ListView, CardView, FolderView};
 

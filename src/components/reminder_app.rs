@@ -7,7 +7,7 @@ use crate::models::Reminder;
 use crate::storage::{load_reminders, save_reminders, load_tags};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
-use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, ReminderCard, DeleteConfirmModal};
+use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView};
 use crate::i18n::use_t;
 
 #[component]
@@ -28,6 +28,8 @@ pub fn ReminderApp() -> Element {
     // Delete confirmation state
     let mut delete_confirm_id = use_signal(|| None::<String>);
 
+    // View state (list, card, folder)
+    let mut current_view = use_signal(|| "list".to_string());
 
     rsx! {
         div {
@@ -119,6 +121,28 @@ pub fn ReminderApp() -> Element {
                     }
                 }
 
+                // View switcher
+                nav {
+                    role: "navigation",
+                    aria_label: "View switcher",
+                    class: "view-switcher",
+                    Button {
+                        variant: if current_view() == "list" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        onclick: move |_| current_view.set("list".to_string()),
+                        {use_t("app.views.list")}
+                    }
+                    Button {
+                        variant: if current_view() == "card" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        onclick: move |_| current_view.set("card".to_string()),
+                        {use_t("app.views.card")}
+                    }
+                    Button {
+                        variant: if current_view() == "folder" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        onclick: move |_| current_view.set("folder".to_string()),
+                        {use_t("app.views.folder")}
+                    }
+                }
+
                 nav {
                     role: "navigation",
                     aria_label: "Filter reminders",
@@ -140,39 +164,120 @@ pub fn ReminderApp() -> Element {
                     }
                 }
 
-                section {
-                    class: "reminders-list",
-                    aria_label: "List of reminders",
-                    for reminder in get_filtered_and_sorted_reminders(
+                // Render view based on current_view state
+                {
+                    let filtered_reminders = get_filtered_and_sorted_reminders(
                         &reminders(),
                         &filter(),
                         &search_query(),
                         &sort_by()
-                    ) {
-                        ReminderCard {
-                            reminder: reminder.clone(),
-                            tags: tags(),
-                            on_toggle: move |id: String| {
-                                let mut updated = reminders();
-                                if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
-                                    r.completed = !r.completed;
-                                    let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
-                                    reminders.set(updated);
-                                    save_reminders(&reminders());
+                    );
 
-                                    toast_message.set(format!("{} {}", use_t("toast.info"), status));
-                                    toast_variant.set(ToastVariant::Info);
-                                    show_toast.set(true);
-                                }
-                            },
-                            on_edit: move |id: String| {
-                                editing_id.set(Some(id));
-                                show_add_form.set(false);
-                            },
-                            on_delete: move |id: String| {
-                                delete_confirm_id.set(Some(id));
-                            },
-                        }
+                    match current_view().as_str() {
+                        "list" => rsx! {
+                            ListView {
+                                reminders: filtered_reminders,
+                                tags: tags(),
+                                on_toggle: move |id: String| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        r.completed = !r.completed;
+                                        let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                        reminders.set(updated);
+                                        save_reminders(&reminders());
+
+                                        toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                        toast_variant.set(ToastVariant::Info);
+                                        show_toast.set(true);
+                                    }
+                                },
+                                on_edit: move |id: String| {
+                                    editing_id.set(Some(id));
+                                    show_add_form.set(false);
+                                },
+                                on_delete: move |id: String| {
+                                    delete_confirm_id.set(Some(id));
+                                },
+                            }
+                        },
+                        "card" => rsx! {
+                            CardView {
+                                reminders: filtered_reminders,
+                                tags: tags(),
+                                on_toggle: move |id: String| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        r.completed = !r.completed;
+                                        let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                        reminders.set(updated);
+                                        save_reminders(&reminders());
+
+                                        toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                        toast_variant.set(ToastVariant::Info);
+                                        show_toast.set(true);
+                                    }
+                                },
+                                on_edit: move |id: String| {
+                                    editing_id.set(Some(id));
+                                    show_add_form.set(false);
+                                },
+                                on_delete: move |id: String| {
+                                    delete_confirm_id.set(Some(id));
+                                },
+                            }
+                        },
+                        "folder" => rsx! {
+                            FolderView {
+                                reminders: filtered_reminders,
+                                tags: tags(),
+                                on_toggle: move |id: String| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        r.completed = !r.completed;
+                                        let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                        reminders.set(updated);
+                                        save_reminders(&reminders());
+
+                                        toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                        toast_variant.set(ToastVariant::Info);
+                                        show_toast.set(true);
+                                    }
+                                },
+                                on_edit: move |id: String| {
+                                    editing_id.set(Some(id));
+                                    show_add_form.set(false);
+                                },
+                                on_delete: move |id: String| {
+                                    delete_confirm_id.set(Some(id));
+                                },
+                            }
+                        },
+                        _ => rsx! {
+                            ListView {
+                                reminders: filtered_reminders,
+                                tags: tags(),
+                                on_toggle: move |id: String| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        r.completed = !r.completed;
+                                        let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                        reminders.set(updated);
+                                        save_reminders(&reminders());
+
+                                        toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                        toast_variant.set(ToastVariant::Info);
+                                        show_toast.set(true);
+                                    }
+                                },
+                                on_edit: move |id: String| {
+                                    editing_id.set(Some(id));
+                                    show_add_form.set(false);
+                                },
+                                on_delete: move |id: String| {
+                                    delete_confirm_id.set(Some(id));
+                                },
+                            }
+                        },
                     }
                 }
 

@@ -110,6 +110,16 @@
     font-size: 1.125rem;
 }
 
+.view-switcher {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
 .filter-tabs {
     display: flex;
     gap: 12px;
@@ -313,6 +323,77 @@ textarea.form-input {
     background: rgba(255, 107, 107, 0.15);
     color: var(--danger-color);
     border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+/* Card View Styles */
+.reminders-card-view {
+    width: 100%;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card-view-item {
+    width: 100%;
+}
+
+/* Folder View Styles */
+.reminders-folder-view {
+    width: 100%;
+}
+
+.folder-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.folder-group {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.folder-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.folder-group-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.folder-group-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.folder-group-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.folder-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .empty-state {
