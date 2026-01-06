@@ -114,6 +114,8 @@ onclick: move |_| {
 ## 📚 Project Structure
 
 - **Modular architecture**: Components split into `src/components/`, routing in `src/app.rs`
+- **Landing page components**: Split into 7 dedicated section components for maintainability:
+  - `hero_section.rs`, `features_section.rs`, `workflow_section.rs`, `testimonials_section.rs`, `pricing_section.rs`, `faq_section.rs`, `final_cta_section.rs`
 - **Modular CSS**: Split into 7 files in `assets/css/` for maintainability
   - `base.css`, `components.css`, `app.css`, `landing.css`, `layout.css`, `utilities.css`, `responsive.css`
 - **Internationalization**: 3 languages supported (English, Simplified Chinese, Traditional Chinese)
@@ -122,5 +124,6 @@ onclick: move |_| {
   - Use `use_t("key.path")` for translations
 - **PWA configuration**: Manifest and service worker in `assets/`
 - **Build output**: `docs/` directory for GitHub Pages
+- **Mobile responsive**: All landing sections properly constrained for mobile viewports
 
-**Last Updated**: 2026-01-03
+**Last Updated**: 2026-01-06

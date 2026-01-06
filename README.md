@@ -145,7 +145,14 @@ remind-me-pwa/
 │   ├── router.rs         # Routing logic with locale support
 │   ├── i18n.rs           # Internationalization system
 │   ├── components/       # Reusable components (organized by purpose)
-│   │   ├── landing.rs    # Landing page
+│   │   ├── landing.rs    # Landing page (orchestrator)
+│   │   ├── hero_section.rs # Hero section
+│   │   ├── features_section.rs # Features grid
+│   │   ├── workflow_section.rs # "How it works" section
+│   │   ├── testimonials_section.rs # Testimonials carousel
+│   │   ├── pricing_section.rs # Pricing section
+│   │   ├── faq_section.rs # FAQ section
+│   │   ├── final_cta_section.rs # Final CTA section
 │   │   ├── landing_layout.rs # Navbar and footer
 │   │   ├── reminder_app.rs # Main reminder app
 │   │   ├── page_template.rs # Public page template

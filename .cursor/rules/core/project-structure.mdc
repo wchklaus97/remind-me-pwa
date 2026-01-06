@@ -13,7 +13,14 @@ remind-me-pwa/
 │   ├── i18n.rs              # Internationalization system
 │   ├── router.rs             # Routing logic
 │   ├── components/           # Reusable components (organized by purpose)
-│   │   ├── landing.rs       # Landing page (main landing component)
+│   │   ├── landing.rs       # Landing page (main landing component - orchestrates sections)
+│   │   ├── hero_section.rs  # Hero section (video, title, CTA buttons, highlights, example card)
+│   │   ├── features_section.rs # Features grid section
+│   │   ├── workflow_section.rs # "How it works" section (interactive reminder card)
+│   │   ├── testimonials_section.rs # Testimonials carousel section (3-row infinite scroll)
+│   │   ├── pricing_section.rs # Pricing card section
+│   │   ├── faq_section.rs   # FAQ section (expandable items)
+│   │   ├── final_cta_section.rs # Final call-to-action section
 │   │   ├── landing_layout.rs # Landing layout (navbar, footer)
 │   │   ├── page_template.rs  # Public page template (navbar + footer wrapper)
 │   │   ├── reminder_app.rs   # Main reminder app component
@@ -121,7 +128,15 @@ The `App` component (`src/app.rs`) is the root component that:
 ### Component Organization
 
 Components are organized by purpose:
-- **Pages**: `landing.rs`, `reminder_app.rs`, `legal.rs`
+- **Pages**: `landing.rs` (orchestrator), `reminder_app.rs`, `legal.rs`
+- **Landing Sections**: 
+  - `hero_section.rs` - Hero section with video, CTA buttons, highlights, example card
+  - `features_section.rs` - Features grid display
+  - `workflow_section.rs` - "How it works" section with interactive card
+  - `testimonials_section.rs` - Three-row infinite carousel
+  - `pricing_section.rs` - Pricing card with features list
+  - `faq_section.rs` - Expandable FAQ items
+  - `final_cta_section.rs` - Final call-to-action section
 - **Layouts**: `landing_layout.rs`, `page_template.rs`
 - **Forms**: `forms.rs` (AddReminderForm, EditReminderForm)
 - **Cards**: `cards.rs` (ReminderCard)
