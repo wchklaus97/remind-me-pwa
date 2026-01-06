@@ -11,9 +11,39 @@ For detailed guidelines on writing changelog entries, see [.cursor/changelog-gui
 
 ## [Unreleased]
 
+### Added
+
+- **Tag Management System** ([5a78407](https://github.com/wchklaus97/remind-me-pwa/commit/5a78407))
+  - TagForm component for creating/editing tags with name and color picker
+  - TagManager component with modal interface for tag management
+  - Tag selection UI (multi-select checkboxes) in AddReminderForm and EditReminderForm
+  - 12 preset colors for tag color picker
+  - Tag display on reminder cards with color coding
+  - Tag management button in ReminderApp header
+  - Full i18n support (en/zh-Hans/zh-Hant) for tag management
+  - Responsive design for tag management interface
+
+- **Multi-View Switching** ([f3471fd](https://github.com/wchklaus97/remind-me-pwa/commit/f3471fd))
+  - ListView, CardView, and FolderView components
+  - View switcher UI in ReminderApp
+  - Folder view groups reminders by tags
+  - Untagged reminders section in folder view
+
+- **Calendar View** ([f6da14f](https://github.com/wchklaus97/remind-me-pwa/commit/f6da14f))
+  - CalendarView component with month grid display
+  - Calendar navigation (prev/next month, today button)
+  - Reminders grouped by date
+  - Unscheduled reminders section
+  - Date selection and reminder display
+
+- **Tags System** ([2bc34d0](https://github.com/wchklaus97/remind-me-pwa/commit/2bc34d0))
+  - Tag data model with id, name, and color
+  - Reminder model extended with tag_ids field
+  - Tag storage in localStorage
+  - Data migration from v1 to v2 for backward compatibility
+
 ### Planned
 
-- [ ] Add reminder categories/tags
 - [ ] Add reminder search functionality
 - [ ] Add reminder sorting options
 - [ ] Add reminder export/import
