@@ -543,39 +543,44 @@ input[type="checkbox"]:checked {
     border: 2px dashed var(--border-color);
 }
 
-@media (max-width: 600px) {
+/* App Page Mobile Responsive Styles (PR 1) */
+@media (max-width: 768px) {
+    /* 1. App Container - Fix width constraints and prevent horizontal overflow */
     .app-container {
-        padding: 10px;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+        padding: 16px; /* Reduced from 20px for better mobile spacing */
+        overflow-x: hidden; /* Prevent horizontal scroll */
     }
 
+    /* 2. App Header - Vertical stacking and spacing adjustments */
     .app-header {
         flex-direction: column;
         gap: 15px;
         align-items: stretch;
+        padding: 20px 16px; /* Reduced padding for mobile */
     }
 
     .app-header h1 {
-        font-size: 1.5rem;
+        font-size: 1.5rem; /* Reduced from 2rem */
         text-align: center;
+        margin: 0;
     }
 
-    .reminder-header {
-        flex-wrap: wrap;
+    .app-header-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: stretch;
+        width: 100%;
     }
 
-    .landing-header h1 {
-        font-size: 2rem;
+    .app-header-actions button {
+        flex: 1; /* Equal width buttons */
+        min-width: 0; /* Allow flex to work */
     }
 
-    .hero h2 {
-        font-size: 1.75rem;
-    }
-
-    .features {
-        flex-direction: column;
-        gap: 20px;
-    }
-
+    /* 3. Statistics - Vertical stacking on mobile */
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: 0.75rem;
@@ -589,24 +594,129 @@ input[type="checkbox"]:checked {
         font-size: 1.5rem;
     }
 
+    /* 4. Search and Sort Controls - Full width and stacked */
+    .controls {
+        margin-bottom: 1rem;
+    }
+
     .controls .flex {
         flex-direction: column;
         align-items: stretch;
+        gap: 12px;
     }
 
-    /* View switcher responsive */
+    .controls input[type="text"],
+    .controls select {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    /* 5. Filter Tabs - Ensure touch targets and spacing */
+    .filter-tabs {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .filter-tabs .tab {
+        flex: 1;
+        min-width: calc(50% - 4px); /* Two columns on mobile */
+        min-height: 48px; /* Ensure touch target */
+        padding: 12px 16px;
+    }
+
+    /* 6. View Switcher - Wrap and ensure touch targets */
     .view-switcher {
         flex-wrap: wrap;
         gap: 8px;
+        padding: 8px;
     }
 
-    /* Card view responsive */
-    .card-grid {
-        grid-template-columns: 1fr; /* Single column on mobile */
+    .view-switcher button {
+        flex: 1;
+        min-width: calc(50% - 4px); /* Two columns on mobile */
+        min-height: 48px; /* Ensure touch target */
+    }
+
+    /* 7. Reminder Cards - Full width and adjusted padding */
+    .reminder-card {
+        width: 100%;
+        margin-bottom: 16px;
+        box-sizing: border-box;
+    }
+
+    .reminder-card .card-content {
+        padding: 16px; /* Reduced from default */
+    }
+
+    /* Reminder card content layout - stack buttons on mobile */
+    .reminder-card .flex.items-start.justify-between {
+        flex-direction: column;
         gap: 16px;
     }
 
-    /* Folder view responsive */
+    .reminder-card .flex.gap-2 {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .reminder-card .flex.gap-2 button {
+        width: 100%;
+        min-height: 48px; /* Ensure touch target */
+    }
+
+    .reminder-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    /* 8. Forms - Full width inputs and better spacing */
+    .add-form {
+        padding: 20px 16px; /* Reduced padding for mobile */
+        margin-bottom: 20px;
+    }
+
+    .add-form h2,
+    .add-form .card-title {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .add-form input[type="text"],
+    .add-form input[type="datetime-local"],
+    .add-form textarea,
+    .add-form select {
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Form button container - stack buttons vertically on mobile */
+    .add-form .mt-4.flex.justify-end,
+    .add-form .mt-4.flex.justify-end.gap-2 {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .add-form .mt-4.flex.justify-end button,
+    .add-form .mt-4.flex.justify-end.gap-2 button {
+        width: 100%;
+        min-height: 48px; /* Ensure touch target */
+    }
+
+    /* 9. Card View - Single column on mobile */
+    .card-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* 10. Folder View - Adjusted padding */
     .folder-group {
         padding: 16px;
     }
@@ -620,7 +730,7 @@ input[type="checkbox"]:checked {
         font-size: 1.125rem;
     }
 
-    /* Calendar View */
+    /* 11. Calendar View - Adjusted for mobile */
     .calendar-header {
         flex-wrap: wrap;
         gap: 12px;
@@ -665,7 +775,15 @@ input[type="checkbox"]:checked {
         font-size: 1.1rem;
     }
 
-    /* Tag Management Responsive */
+    /* 12. Tag Management Responsive */
+    .tag-manager-content {
+        padding: 16px;
+    }
+
+    .tag-list {
+        grid-template-columns: 1fr; /* Single column on mobile */
+    }
+
     .color-options {
         gap: 6px;
     }
@@ -691,12 +809,24 @@ input[type="checkbox"]:checked {
     }
 
     .tag-checkbox-label {
-        min-height: 44px; /* Slightly smaller on mobile */
-        padding: 6px;
+        min-height: 48px; /* Ensure touch target */
+        padding: 8px 12px;
+    }
+}
+
+/* Landing page styles - keep existing */
+@media (max-width: 600px) {
+    .landing-header h1 {
+        font-size: 2rem;
     }
 
-    .app-header-actions {
-        gap: 8px;
+    .hero h2 {
+        font-size: 1.75rem;
+    }
+
+    .features {
+        flex-direction: column;
+        gap: 20px;
     }
 }
 

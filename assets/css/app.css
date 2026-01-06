@@ -4,6 +4,8 @@
     padding: 20px;
     background: transparent !important; /* Ensure it's transparent to show body background */
     min-height: 100vh; /* Ensure it covers full height */
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 .app-header {
