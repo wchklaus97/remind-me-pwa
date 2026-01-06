@@ -1,4 +1,4 @@
-use crate::models::{Reminder, Statistics};
+use crate::models::{Reminder, Statistics, ReminderFilter, ReminderSort};
 
 #[cfg(not(target_arch = "wasm32"))]
 use chrono::TimeZone;
@@ -73,18 +73,18 @@ pub fn calculate_statistics(reminders: &[Reminder]) -> Statistics {
 /// chains and in-place sorting.
 pub fn get_filtered_and_sorted_reminders(
     reminders: &[Reminder],
-    filter: &str,
+    filter: &ReminderFilter,
     search_query: &str,
-    sort_by: &str,
+    sort_by: &ReminderSort,
 ) -> Vec<Reminder> {
     let mut filtered: Vec<Reminder> = reminders
         .iter()
         .filter(|r| {
             // Apply filter
             let matches_filter = match filter {
-                "active" => !r.completed,
-                "completed" => r.completed,
-                _ => true,
+                ReminderFilter::Active => !r.completed,
+                ReminderFilter::Completed => r.completed,
+                ReminderFilter::All => true,
             };
 
             // Apply search
@@ -103,10 +103,10 @@ pub fn get_filtered_and_sorted_reminders(
 
     // Sort reminders
     match sort_by {
-        "title" => {
+        ReminderSort::Title => {
             filtered.sort_by(|a, b| a.title.cmp(&b.title));
         }
-        "status" => {
+        ReminderSort::Status => {
             filtered.sort_by(|a, b| {
                 // Completed items last
                 match (a.completed, b.completed) {
@@ -116,7 +116,7 @@ pub fn get_filtered_and_sorted_reminders(
                 }
             });
         }
-        _ => {
+        ReminderSort::Date => {
             // Sort by date (default)
             filtered.sort_by(|a, b| {
                 let date_a = parse_date_for_sort(&a.due_date);

@@ -3,7 +3,7 @@ use remind_me_ui::{
     Button, ButtonVariant, Input, Select, SelectOption,
     EmptyState, Toast, ToastPosition, ToastVariant,
 };
-use crate::models::Reminder;
+use crate::models::{Reminder, ReminderFilter, ReminderSort};
 use crate::storage::{load_reminders, save_reminders, load_tags};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
@@ -15,9 +15,9 @@ pub fn ReminderApp() -> Element {
     let mut reminders = use_signal(load_reminders);
     let mut tags = use_signal(load_tags);
     let mut show_add_form = use_signal(|| false);
-    let mut filter = use_signal(|| "all".to_string());
+    let mut filter = use_signal(|| ReminderFilter::All);
     let mut search_query = use_signal(String::new);
-    let mut sort_by = use_signal(|| "date".to_string());
+    let mut sort_by = use_signal(|| ReminderSort::Date);
     let mut editing_id = use_signal(|| None::<String>);
 
     // Toast notification state
@@ -170,21 +170,21 @@ pub fn ReminderApp() -> Element {
                     aria_label: "Filter reminders",
                     class: "filter-tabs",
                     Button {
-                        variant: if filter() == "all" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        variant: if filter() == ReminderFilter::All { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         aria_label: Some(use_t("filter.all")),
-                        onclick: move |_| filter.set("all".to_string()),
+                        onclick: move |_| filter.set(ReminderFilter::All),
                         {use_t("filter.all")}
                     }
                     Button {
-                        variant: if filter() == "active" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        variant: if filter() == ReminderFilter::Active { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         aria_label: Some(use_t("filter.active")),
-                        onclick: move |_| filter.set("active".to_string()),
+                        onclick: move |_| filter.set(ReminderFilter::Active),
                         {use_t("filter.active")}
                     }
                     Button {
-                        variant: if filter() == "completed" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        variant: if filter() == ReminderFilter::Completed { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         aria_label: Some(use_t("filter.completed")),
-                        onclick: move |_| filter.set("completed".to_string()),
+                        onclick: move |_| filter.set(ReminderFilter::Completed),
                         {use_t("filter.completed")}
                     }
                 }
