@@ -65,6 +65,12 @@ pub fn calculate_statistics(reminders: &[Reminder]) -> Statistics {
     }
 }
 
+/// Filter and sort reminders based on filter, search query, and sort criteria.
+/// 
+/// Performance: This function is optimized for typical use cases (<100 reminders).
+/// For larger datasets (>500 items), consider implementing virtual scrolling
+/// or debounced search input. The current implementation uses efficient iterator
+/// chains and in-place sorting.
 pub fn get_filtered_and_sorted_reminders(
     reminders: &[Reminder],
     filter: &str,
