@@ -13,10 +13,15 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
 - ✅ Create, edit, and delete reminders
 - 📅 Set due dates and times
 - 🎯 Filter reminders (All, Active, Completed)
+- 🔍 Search and sort reminders
+- 🏷️ Tag management system with color coding
+- 📊 Multiple view modes (List, Card, Folder, Calendar)
+- 📆 Calendar view with date grouping
 - 💾 Local storage persistence
 - 📱 PWA support - install on your device
 - ⚠️ Overdue reminders highlighting
-- 🎨 Modern, responsive UI
+- 🎨 Modern, responsive UI with enhanced visual design
+- ♿ Full accessibility support (ARIA labels, keyboard navigation)
 - 🌐 Multi-language support (English, 简体中文, 繁體中文)
 - 🎬 Media caching with shimmer loading
 - 🧩 Modular component architecture
