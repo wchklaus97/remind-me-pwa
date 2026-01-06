@@ -16,9 +16,11 @@ pub fn CardView(
             aria_label: "Card view of reminders",
             div {
                 class: "card-grid",
-                for reminder in reminders {
+                for (index, reminder) in reminders.iter().enumerate() {
                     div {
+                        key: "{reminder.id}",
                         class: "card-view-item",
+                        style: format!("animation-delay: {}ms;", index * 50),
                         ReminderCard {
                             reminder: reminder.clone(),
                             tags: tags.clone(),

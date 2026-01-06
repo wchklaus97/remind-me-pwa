@@ -230,6 +230,18 @@ button:focus-visible {
     margin-bottom: 24px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .add-form h2 {
@@ -273,6 +285,23 @@ textarea.form-input {
     gap: 15px;
 }
 
+/* Animation for reminder items */
+.reminder-item {
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .reminder-card {
     background: var(--card-bg);
     padding: 24px;
@@ -283,6 +312,18 @@ textarea.form-input {
     border: 1px solid var(--border-color);
     position: relative;
     overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Add subtle gradient overlay */
@@ -417,6 +458,8 @@ textarea.form-input {
 
 .card-view-item {
     width: 100%;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
 }
 
 /* Folder View Styles */

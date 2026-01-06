@@ -59,13 +59,18 @@ pub fn FolderView(
                         }
                         div {
                             class: "folder-group-items",
-                            for reminder in tag_reminders {
-                                ReminderCard {
-                                    reminder: reminder.clone(),
-                                    tags: tags.clone(),
-                                    on_toggle: move |id: String| on_toggle.call(id),
-                                    on_edit: move |id: String| on_edit.call(id),
-                                    on_delete: move |id: String| on_delete.call(id),
+                            for (index, reminder) in tag_reminders.iter().enumerate() {
+                                div {
+                                    key: "{reminder.id}",
+                                    class: "reminder-item",
+                                    style: format!("animation-delay: {}ms;", index * 50),
+                                    ReminderCard {
+                                        reminder: reminder.clone(),
+                                        tags: tags.clone(),
+                                        on_toggle: move |id: String| on_toggle.call(id),
+                                        on_edit: move |id: String| on_edit.call(id),
+                                        on_delete: move |id: String| on_delete.call(id),
+                                    }
                                 }
                             }
                         }
@@ -75,6 +80,7 @@ pub fn FolderView(
                 // Render untagged reminders if any
                 if !untagged.is_empty() {
                     div {
+                        key: "{format!(\"untagged\")}",
                         class: "folder-group",
                         div {
                             class: "folder-group-header",
@@ -89,13 +95,18 @@ pub fn FolderView(
                         }
                         div {
                             class: "folder-group-items",
-                            for reminder in untagged {
-                                ReminderCard {
-                                    reminder: reminder.clone(),
-                                    tags: tags.clone(),
-                                    on_toggle: move |id: String| on_toggle.call(id),
-                                    on_edit: move |id: String| on_edit.call(id),
-                                    on_delete: move |id: String| on_delete.call(id),
+                            for (index, reminder) in untagged.iter().enumerate() {
+                                div {
+                                    key: "{reminder.id}",
+                                    class: "reminder-item",
+                                    style: format!("animation-delay: {}ms;", index * 50),
+                                    ReminderCard {
+                                        reminder: reminder.clone(),
+                                        tags: tags.clone(),
+                                        on_toggle: move |id: String| on_toggle.call(id),
+                                        on_edit: move |id: String| on_edit.call(id),
+                                        on_delete: move |id: String| on_delete.call(id),
+                                    }
                                 }
                             }
                         }

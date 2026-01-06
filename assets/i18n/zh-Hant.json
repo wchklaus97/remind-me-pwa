@@ -412,9 +412,16 @@
     "cancel": "取消"
   },
   "empty": {
-    "title": "还没有提醒",
+    "title": "還沒有提醒",
     "description": "添加您的第一個提醒開始使用！",
-    "action": "添加提醒"
+    "action": "添加提醒",
+    "active_title": "沒有待辦提醒",
+    "active_description": "所有提醒都已完成！太棒了！🎉",
+    "completed_title": "沒有已完成的提醒",
+    "completed_description": "完成一個提醒後，它會顯示在這裡。",
+    "search_title": "未找到結果",
+    "search_description": "嘗試調整搜尋條件或篩選器來找到您要找的內容。",
+    "clear_search": "清除搜尋"
   },
   "toast": {
     "added": "提醒添加成功！",

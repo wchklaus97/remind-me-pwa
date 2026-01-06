@@ -415,7 +415,14 @@
   "empty": {
     "title": "No reminders yet",
     "description": "Add your first reminder to get started!",
-    "action": "Add Reminder"
+    "action": "Add Reminder",
+    "active_title": "No active reminders",
+    "active_description": "All your reminders are completed! Great job! 🎉",
+    "completed_title": "No completed reminders",
+    "completed_description": "Complete a reminder to see it here.",
+    "search_title": "No results found",
+    "search_description": "Try adjusting your search or filter to find what you're looking for.",
+    "clear_search": "Clear Search"
   },
   "toast": {
     "added": "Reminder added successfully!",

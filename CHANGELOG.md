@@ -45,6 +45,23 @@ For detailed guidelines on writing changelog entries, see [.cursor/changelog-gui
   - Performance documentation and assessment
   - Improved accessibility for screen readers
 
+- **App Page Improvements - Stage 5: Additional UX Enhancements** (In Progress)
+  - Global keyboard shortcuts:
+    - 'n' key to create new reminder
+    - 'Esc' key to close forms/modals (priority: delete confirm > tag manager > edit form > add form)
+    - '/' key to focus search input (smart handling: avoids triggering in input fields)
+  - Enhanced empty states:
+    - Context-aware messages based on filter state (All/Active/Completed)
+    - Different icons and messages for search results
+    - Multi-locale support for all empty state messages (en/zh-Hans/zh-Hant)
+    - Empty state integrated in ListView component
+  - Animations and transitions:
+    - Fade-in animations for reminder cards (fadeInUp)
+    - Staggered animations for list items (50ms delay per item)
+    - Form fade-in animations (fadeIn)
+    - Smooth transitions for all interactive elements
+    - Slide-in animations for reminder cards
+
 - **Tag Management System** ([5a78407](https://github.com/wchklaus97/remind-me-pwa/commit/5a78407))
   - TagForm component for creating/editing tags with name and color picker
   - TagManager component with modal interface for tag management

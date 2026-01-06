@@ -1,4 +1,8 @@
 use dioxus::prelude::*;
+#[cfg(target_arch = "wasm32")]
+use dioxus::dioxus_core::use_hook_with_cleanup;
+#[cfg(target_arch = "wasm32")]
+use std::rc::Rc;
 use remind_me_ui::{
     Button, ButtonVariant, Input, Select, SelectOption,
     EmptyState, Toast, ToastPosition, ToastVariant,
@@ -33,6 +37,111 @@ pub fn ReminderApp() -> Element {
 
     // Tag manager modal state
     let mut show_tag_manager = use_signal(|| false);
+
+    // Keyboard shortcuts (global event listener)
+    #[cfg(target_arch = "wasm32")]
+    let _keyboard_listener = use_hook_with_cleanup(
+        move || {
+            use wasm_bindgen::closure::Closure;
+            use wasm_bindgen::JsCast;
+
+            let Some(window) = web_sys::window() else {
+                return None::<(web_sys::Window, Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>>)>;
+            };
+
+            let Some(document) = window.document() else {
+                return None;
+            };
+
+            let mut show_add_form_signal = show_add_form;
+            let mut editing_id_signal = editing_id;
+            let mut delete_confirm_id_signal = delete_confirm_id;
+            let mut show_tag_manager_signal = show_tag_manager;
+
+            let handler: Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>> = Rc::new(Closure::wrap(
+                Box::new(move |e: web_sys::KeyboardEvent| {
+                    let key = e.key();
+                    
+                    // Check if user is typing in an input/textarea
+                    // Don't trigger shortcuts when typing in inputs (except '/' for search)
+                    let target = e.target();
+                    if let Some(element) = target.and_then(|t| t.dyn_into::<web_sys::Element>().ok()) {
+                        let tag_name = element.tag_name().to_lowercase();
+                        if tag_name == "input" || tag_name == "textarea" {
+                            // Only allow '/' to focus search when typing in other inputs
+                            // Don't allow it if already in search input
+                            if key == "/" {
+                                let element_id = element.id();
+                                if element_id == "search_reminders" {
+                                    // Don't trigger shortcut when typing '/' in search input
+                                    return;
+                                }
+                                // Allow '/' to focus search when in other inputs
+                            } else {
+                                // Block all other shortcuts when in inputs
+                                return;
+                            }
+                        }
+                    }
+
+                    match key.as_str() {
+                        "n" | "N" => {
+                            // Only if not already in a form and no modals open
+                            if !show_add_form_signal() && editing_id_signal().is_none() && delete_confirm_id_signal().is_none() && !show_tag_manager_signal() {
+                                e.prevent_default();
+                                show_add_form_signal.set(true);
+                            }
+                        }
+                        "Escape" => {
+                            e.prevent_default();
+                            // Close in priority order: delete confirm > tag manager > edit form > add form
+                            if delete_confirm_id_signal().is_some() {
+                                delete_confirm_id_signal.set(None);
+                            } else if show_tag_manager_signal() {
+                                show_tag_manager_signal.set(false);
+                            } else if editing_id_signal().is_some() {
+                                editing_id_signal.set(None);
+                            } else if show_add_form_signal() {
+                                show_add_form_signal.set(false);
+                            }
+                        }
+                        "/" => {
+                            // Only if not already in a form and not in search input
+                            if !show_add_form_signal() && editing_id_signal().is_none() && delete_confirm_id_signal().is_none() && !show_tag_manager_signal() {
+                                e.prevent_default();
+                                // Focus search input
+                                if let Some(document) = web_sys::window().and_then(|w| w.document()) {
+                                    if let Ok(Some(search_input)) = document.query_selector("#search_reminders") {
+                                        if let Some(input) = search_input.dyn_into::<web_sys::HtmlInputElement>().ok() {
+                                            let _ = input.focus();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }) as Box<dyn FnMut(_)>));
+
+            let cb = handler.as_ref().as_ref().unchecked_ref();
+            document
+                .add_event_listener_with_callback("keydown", cb)
+                .ok();
+
+            Some((window, handler))
+        },
+        |state: Option<(web_sys::Window, Rc<wasm_bindgen::closure::Closure<dyn FnMut(web_sys::KeyboardEvent)>>)>| {
+            use wasm_bindgen::JsCast;
+
+            let Some((window, handler)) = state else {
+                return;
+            };
+            if let Some(document) = window.document() {
+                let cb = handler.as_ref().as_ref().unchecked_ref();
+                let _ = document.remove_event_listener_with_callback("keydown", cb);
+            }
+        },
+    );
 
     rsx! {
         div {
@@ -90,7 +199,9 @@ pub fn ReminderApp() -> Element {
                             id: "sort_reminders".to_string(),
                             name: "sort_by".to_string(),
                             value: sort_by().as_str().to_string(),
-                            onchange: move |value: String| sort_by.set(ReminderSort::from_str(value.as_str())),
+                            onchange: move |value: String| {
+                                sort_by.set(ReminderSort::from_str(&value));
+                            },
                             options: vec![
                                 SelectOption { value: "date".to_string(), label: use_t("sort.date") },
                                 SelectOption { value: "title".to_string(), label: use_t("sort.title") },
@@ -203,6 +314,8 @@ pub fn ReminderApp() -> Element {
                             ListView {
                                 reminders: filtered_reminders,
                                 tags: tags(),
+                                filter: filter(),
+                                search_query: search_query(),
                                 on_toggle: move |id: String| {
                                     let mut updated = reminders();
                                     if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
@@ -223,6 +336,7 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
                         "card" => rsx! {
@@ -310,6 +424,8 @@ pub fn ReminderApp() -> Element {
                             ListView {
                                 reminders: filtered_reminders,
                                 tags: tags(),
+                                filter: filter(),
+                                search_query: search_query(),
                                 on_toggle: move |id: String| {
                                     let mut updated = reminders();
                                     if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
@@ -330,6 +446,7 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
                     }

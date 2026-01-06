@@ -414,7 +414,14 @@
   "empty": {
     "title": "还没有提醒",
     "description": "添加您的第一个提醒开始使用！",
-    "action": "添加提醒"
+    "action": "添加提醒",
+    "active_title": "没有待办提醒",
+    "active_description": "所有提醒都已完成！太棒了！🎉",
+    "completed_title": "没有已完成的提醒",
+    "completed_description": "完成一个提醒后，它会显示在这里。",
+    "search_title": "未找到结果",
+    "search_description": "尝试调整搜索条件或筛选器来找到您要找的内容。",
+    "clear_search": "清除搜索"
   },
   "toast": {
     "added": "提醒添加成功！",
