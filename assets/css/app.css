@@ -4,6 +4,8 @@
     padding: 20px;
     background: transparent !important; /* Ensure it's transparent to show body background */
     min-height: 100vh; /* Ensure it covers full height */
+    width: 100%;
+    box-sizing: border-box; /* Ensure padding is included in width */
 }
 
 .app-header {
@@ -16,13 +18,36 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle glow effect to header */
+.app-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.app-header > * {
+    position: relative;
+    z-index: 1;
 }
 
 .app-header h1 {
     font-size: 2rem;
     color: white;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 800; /* Increased from 700 for better visual hierarchy */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    letter-spacing: -0.02em; /* Match landing page typography */
+    line-height: 1.2;
+    margin: 0;
 }
 
 .btn {
@@ -62,6 +87,19 @@
 .btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+}
+
+/* Accessibility: Focus indicators (Lighthouse 100% requirement) */
+.btn:focus-visible,
+.tab:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
+}
+
+.btn:focus-visible:not(:hover) {
+    transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -110,6 +148,17 @@
     font-size: 1.125rem;
 }
 
+.view-switcher {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    background: var(--card-bg);
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
 .filter-tabs {
     display: flex;
     gap: 12px;
@@ -118,6 +167,7 @@
     padding: 8px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
 .tab {
@@ -133,25 +183,44 @@
     background: transparent;
     color: var(--text-secondary);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600; /* Increased from 500 for better visual weight */
     cursor: pointer;
-    border-radius: var(--radius-md);
+    border-radius: 999px; /* Pill shape like landing page */
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;  /* Ensure padding is included in size */
+    position: relative;
+}
+
+.tab::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 999px;
+    background: transparent;
+    transition: all 0.25s ease;
+    z-index: -1;
+}
+
+.tab:hover::before {
+    background: rgba(31, 31, 58, 0.06);
 }
 
 .tab:hover {
-    background: rgba(255, 255, 255, 0.5);
     color: var(--text-primary);
 }
 
 .tab.active {
     background: var(--primary-color);
     color: white;
-    box-shadow: var(--shadow-soft);
+    box-shadow: 0 4px 12px rgba(250, 138, 89, 0.25); /* Enhanced shadow */
+    transform: translateY(-1px);
+}
+
+.tab.active::before {
+    background: transparent;
 }
 
 .add-form {
@@ -161,6 +230,18 @@
     margin-bottom: 24px;
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border-color);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .add-form h2 {
@@ -204,6 +285,23 @@ textarea.form-input {
     gap: 15px;
 }
 
+/* Animation for reminder items */
+.reminder-item {
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .reminder-card {
     background: var(--card-bg);
     padding: 24px;
@@ -212,12 +310,44 @@ textarea.form-input {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-left: 5px solid var(--brand-blue);
     border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Add subtle gradient overlay */
+.reminder-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .reminder-card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-3px);
-    border-color: rgba(250, 138, 89, 0.3);
+    transform: translateY(-4px); /* Increased from -3px for more pronounced effect */
+    border-color: rgba(250, 138, 89, 0.4);
+    border-left-width: 6px; /* Slightly thicker on hover */
+}
+
+.reminder-card:hover::before {
+    opacity: 1;
 }
 
 .reminder-card.completed {
@@ -229,6 +359,18 @@ textarea.form-input {
 .reminder-card.overdue {
     border-left-color: var(--danger-color);
     background: linear-gradient(to right, rgba(255, 107, 107, 0.05), var(--card-bg));
+}
+
+/* Tag chips styling */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
 }
 
 .reminder-header {
@@ -303,10 +445,495 @@ textarea.form-input {
     border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
+/* Card View Styles */
+.reminders-card-view {
+    width: 100%;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card-view-item {
+    width: 100%;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+/* Folder View Styles */
+.reminders-folder-view {
+    width: 100%;
+}
+
+.folder-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.folder-group {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.folder-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.folder-group-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.folder-group-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.folder-group-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.folder-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .empty-state {
     text-align: center;
     padding: 60px 20px;
     color: var(--text-secondary);
     font-size: 1.125rem;
+}
+
+/* Calendar View */
+.reminders-calendar-view {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.calendar-month-year {
+    flex: 1;
+    text-align: center;
+}
+
+.calendar-month-year h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.calendar-weekday-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    padding: 8px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.calendar-day:hover {
+    background: var(--bg-color);
+    border-color: var(--border-color);
+}
+
+.calendar-day-today {
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-day-today:hover {
+    background: var(--primary-dark);
+}
+
+.calendar-day-selected {
+    background: var(--brand-blue);
+    color: white;
+    border-color: var(--brand-blue);
+    font-weight: 600;
+}
+
+.calendar-day-selected:hover {
+    background: var(--brand-purple);
+    border-color: var(--brand-purple);
+}
+
+.calendar-day-empty {
+    cursor: default;
+    opacity: 0.3;
+}
+
+.calendar-day-empty:hover {
+    background: transparent;
+    border-color: transparent;
+}
+
+.calendar-day-number {
+    font-size: 0.875rem;
+    line-height: 1.2;
+}
+
+.calendar-day-count {
+    font-size: 0.75rem;
+    margin-top: 4px;
+    padding: 2px 6px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    font-weight: 600;
+    min-width: 20px;
+    text-align: center;
+}
+
+.calendar-day-today .calendar-day-count,
+.calendar-day-selected .calendar-day-count {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.calendar-selected-date-reminders {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.calendar-selected-date-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+}
+
+.calendar-unscheduled {
+    margin-top: 24px;
+    padding: 20px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+}
+
+.calendar-unscheduled-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.calendar-unscheduled-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* Tag Management Styles */
+.tag-form {
+    margin-bottom: 20px;
+}
+
+.tag-color-picker {
+    margin-top: 8px;
+}
+
+.color-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.color-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+    border-color: var(--text-primary);
+}
+
+.color-option.selected {
+    border-color: var(--text-primary);
+    border-width: 3px;
+}
+
+.color-check {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.color-option.selected .color-check {
+    opacity: 1;
+}
+
+.tag-manager-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.tag-manager-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.tag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tag-item-wrapper {
+    margin-bottom: 0;
+}
+
+.tag-item {
+    margin-bottom: 0;
+}
+
+.tag-item-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.tag-preview {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+}
+
+.tag-item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.delete-confirm-inline {
+    padding: 12px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-sm);
+    margin-top: 8px;
+}
+
+/* Tag Selection in Forms */
+.tag-selection {
+    margin-top: 8px;
+}
+
+.tag-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tag-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-height: 48px; /* Touch target requirement */
+}
+
+.tag-checkbox-label:hover {
+    background-color: var(--bg-secondary);
+}
+
+.tag-checkbox-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    user-select: none;
+}
+
+/* App Header Actions */
+.app-header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Statistics Display */
+.statistics {
+    margin-bottom: 24px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg); /* Increased from md for softer look */
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle gradient overlay on hover */
+.stat-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(106, 124, 237, 0.03) 0%, rgba(158, 117, 233, 0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    border-color: rgba(106, 124, 237, 0.2);
+}
+
+.stat-item:hover::before {
+    opacity: 1;
+}
+
+.stat-value {
+    font-size: 2rem; /* Increased from 1.75rem for better visibility */
+    font-weight: 800; /* Increased from 700 */
+    margin-bottom: 0.5rem; /* Increased spacing */
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em; /* Increased from 0.05em */
+    font-weight: 600; /* Added weight for better readability */
+}
+
+/* Search and Sort Controls */
+.controls {
+    margin-bottom: 24px;
+}
+
+.controls .flex {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.controls input[type="text"],
+.controls select {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.controls input[type="text"]:hover,
+.controls select:hover {
+    border-color: rgba(106, 124, 237, 0.3);
+}
+
+.controls input[type="text"]:focus,
+.controls select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.15);
+    transform: translateY(-1px);
 }
 

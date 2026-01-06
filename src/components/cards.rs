@@ -5,13 +5,14 @@ use remind_me_ui::{
     Card, CardContent,
     Checkbox,
 };
-use crate::models::Reminder;
+use crate::models::{Reminder, Tag};
 use crate::utils::{format_date, is_overdue};
 use crate::i18n::use_t;
 
 #[component]
 pub fn ReminderCard(
     reminder: Reminder,
+    tags: Vec<Tag>,
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
@@ -76,6 +77,20 @@ pub fn ReminderCard(
                                     }
                                 }
                             }
+                            if !reminder.tag_ids.is_empty() {
+                                div {
+                                    class: "mt-2 flex flex-wrap gap-2",
+                                    for tag_id in reminder.tag_ids.iter() {
+                                        if let Some(tag) = tags.iter().find(|t| t.id == *tag_id) {
+                                            span {
+                                                class: "tag-chip",
+                                                style: format!("background-color: {};", tag.color),
+                                                {tag.name.clone()}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                     div {
@@ -83,6 +98,7 @@ pub fn ReminderCard(
                         Button {
                             variant: ButtonVariant::Ghost,
                             size: ButtonSize::Small,
+                            aria_label: Some(format!("{} {}", use_t("tags.edit"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_edit.call(reminder_id_edit.clone());
                             },
@@ -91,6 +107,7 @@ pub fn ReminderCard(
                         Button {
                             variant: ButtonVariant::Danger,
                             size: ButtonSize::Small,
+                            aria_label: Some(format!("{} {}", use_t("tags.delete"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_delete.call(reminder_id_delete.clone());
                             },

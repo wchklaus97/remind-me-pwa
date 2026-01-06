@@ -11,11 +11,88 @@ For detailed guidelines on writing changelog entries, see [.cursor/changelog-gui
 
 ## [Unreleased]
 
+### Added
+
+- **App Page Improvements - Stage 1: Mobile Responsive Fixes** ([ea66ac1](https://github.com/wchklaus97/remind-me-pwa/commit/ea66ac1))
+  - Comprehensive mobile responsive fixes for app page
+  - Fixed width overflow issues on mobile devices
+  - Improved touch target sizes (≥48x48px) for accessibility
+  - Responsive layouts for app-container, app-header, stats-grid, controls, filter-tabs, reminder-card
+  - Mobile-friendly view switcher, card-grid, folder-group, and calendar-grid
+  - Enhanced form layouts for mobile screens
+
+- **App Page Improvements - Stage 2: UI/UX Visual Enhancements** ([533de4b](https://github.com/wchklaus97/remind-me-pwa/commit/533de4b))
+  - Modern visual design improvements across app page
+  - Enhanced app-header with glow effects and improved typography
+  - Improved statistics cards with hover gradients and shadows
+  - Pill-shaped filter tabs and view switcher with hover effects
+  - Gradient borders on reminder cards with enhanced hover states
+  - Improved form styling with gradient borders and focus states
+  - Better visual consistency with landing page design
+
+- **App Page Improvements - Stage 3: Code Organization and Refactoring** ([0fb6176](https://github.com/wchklaus97/remind-me-pwa/commit/0fb6176), [e0981d9](https://github.com/wchklaus97/remind-me-pwa/commit/e0981d9), [e84e4e1](https://github.com/wchklaus97/remind-me-pwa/commit/e84e4e1))
+  - Type safety improvements with ReminderFilter and ReminderSort enums
+  - Replaced string-based filter/sort with strongly-typed enums
+  - Added Display and FromStr trait implementations for enums
+  - Improved compile-time type checking and code clarity
+  - Better error handling with Default trait implementations
+
+- **App Page Improvements - Stage 4: Accessibility and Performance** ([5ea98b0](https://github.com/wchklaus97/remind-me-pwa/commit/5ea98b0), [5360be1](https://github.com/wchklaus97/remind-me-pwa/commit/5360be1))
+  - Comprehensive ARIA labels for all interactive elements
+  - Focus indicators (focus-visible) for keyboard navigation
+  - Enhanced error handling with non-blocking log::error! calls
+  - Extended Button, Input, Select, Checkbox, Textarea components with aria_label support
+  - Performance documentation and assessment
+  - Improved accessibility for screen readers
+
+- **App Page Improvements - Stage 5: Additional UX Enhancements** (In Progress)
+  - Global keyboard shortcuts:
+    - 'n' key to create new reminder
+    - 'Esc' key to close forms/modals (priority: delete confirm > tag manager > edit form > add form)
+    - '/' key to focus search input (smart handling: avoids triggering in input fields)
+  - Enhanced empty states:
+    - Context-aware messages based on filter state (All/Active/Completed)
+    - Different icons and messages for search results
+    - Multi-locale support for all empty state messages (en/zh-Hans/zh-Hant)
+    - Empty state integrated in ListView component
+  - Animations and transitions:
+    - Fade-in animations for reminder cards (fadeInUp)
+    - Staggered animations for list items (50ms delay per item)
+    - Form fade-in animations (fadeIn)
+    - Smooth transitions for all interactive elements
+    - Slide-in animations for reminder cards
+
+- **Tag Management System** ([5a78407](https://github.com/wchklaus97/remind-me-pwa/commit/5a78407))
+  - TagForm component for creating/editing tags with name and color picker
+  - TagManager component with modal interface for tag management
+  - Tag selection UI (multi-select checkboxes) in AddReminderForm and EditReminderForm
+  - 12 preset colors for tag color picker
+  - Tag display on reminder cards with color coding
+  - Tag management button in ReminderApp header
+  - Full i18n support (en/zh-Hans/zh-Hant) for tag management
+  - Responsive design for tag management interface
+
+- **Multi-View Switching** ([f3471fd](https://github.com/wchklaus97/remind-me-pwa/commit/f3471fd))
+  - ListView, CardView, and FolderView components
+  - View switcher UI in ReminderApp
+  - Folder view groups reminders by tags
+  - Untagged reminders section in folder view
+
+- **Calendar View** ([f6da14f](https://github.com/wchklaus97/remind-me-pwa/commit/f6da14f))
+  - CalendarView component with month grid display
+  - Calendar navigation (prev/next month, today button)
+  - Reminders grouped by date
+  - Unscheduled reminders section
+  - Date selection and reminder display
+
+- **Tags System** ([2bc34d0](https://github.com/wchklaus97/remind-me-pwa/commit/2bc34d0))
+  - Tag data model with id, name, and color
+  - Reminder model extended with tag_ids field
+  - Tag storage in localStorage
+  - Data migration from v1 to v2 for backward compatibility
+
 ### Planned
 
-- [ ] Add reminder categories/tags
-- [ ] Add reminder search functionality
-- [ ] Add reminder sorting options
 - [ ] Add reminder export/import
 - [ ] Add dark mode support
 - [ ] Add reminder notifications

@@ -1,4 +1,4 @@
-use crate::models::{Reminder, Statistics};
+use crate::models::{Reminder, Statistics, ReminderFilter, ReminderSort};
 
 #[cfg(not(target_arch = "wasm32"))]
 use chrono::TimeZone;
@@ -65,20 +65,26 @@ pub fn calculate_statistics(reminders: &[Reminder]) -> Statistics {
     }
 }
 
+/// Filter and sort reminders based on filter, search query, and sort criteria.
+/// 
+/// Performance: This function is optimized for typical use cases (<100 reminders).
+/// For larger datasets (>500 items), consider implementing virtual scrolling
+/// or debounced search input. The current implementation uses efficient iterator
+/// chains and in-place sorting.
 pub fn get_filtered_and_sorted_reminders(
     reminders: &[Reminder],
-    filter: &str,
+    filter: &ReminderFilter,
     search_query: &str,
-    sort_by: &str,
+    sort_by: &ReminderSort,
 ) -> Vec<Reminder> {
     let mut filtered: Vec<Reminder> = reminders
         .iter()
         .filter(|r| {
             // Apply filter
             let matches_filter = match filter {
-                "active" => !r.completed,
-                "completed" => r.completed,
-                _ => true,
+                ReminderFilter::Active => !r.completed,
+                ReminderFilter::Completed => r.completed,
+                ReminderFilter::All => true,
             };
 
             // Apply search
@@ -97,10 +103,10 @@ pub fn get_filtered_and_sorted_reminders(
 
     // Sort reminders
     match sort_by {
-        "title" => {
+        ReminderSort::Title => {
             filtered.sort_by(|a, b| a.title.cmp(&b.title));
         }
-        "status" => {
+        ReminderSort::Status => {
             filtered.sort_by(|a, b| {
                 // Completed items last
                 match (a.completed, b.completed) {
@@ -110,7 +116,7 @@ pub fn get_filtered_and_sorted_reminders(
                 }
             });
         }
-        _ => {
+        ReminderSort::Date => {
             // Sort by date (default)
             filtered.sort_by(|a, b| {
                 let date_a = parse_date_for_sort(&a.due_date);
@@ -239,5 +245,148 @@ fn format_date_wasm(date_str: &str) -> String {
 #[cfg(target_arch = "wasm32")]
 fn parse_date_for_sort_wasm(date_str: &str) -> i64 {
     parse_date_to_epoch_ms(date_str).unwrap_or(i64::MAX)
+}
+
+/// Extract date part (YYYY-MM-DD) from a date string
+pub fn extract_date_key(date_str: &str) -> Option<String> {
+    if date_str.trim().is_empty() {
+        return None;
+    }
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        let Some(ms) = parse_date_to_epoch_ms(date_str) else {
+            return None;
+        };
+        let d = js_sys::Date::new(&wasm_bindgen::JsValue::from_f64(ms as f64));
+        if d.get_time().is_nan() {
+            return None;
+        }
+        Some(format!(
+            "{:04}-{:02}-{:02}",
+            d.get_full_year(),
+            d.get_month() + 1,
+            d.get_date()
+        ))
+    }
+
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        if let Ok(dt) = chrono::DateTime::parse_from_rfc3339(date_str) {
+            Some(dt.format("%Y-%m-%d").to_string())
+        } else if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(date_str, "%Y-%m-%dT%H:%M") {
+            Some(dt.format("%Y-%m-%d").to_string())
+        } else {
+            None
+        }
+    }
+}
+
+/// Group reminders by date key (YYYY-MM-DD)
+pub fn group_reminders_by_date(reminders: &[Reminder]) -> std::collections::HashMap<String, Vec<Reminder>> {
+    let mut grouped = std::collections::HashMap::new();
+    
+    for reminder in reminders {
+        if let Some(date_key) = extract_date_key(&reminder.due_date) {
+            grouped.entry(date_key).or_insert_with(Vec::new).push(reminder.clone());
+        }
+    }
+    
+    // Sort reminders within each date group
+    for reminders_in_date in grouped.values_mut() {
+        reminders_in_date.sort_by(|a, b| {
+            let date_a = parse_date_for_sort(&a.due_date);
+            let date_b = parse_date_for_sort(&b.due_date);
+            date_a.cmp(&date_b)
+        });
+    }
+    
+    grouped
+}
+
+/// Calendar helper: Get current date components (year, month, day)
+#[cfg(target_arch = "wasm32")]
+pub fn get_current_date() -> (i32, u32, u32) {
+    let d = js_sys::Date::new_0();
+    (
+        d.get_full_year() as i32,
+        (d.get_month() + 1) as u32,
+        d.get_date() as u32,
+    )
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_current_date() -> (i32, u32, u32) {
+    use chrono::Datelike;
+    let now = chrono::Local::now();
+    (now.year(), now.month(), now.day())
+}
+
+/// Calendar helper: Get number of days in a month
+#[cfg(target_arch = "wasm32")]
+pub fn get_days_in_month(year: i32, month: u32) -> u32 {
+    // Create a date for the first day of next month, then subtract 1 day to get last day of current month
+    let next_month = if month == 12 { 1 } else { month + 1 };
+    let next_year = if month == 12 { year + 1 } else { year };
+    let d = js_sys::Date::new(&format!("{}-{:02}-01", next_year, next_month).into());
+    d.set_date(0); // Set to last day of previous month (current month)
+    d.get_date() as u32
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_days_in_month(year: i32, month: u32) -> u32 {
+    use chrono::{Datelike, NaiveDate, Duration};
+    // Get last day of month by going to first day of next month and subtracting 1 day
+    let next_month = if month == 12 { 1 } else { month + 1 };
+    let next_year = if month == 12 { year + 1 } else { year };
+    if let Some(first_of_next) = NaiveDate::from_ymd_opt(next_year, next_month, 1) {
+        (first_of_next - Duration::days(1)).day()
+    } else {
+        31 // Fallback
+    }
+}
+
+/// Calendar helper: Get day of week for the first day of a month (0 = Sunday, 6 = Saturday)
+#[cfg(target_arch = "wasm32")]
+pub fn get_first_day_of_week(year: i32, month: u32) -> u32 {
+    let d = js_sys::Date::new(&format!("{}-{:02}-01", year, month).into());
+    d.get_day() as u32
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn get_first_day_of_week(year: i32, month: u32) -> u32 {
+    use chrono::{Datelike, NaiveDate};
+    if let Some(date) = NaiveDate::from_ymd_opt(year, month, 1) {
+        date.weekday().num_days_from_sunday() as u32
+    } else {
+        0 // Fallback to Sunday
+    }
+}
+
+/// Format month and year for display (e.g., "January 2024")
+#[cfg(target_arch = "wasm32")]
+pub fn format_month_year(year: i32, month: u32) -> String {
+    let month_names = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    if month >= 1 && month <= 12 {
+        format!("{} {}", month_names[(month - 1) as usize], year)
+    } else {
+        format!("Month {} {}", month, year)
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub fn format_month_year(year: i32, month: u32) -> String {
+    let month_names = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    if month >= 1 && month <= 12 {
+        format!("{} {}", month_names[(month - 1) as usize], year)
+    } else {
+        format!("Month {} {}", month, year)
+    }
 }
 

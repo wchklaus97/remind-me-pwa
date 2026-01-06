@@ -7,6 +7,18 @@
       "title": "🔔 Remind Me",
       "new_reminder": "New Reminder",
       "cancel": "Cancel"
+    },
+    "views": {
+      "list": "List",
+      "card": "Card",
+      "folder": "Folder",
+      "untagged": "Untagged",
+      "calendar": "Calendar"
+    },
+    "calendar": {
+      "today": "Today",
+      "selected_date": "Selected Date",
+      "unscheduled": "Unscheduled Reminders"
     }
   },
   "landing": {
@@ -392,6 +404,10 @@
     "due_date": {
       "label": "Due Date (optional)"
     },
+    "tags": {
+      "label": "Tags (optional)",
+      "placeholder": "Select tags"
+    },
     "save": "Save Changes",
     "add": "Add Reminder",
     "cancel": "Cancel"
@@ -399,7 +415,14 @@
   "empty": {
     "title": "No reminders yet",
     "description": "Add your first reminder to get started!",
-    "action": "Add Reminder"
+    "action": "Add Reminder",
+    "active_title": "No active reminders",
+    "active_description": "All your reminders are completed! Great job! 🎉",
+    "completed_title": "No completed reminders",
+    "completed_description": "Complete a reminder to see it here.",
+    "search_title": "No results found",
+    "search_description": "Try adjusting your search or filter to find what you're looking for.",
+    "clear_search": "Clear Search"
   },
   "toast": {
     "added": "Reminder added successfully!",
@@ -417,6 +440,29 @@
     "message": "Are you sure you want to delete this reminder? This action cannot be undone.",
     "confirm": "Delete",
     "cancel": "Cancel"
+  },
+  "tags": {
+    "manage": "Manage Tags",
+    "title": "Tag Management",
+    "new_tag": "New Tag",
+    "edit_tag": "Edit Tag",
+    "name": {
+      "label": "Tag Name",
+      "placeholder": "Enter tag name"
+    },
+    "color": {
+      "label": "Color"
+    },
+    "add": "Add Tag",
+    "save": "Save Tag",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "empty": "No tags yet. Create your first tag!",
+    "delete_confirm": {
+      "title": "Delete Tag",
+      "message": "Are you sure you want to delete this tag? Reminders using this tag will keep the tag reference, but the tag will no longer be available for selection."
+    }
   },
   "reminder": {
     "overdue": "⚠️ Overdue",
