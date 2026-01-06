@@ -76,8 +76,6 @@ For detailed guidelines on writing changelog entries, see [.cursor/changelog-gui
 
 ### Planned
 
-- [ ] Add reminder search functionality
-- [ ] Add reminder sorting options
 - [ ] Add reminder export/import
 - [ ] Add dark mode support
 - [ ] Add reminder notifications
