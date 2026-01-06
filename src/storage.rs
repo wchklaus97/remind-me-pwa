@@ -44,7 +44,10 @@ pub fn load_reminders() -> Vec<Reminder> {
                     
                     // Save migrated data to v2
                     if let Ok(json) = serde_json::to_string(&migrated) {
-                        let _ = storage.set_item(REMINDERS_V2_KEY, &json);
+                        if let Err(e) = storage.set_item(REMINDERS_V2_KEY, &json) {
+                            #[cfg(debug_assertions)]
+                            web_sys::console::warn_1(&format!("Failed to save migrated reminders: {:?}", e).into());
+                        }
                     }
                     
                     return migrated;
@@ -58,9 +61,23 @@ pub fn load_reminders() -> Vec<Reminder> {
 pub fn save_reminders(reminders: &[Reminder]) {
     if let Some(window) = web_sys::window() {
         if let Some(storage) = window.local_storage().ok().flatten() {
-            if let Ok(json) = serde_json::to_string(reminders) {
-                let _ = storage.set_item(REMINDERS_V2_KEY, &json);
+            match serde_json::to_string(reminders) {
+                Ok(json) => {
+                    if let Err(e) = storage.set_item(REMINDERS_V2_KEY, &json) {
+                        // Log error but don't block UI (localStorage errors are non-critical)
+                        #[cfg(debug_assertions)]
+                        web_sys::console::error_1(&format!("Failed to save reminders: {:?}", e).into());
+                    }
+                }
+                Err(e) => {
+                    // Log serialization error but don't block UI
+                    #[cfg(debug_assertions)]
+                    web_sys::console::error_1(&format!("Failed to serialize reminders: {}", e).into());
+                }
             }
+        } else {
+            #[cfg(debug_assertions)]
+            web_sys::console::warn_1(&"localStorage not available".into());
         }
     }
 }
@@ -81,9 +98,23 @@ pub fn load_tags() -> Vec<Tag> {
 pub fn save_tags(tags: &[Tag]) {
     if let Some(window) = web_sys::window() {
         if let Some(storage) = window.local_storage().ok().flatten() {
-            if let Ok(json) = serde_json::to_string(tags) {
-                let _ = storage.set_item(TAGS_V1_KEY, &json);
+            match serde_json::to_string(tags) {
+                Ok(json) => {
+                    if let Err(e) = storage.set_item(TAGS_V1_KEY, &json) {
+                        // Log error but don't block UI (localStorage errors are non-critical)
+                        #[cfg(debug_assertions)]
+                        web_sys::console::error_1(&format!("Failed to save tags: {:?}", e).into());
+                    }
+                }
+                Err(e) => {
+                    // Log serialization error but don't block UI
+                    #[cfg(debug_assertions)]
+                    web_sys::console::error_1(&format!("Failed to serialize tags: {}", e).into());
+                }
             }
+        } else {
+            #[cfg(debug_assertions)]
+            web_sys::console::warn_1(&"localStorage not available".into());
         }
     }
 }

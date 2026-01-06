@@ -45,11 +45,17 @@ pub fn ReminderApp() -> Element {
                     class: "app-header-actions",
                     Button {
                         variant: ButtonVariant::Ghost,
+                        aria_label: Some(use_t("tags.manage")),
                         onclick: move |_| show_tag_manager.set(true),
                         "🏷️"
                     }
                     Button {
                         variant: ButtonVariant::Primary,
+                        aria_label: Some(if show_add_form() {
+                            use_t("app.header.cancel")
+                        } else {
+                            use_t("app.header.new_reminder")
+                        }),
                         onclick: move |_| show_add_form.set(!show_add_form()),
                         {
                             if show_add_form() {
@@ -141,16 +147,19 @@ pub fn ReminderApp() -> Element {
                     class: "view-switcher",
                     Button {
                         variant: if current_view() == "list" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("app.views.list")),
                         onclick: move |_| current_view.set("list".to_string()),
                         {use_t("app.views.list")}
                     }
                     Button {
                         variant: if current_view() == "card" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("app.views.card")),
                         onclick: move |_| current_view.set("card".to_string()),
                         {use_t("app.views.card")}
                     }
                     Button {
                         variant: if current_view() == "folder" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("app.views.folder")),
                         onclick: move |_| current_view.set("folder".to_string()),
                         {use_t("app.views.folder")}
                     }
@@ -162,16 +171,19 @@ pub fn ReminderApp() -> Element {
                     class: "filter-tabs",
                     Button {
                         variant: if filter() == "all" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("filter.all")),
                         onclick: move |_| filter.set("all".to_string()),
                         {use_t("filter.all")}
                     }
                     Button {
                         variant: if filter() == "active" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("filter.active")),
                         onclick: move |_| filter.set("active".to_string()),
                         {use_t("filter.active")}
                     }
                     Button {
                         variant: if filter() == "completed" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("filter.completed")),
                         onclick: move |_| filter.set("completed".to_string()),
                         {use_t("filter.completed")}
                     }

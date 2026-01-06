@@ -98,6 +98,7 @@ pub fn ReminderCard(
                         Button {
                             variant: ButtonVariant::Ghost,
                             size: ButtonSize::Small,
+                            aria_label: Some(format!("{} {}", use_t("tags.edit"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_edit.call(reminder_id_edit.clone());
                             },
@@ -106,6 +107,7 @@ pub fn ReminderCard(
                         Button {
                             variant: ButtonVariant::Danger,
                             size: ButtonSize::Small,
+                            aria_label: Some(format!("{} {}", use_t("tags.delete"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_delete.call(reminder_id_delete.clone());
                             },

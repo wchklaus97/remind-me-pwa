@@ -66,6 +66,19 @@
     cursor: not-allowed;
 }
 
+/* Accessibility: Focus indicators (Lighthouse 100% requirement) */
+.btn:focus-visible,
+.tab:focus-visible,
+button:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
+}
+
+.btn:focus-visible:not(:hover) {
+    transform: translateY(-1px);
+}
+
 .btn-primary {
     background: var(--primary-color);
     box-shadow: var(--shadow-soft);

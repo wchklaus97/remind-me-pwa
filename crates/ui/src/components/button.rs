@@ -64,6 +64,10 @@ pub struct ButtonProps {
     #[props(default)]
     pub class: String,
     
+    /// ARIA label for accessibility
+    #[props(default)]
+    pub aria_label: Option<String>,
+    
     /// Button content
     pub children: Element,
 }
@@ -115,6 +119,7 @@ pub fn Button(props: ButtonProps) -> Element {
             class: "{base_classes} {variant_classes} {size_classes} {props.class}",
             r#type: "{props.r#type}",
             disabled: props.disabled || props.loading,
+            aria_label: props.aria_label.as_deref(),
             onclick: move |_| {
                 if !props.disabled && !props.loading {
                     if let Some(handler) = props.onclick.as_ref() {

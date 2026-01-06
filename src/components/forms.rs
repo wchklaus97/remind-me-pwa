@@ -121,6 +121,7 @@ pub fn AddReminderForm(
                     Button {
                         variant: ButtonVariant::Primary,
                         disabled: title().is_empty(),
+                        aria_label: Some(use_t("form.add")),
                         onclick: move |_| {
                             if !title().is_empty() {
                                 let reminder = Reminder {
@@ -263,12 +264,14 @@ pub fn EditReminderForm(
                     class: "mt-4 flex justify-end gap-2",
                     Button {
                         variant: ButtonVariant::Ghost,
+                        aria_label: Some(use_t("form.cancel")),
                         onclick: move |_| on_cancel.call(()),
                         {use_t("form.cancel")}
                     }
                     Button {
                         variant: ButtonVariant::Primary,
                         disabled: title().is_empty(),
+                        aria_label: Some(use_t("form.save")),
                         onclick: move |_| {
                             if !title().is_empty() {
                                 let updated = Reminder {
