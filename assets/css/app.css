@@ -18,13 +18,36 @@
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle glow effect to header */
+.app-header::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.app-header > * {
+    position: relative;
+    z-index: 1;
 }
 
 .app-header h1 {
     font-size: 2rem;
     color: white;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 800; /* Increased from 700 for better visual hierarchy */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Enhanced shadow for depth */
+    letter-spacing: -0.02em; /* Match landing page typography */
+    line-height: 1.2;
+    margin: 0;
 }
 
 .btn {
@@ -133,6 +156,7 @@ button:focus-visible {
     padding: 8px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
 .filter-tabs {
@@ -143,6 +167,7 @@ button:focus-visible {
     padding: 8px;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
 }
 
 .tab {
@@ -158,25 +183,44 @@ button:focus-visible {
     background: transparent;
     color: var(--text-secondary);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600; /* Increased from 500 for better visual weight */
     cursor: pointer;
-    border-radius: var(--radius-md);
+    border-radius: 999px; /* Pill shape like landing page */
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;  /* Ensure padding is included in size */
+    position: relative;
+}
+
+.tab::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 999px;
+    background: transparent;
+    transition: all 0.25s ease;
+    z-index: -1;
+}
+
+.tab:hover::before {
+    background: rgba(31, 31, 58, 0.06);
 }
 
 .tab:hover {
-    background: rgba(255, 255, 255, 0.5);
     color: var(--text-primary);
 }
 
 .tab.active {
     background: var(--primary-color);
     color: white;
-    box-shadow: var(--shadow-soft);
+    box-shadow: 0 4px 12px rgba(250, 138, 89, 0.25); /* Enhanced shadow */
+    transform: translateY(-1px);
+}
+
+.tab.active::before {
+    background: transparent;
 }
 
 .add-form {
@@ -237,12 +281,32 @@ textarea.form-input {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-left: 5px solid var(--brand-blue);
     border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle gradient overlay */
+.reminder-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .reminder-card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-3px);
-    border-color: rgba(250, 138, 89, 0.3);
+    transform: translateY(-4px); /* Increased from -3px for more pronounced effect */
+    border-color: rgba(250, 138, 89, 0.4);
+    border-left-width: 6px; /* Slightly thicker on hover */
+}
+
+.reminder-card:hover::before {
+    opacity: 1;
 }
 
 .reminder-card.completed {
@@ -723,5 +787,110 @@ textarea.form-input {
     display: flex;
     gap: 12px;
     align-items: center;
+}
+
+/* Statistics Display */
+.statistics {
+    margin-bottom: 24px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg); /* Increased from md for softer look */
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle gradient overlay on hover */
+.stat-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(106, 124, 237, 0.03) 0%, rgba(158, 117, 233, 0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    border-color: rgba(106, 124, 237, 0.2);
+}
+
+.stat-item:hover::before {
+    opacity: 1;
+}
+
+.stat-value {
+    font-size: 2rem; /* Increased from 1.75rem for better visibility */
+    font-weight: 800; /* Increased from 700 */
+    margin-bottom: 0.5rem; /* Increased spacing */
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em; /* Increased from 0.05em */
+    font-weight: 600; /* Added weight for better readability */
+}
+
+/* Search and Sort Controls */
+.controls {
+    margin-bottom: 24px;
+}
+
+.controls .flex {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.controls input[type="text"],
+.controls select {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.controls input[type="text"]:hover,
+.controls select:hover {
+    border-color: rgba(106, 124, 237, 0.3);
+}
+
+.controls input[type="text"]:focus,
+.controls select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.15);
+    transform: translateY(-1px);
 }
 
