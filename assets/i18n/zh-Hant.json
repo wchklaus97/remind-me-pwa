@@ -12,7 +12,13 @@
       "list": "列表",
       "card": "卡片",
       "folder": "資料夾",
-      "untagged": "未標籤"
+      "untagged": "未標籤",
+      "calendar": "行事曆"
+    },
+    "calendar": {
+      "today": "今天",
+      "selected_date": "選中日期",
+      "unscheduled": "未排程提醒"
     }
   },
   "landing": {

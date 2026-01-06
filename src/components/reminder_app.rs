@@ -7,7 +7,7 @@ use crate::models::Reminder;
 use crate::storage::{load_reminders, save_reminders, load_tags};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
-use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView};
+use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView};
 use crate::i18n::use_t;
 
 #[component]
@@ -230,6 +230,35 @@ pub fn ReminderApp() -> Element {
                             FolderView {
                                 reminders: filtered_reminders,
                                 tags: tags(),
+                                on_toggle: move |id: String| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        r.completed = !r.completed;
+                                        let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                        reminders.set(updated);
+                                        save_reminders(&reminders());
+
+                                        toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                        toast_variant.set(ToastVariant::Info);
+                                        show_toast.set(true);
+                                    }
+                                },
+                                on_edit: move |id: String| {
+                                    editing_id.set(Some(id));
+                                    show_add_form.set(false);
+                                },
+                                on_delete: move |id: String| {
+                                    delete_confirm_id.set(Some(id));
+                                },
+                            }
+                        },
+                        "calendar" => rsx! {
+                            CalendarView {
+                                reminders: reminders(),
+                                tags: tags(),
+                                filter: filter(),
+                                search_query: search_query(),
+                                sort_by: sort_by(),
                                 on_toggle: move |id: String| {
                                     let mut updated = reminders();
                                     if let Some(r) = updated.iter_mut().find(|r| r.id == id) {

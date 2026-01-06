@@ -619,6 +619,51 @@ input[type="checkbox"]:checked {
     .folder-group-title {
         font-size: 1.125rem;
     }
+
+    /* Calendar View */
+    .calendar-header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .calendar-month-year h2 {
+        font-size: 1.25rem;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+        padding: 12px;
+    }
+
+    .calendar-weekday-header {
+        font-size: 0.75rem;
+        padding: 4px;
+    }
+
+    .calendar-day {
+        min-height: 40px;
+        padding: 4px;
+    }
+
+    .calendar-day-number {
+        font-size: 0.75rem;
+    }
+
+    .calendar-day-count {
+        font-size: 0.65rem;
+        padding: 1px 4px;
+        min-width: 16px;
+    }
+
+    .calendar-selected-date-reminders,
+    .calendar-unscheduled {
+        padding: 16px;
+    }
+
+    .calendar-selected-date-title,
+    .calendar-unscheduled-title {
+        font-size: 1.1rem;
+    }
 }
 
 

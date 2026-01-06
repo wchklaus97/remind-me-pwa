@@ -35,5 +35,5 @@ pub use testimonials_section::TestimonialsSection;
 pub use pricing_section::PricingSection;
 pub use faq_section::FAQSection;
 pub use final_cta_section::FinalCTASection;
-pub use app_views::{ListView, CardView, FolderView};
+pub use app_views::{ListView, CardView, FolderView, CalendarView};
 

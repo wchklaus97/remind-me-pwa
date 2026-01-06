@@ -12,7 +12,13 @@
       "list": "List",
       "card": "Card",
       "folder": "Folder",
-      "untagged": "Untagged"
+      "untagged": "Untagged",
+      "calendar": "Calendar"
+    },
+    "calendar": {
+      "today": "Today",
+      "selected_date": "Selected Date",
+      "unscheduled": "Unscheduled Reminders"
     }
   },
   "landing": {
