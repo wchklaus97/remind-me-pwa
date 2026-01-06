@@ -7,13 +7,13 @@ use crate::models::Reminder;
 use crate::storage::{load_reminders, save_reminders, load_tags};
 use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
-use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView};
+use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
 use crate::i18n::use_t;
 
 #[component]
 pub fn ReminderApp() -> Element {
     let mut reminders = use_signal(load_reminders);
-    let tags = use_signal(load_tags);
+    let mut tags = use_signal(load_tags);
     let mut show_add_form = use_signal(|| false);
     let mut filter = use_signal(|| "all".to_string());
     let mut search_query = use_signal(String::new);
@@ -31,6 +31,9 @@ pub fn ReminderApp() -> Element {
     // View state (list, card, folder)
     let mut current_view = use_signal(|| "list".to_string());
 
+    // Tag manager modal state
+    let mut show_tag_manager = use_signal(|| false);
+
     rsx! {
         div {
             class: "app-container",
@@ -38,14 +41,22 @@ pub fn ReminderApp() -> Element {
                 role: "banner",
                 class: "app-header",
                 h1 { {use_t("app.header.title")} }
-                Button {
-                    variant: ButtonVariant::Primary,
-                    onclick: move |_| show_add_form.set(!show_add_form()),
-                    {
-                        if show_add_form() {
-                            {use_t("app.header.cancel")}
-                        } else {
-                            {use_t("app.header.new_reminder")}
+                div {
+                    class: "app-header-actions",
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        onclick: move |_| show_tag_manager.set(true),
+                        "🏷️"
+                    }
+                    Button {
+                        variant: ButtonVariant::Primary,
+                        onclick: move |_| show_add_form.set(!show_add_form()),
+                        {
+                            if show_add_form() {
+                                {use_t("app.header.cancel")}
+                            } else {
+                                {use_t("app.header.new_reminder")}
+                            }
                         }
                     }
                 }
@@ -88,6 +99,7 @@ pub fn ReminderApp() -> Element {
                         if let Some(reminder) = reminders().iter().find(|r| r.id == edit_id) {
                             EditReminderForm {
                                 reminder: reminder.clone(),
+                                tags: tags(),
                                 on_save: move |updated: Reminder| {
                                     let mut updated_reminders = reminders();
                                     if let Some(r) = updated_reminders.iter_mut().find(|r| r.id == updated.id) {
@@ -106,6 +118,7 @@ pub fn ReminderApp() -> Element {
                         }
                     } else {
                         AddReminderForm {
+                            tags: tags(),
                             on_add: move |reminder: Reminder| {
                                 let mut new_reminders = reminders();
                                 new_reminders.push(reminder);
@@ -339,6 +352,16 @@ pub fn ReminderApp() -> Element {
                     },
                     on_cancel: move |_| delete_confirm_id.set(None),
                 }
+            }
+
+            // Tag Manager Modal
+            TagManager {
+                open: show_tag_manager,
+                on_close: move |_| {
+                    show_tag_manager.set(false);
+                    // Reload tags after closing tag manager
+                    tags.set(load_tags());
+                },
             }
 
             // Toast notification

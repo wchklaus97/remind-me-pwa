@@ -664,6 +664,40 @@ input[type="checkbox"]:checked {
     .calendar-unscheduled-title {
         font-size: 1.1rem;
     }
+
+    /* Tag Management Responsive */
+    .color-options {
+        gap: 6px;
+    }
+
+    .color-option {
+        width: 36px;
+        height: 36px;
+    }
+
+    .tag-item-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .tag-item-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .tag-checkboxes {
+        gap: 6px;
+    }
+
+    .tag-checkbox-label {
+        min-height: 44px; /* Slightly smaller on mobile */
+        padding: 6px;
+    }
+
+    .app-header-actions {
+        gap: 8px;
+    }
 }
 
 

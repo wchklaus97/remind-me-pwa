@@ -2,17 +2,21 @@ use dioxus::prelude::*;
 use remind_me_ui::{
     Button, ButtonVariant,
     Card, CardContent, CardHeader, CardTitle,
-    FormField, Input, Textarea,
+    FormField, Input, Textarea, Checkbox,
 };
-use crate::models::Reminder;
+use crate::models::{Reminder, Tag};
 use crate::i18n::use_t;
 use crate::utils::{now_rfc3339, now_timestamp_millis, to_datetime_local_value};
 
 #[component]
-pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
+pub fn AddReminderForm(
+    tags: Vec<Tag>,
+    on_add: EventHandler<Reminder>,
+) -> Element {
     let mut title = use_signal(String::new);
     let mut description = use_signal(String::new);
     let mut due_date = use_signal(String::new);
+    let mut selected_tag_ids = use_signal(|| Vec::<String>::new());
 
     rsx! {
         Card {
@@ -65,6 +69,53 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
                     }
                 }
 
+                FormField {
+                    id: "reminder_tags".to_string(),
+                    name: "tags".to_string(),
+                    label: use_t("form.tags.label"),
+                    div {
+                        class: "tag-selection",
+                        if tags.is_empty() {
+                            p {
+                                class: "text-sm text-gray-500",
+                                "No tags available. Create tags in Tag Manager."
+                            }
+                        } else {
+                            div {
+                                class: "tag-checkboxes",
+                                for tag in tags.iter() {
+                                    {
+                                        let tag_id = tag.id.clone();
+                                        let is_checked = selected_tag_ids().contains(&tag_id);
+                                        rsx! {
+                                            div {
+                                                class: "tag-checkbox-label",
+                                                Checkbox {
+                                                    checked: is_checked,
+                                                    onchange: move |_| {
+                                                        let mut current = selected_tag_ids();
+                                                        if current.contains(&tag_id) {
+                                                            current.retain(|id| id != &tag_id);
+                                                        } else {
+                                                            current.push(tag_id.clone());
+                                                        }
+                                                        selected_tag_ids.set(current);
+                                                    },
+                                                }
+                                                span {
+                                                    class: "tag-checkbox-text",
+                                                    style: format!("color: {};", tag.color),
+                                                    {tag.name.clone()}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 div {
                     class: "mt-4 flex justify-end",
                     Button {
@@ -79,12 +130,13 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
                                     due_date: due_date(),
                                     completed: false,
                                     created_at: now_rfc3339(),
-                                    tag_ids: Vec::new(),
+                                    tag_ids: selected_tag_ids(),
                                 };
                                 on_add.call(reminder);
                                 title.set(String::new());
                                 description.set(String::new());
                                 due_date.set(String::new());
+                                selected_tag_ids.set(Vec::new());
                             }
                         },
                         {use_t("form.add")}
@@ -98,6 +150,7 @@ pub fn AddReminderForm(on_add: EventHandler<Reminder>) -> Element {
 #[component]
 pub fn EditReminderForm(
     reminder: Reminder,
+    tags: Vec<Tag>,
     on_save: EventHandler<Reminder>,
     on_cancel: EventHandler<()>,
 ) -> Element {
@@ -106,6 +159,7 @@ pub fn EditReminderForm(
     let mut due_date = use_signal(|| {
         to_datetime_local_value(&reminder.due_date)
     });
+    let mut selected_tag_ids = use_signal(|| reminder.tag_ids.clone());
 
     rsx! {
         Card {
@@ -158,6 +212,53 @@ pub fn EditReminderForm(
                     }
                 }
 
+                FormField {
+                    id: "edit_reminder_tags".to_string(),
+                    name: "tags".to_string(),
+                    label: use_t("form.tags.label"),
+                    div {
+                        class: "tag-selection",
+                        if tags.is_empty() {
+                            p {
+                                class: "text-sm text-gray-500",
+                                "No tags available. Create tags in Tag Manager."
+                            }
+                        } else {
+                            div {
+                                class: "tag-checkboxes",
+                                for tag in tags.iter() {
+                                    {
+                                        let tag_id = tag.id.clone();
+                                        let is_checked = selected_tag_ids().contains(&tag_id);
+                                        rsx! {
+                                            div {
+                                                class: "tag-checkbox-label",
+                                                Checkbox {
+                                                    checked: is_checked,
+                                                    onchange: move |_| {
+                                                        let mut current = selected_tag_ids();
+                                                        if current.contains(&tag_id) {
+                                                            current.retain(|id| id != &tag_id);
+                                                        } else {
+                                                            current.push(tag_id.clone());
+                                                        }
+                                                        selected_tag_ids.set(current);
+                                                    },
+                                                }
+                                                span {
+                                                    class: "tag-checkbox-text",
+                                                    style: format!("color: {};", tag.color),
+                                                    {tag.name.clone()}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
                 div {
                     class: "mt-4 flex justify-end gap-2",
                     Button {
@@ -177,7 +278,7 @@ pub fn EditReminderForm(
                                     due_date: due_date(),
                                     completed: reminder.completed,
                                     created_at: reminder.created_at.clone(),
-                                    tag_ids: reminder.tag_ids.clone(),
+                                    tag_ids: selected_tag_ids(),
                                 };
                                 on_save.call(updated);
                                 title.set(String::new());

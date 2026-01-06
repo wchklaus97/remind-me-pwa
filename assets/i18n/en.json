@@ -404,6 +404,10 @@
     "due_date": {
       "label": "Due Date (optional)"
     },
+    "tags": {
+      "label": "Tags (optional)",
+      "placeholder": "Select tags"
+    },
     "save": "Save Changes",
     "add": "Add Reminder",
     "cancel": "Cancel"
@@ -429,6 +433,29 @@
     "message": "Are you sure you want to delete this reminder? This action cannot be undone.",
     "confirm": "Delete",
     "cancel": "Cancel"
+  },
+  "tags": {
+    "manage": "Manage Tags",
+    "title": "Tag Management",
+    "new_tag": "New Tag",
+    "edit_tag": "Edit Tag",
+    "name": {
+      "label": "Tag Name",
+      "placeholder": "Enter tag name"
+    },
+    "color": {
+      "label": "Color"
+    },
+    "add": "Add Tag",
+    "save": "Save Tag",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "empty": "No tags yet. Create your first tag!",
+    "delete_confirm": {
+      "title": "Delete Tag",
+      "message": "Are you sure you want to delete this tag? Reminders using this tag will keep the tag reference, but the tag will no longer be available for selection."
+    }
   },
   "reminder": {
     "overdue": "⚠️ Overdue",

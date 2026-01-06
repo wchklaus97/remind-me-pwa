@@ -403,6 +403,10 @@
     "due_date": {
       "label": "到期日期（可选）"
     },
+    "tags": {
+      "label": "标签（可选）",
+      "placeholder": "选择标签"
+    },
     "save": "保存更改",
     "add": "添加提醒",
     "cancel": "取消"
@@ -428,6 +432,29 @@
     "message": "您确定要删除此提醒吗？此操作无法撤销。",
     "confirm": "删除",
     "cancel": "取消"
+  },
+  "tags": {
+    "manage": "管理标签",
+    "title": "标签管理",
+    "new_tag": "新建标签",
+    "edit_tag": "编辑标签",
+    "name": {
+      "label": "标签名称",
+      "placeholder": "输入标签名称"
+    },
+    "color": {
+      "label": "颜色"
+    },
+    "add": "添加标签",
+    "save": "保存标签",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "empty": "还没有标签。创建您的第一个标签！",
+    "delete_confirm": {
+      "title": "删除标签",
+      "message": "您确定要删除此标签吗？使用此标签的提醒将保留标签引用，但该标签将不再可用于选择。"
+    }
   },
   "reminder": {
     "overdue": "⚠️ 已逾期",
