@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use remind_me_ui::{Button, ButtonVariant};
-use crate::models::{Reminder, Tag};
+use crate::models::{Reminder, Tag, ReminderFilter, ReminderSort};
 use crate::components::ReminderCard;
 use crate::utils::{
     get_current_date, get_days_in_month, get_first_day_of_week,
@@ -12,9 +12,9 @@ use crate::i18n::use_t;
 pub fn CalendarView(
     reminders: Vec<Reminder>,
     tags: Vec<Tag>,
-    filter: String,
+    filter: ReminderFilter,
     search_query: String,
-    sort_by: String,
+    sort_by: ReminderSort,
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,

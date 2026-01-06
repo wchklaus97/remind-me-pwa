@@ -89,8 +89,8 @@ pub fn ReminderApp() -> Element {
                         Select {
                             id: "sort_reminders".to_string(),
                             name: "sort_by".to_string(),
-                            value: sort_by(),
-                            onchange: move |value| sort_by.set(value),
+                            value: sort_by().as_str().to_string(),
+                            onchange: move |value| sort_by.set(ReminderSort::from_str(&value)),
                             options: vec![
                                 SelectOption { value: "date".to_string(), label: use_t("sort.date") },
                                 SelectOption { value: "title".to_string(), label: use_t("sort.title") },
