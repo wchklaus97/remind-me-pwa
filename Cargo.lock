@@ -3804,6 +3804,7 @@ dependencies = [
  "dioxus",
  "dioxus-mobile",
  "dioxus-router",
+ "remind-me-components",
  "remind-me-shared",
  "remind-me-ui",
  "serde",
