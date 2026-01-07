@@ -1,0 +1,22 @@
+[package]
+name = "remind-me-components"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+# Shared code
+remind-me-shared = { path = "../shared" }
+remind-me-ui = { path = "../ui" }
+
+# Platform-specific (will be provided by web/mobile crates)
+# For now, components depend on web for i18n hooks
+remind-me-web = { path = "../web" }
+
+# Dioxus
+dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks"] }
+dioxus-router = { workspace = true }
+
+# Serde
+serde = { workspace = true }
+serde_json = { workspace = true }
+

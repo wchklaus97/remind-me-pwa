@@ -2,6 +2,7 @@
 members = [
     "crates/shared",
     "crates/ui",
+    "crates/components",
     "crates/web",
     "crates/mobile",
     "apps/web",

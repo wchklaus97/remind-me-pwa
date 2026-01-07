@@ -24,3 +24,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 chrono = { workspace = true }
 
+# i18n support
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+# web-sys already included above
+
