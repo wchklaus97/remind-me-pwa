@@ -263,7 +263,7 @@ pub fn LandingFooter(
 
     #[cfg(target_arch = "wasm32")]
     fn base_prefix() -> String {
-        crate::deployment::get_base_path()
+        remind_me_web::get_base_path()
     }
 
     #[cfg(not(target_arch = "wasm32"))]
