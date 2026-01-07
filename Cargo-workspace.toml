@@ -30,14 +30,14 @@ wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 console_error_panic_hook = "0.1"
 
-# Mobile dependencies (currently alpha - check available features)
-dioxus-mobile = { version = "0.7.0-alpha.2" }
+# Mobile dependencies
+dioxus-mobile = { version = "0.7", features = ["ios", "android"] }
 
-# Server dependencies (not in workspace - add to specific crates that need them)
-# axum = { version = "0.7" }
-# tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-# tower-http = { version = "0.5", features = ["fs"] }
-# dioxus-ssr = { version = "0.7" }
+# Server dependencies (optional)
+axum = { version = "0.7", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+tower-http = { version = "0.5", features = ["fs"], optional = true }
+dioxus-ssr = { version = "0.7", optional = true }
 
 # Chrono (non-WASM only)
 chrono = { version = "0.4", features = ["serde", "clock"] }

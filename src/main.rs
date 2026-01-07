@@ -7,10 +7,18 @@ fn set_panic_hook() {
     console_error_panic_hook::set_once();
 }
 
+// Web (WASM) launch
+#[cfg(target_arch = "wasm32")]
 fn main() {
-    #[cfg(all(target_arch = "wasm32", debug_assertions))]
+    #[cfg(debug_assertions)]
     set_panic_hook();
     
     dioxus::launch(App);
+}
+
+// Mobile (iOS/Android) launch
+#[cfg(any(target_os = "ios", target_os = "android"))]
+fn main() {
+    dioxus_mobile::launch(App);
 }
 

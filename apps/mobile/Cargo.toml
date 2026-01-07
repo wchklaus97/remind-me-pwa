@@ -1,0 +1,12 @@
+[package]
+name = "remind-me-mobile-app"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "mobile"
+path = "src/main.rs"
+
+[dependencies]
+remind-me-mobile = { path = "../../crates/mobile" }
+

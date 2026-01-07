@@ -33,6 +33,11 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
 - Rust (latest stable version)
 - Dioxus CLI: `cargo install dioxus-cli --locked`
 
+### For Mobile Development
+
+- **iOS**: Xcode (macOS only)
+- **Android**: Android SDK (set `ANDROID_HOME` environment variable)
+
 ## Getting Started
 
 1. **Clone the repository**
@@ -50,6 +55,48 @@ A beautiful and functional Progressive Web App (PWA) built with Dioxus for manag
    ```bash
    dx build --release
    ```
+
+## Mobile App Development
+
+The project supports building native iOS and Android apps using Dioxus Mobile while keeping the PWA build intact.
+
+### Building for iOS
+
+1. **Prerequisites**: Install Xcode from the App Store
+2. **Build iOS app**:
+   ```bash
+   ./build-mobile-ios.sh
+   ```
+   Or manually:
+   ```bash
+   dx build --platform ios --release
+   ```
+3. **Open in Xcode**: The project will be in `mobile/ios/`
+4. **Configure signing** in Xcode
+5. **Run on simulator or device**
+
+### Building for Android
+
+1. **Prerequisites**: 
+   - Install Android Studio
+   - Set `ANDROID_HOME` environment variable
+2. **Build Android app**:
+   ```bash
+   ./build-mobile-android.sh
+   ```
+   Or manually:
+   ```bash
+   dx build --platform android --release
+   ```
+3. **Install APK**: The APK will be in `mobile/android/app/build/outputs/apk/`
+4. **Or open in Android Studio**: Open `mobile/android/` in Android Studio
+
+### Mobile vs PWA
+
+- **PWA**: Web build (WASM) - works in browsers, deployable to GitHub Pages
+- **Mobile**: Native iOS/Android apps - uses the same codebase with platform-specific storage
+- **Code Sharing**: ~95% of code is shared between web and mobile platforms
+- **Storage**: Web uses localStorage, mobile uses file system storage
 
 ## SSR (Landing/Legal) + SPA (/app)
 
@@ -185,6 +232,12 @@ remind-me-pwa/
 │       ├── core/        # Core development rules
 │       ├── features/    # Feature-specific rules
 │       └── skills.md    # Development skills reference
+├── mobile/              # Mobile project files
+│   ├── ios/            # iOS project (generated)
+│   ├── android/        # Android project (generated)
+│   └── README.md       # Mobile setup guide
+├── build-mobile-ios.sh # iOS build script
+├── build-mobile-android.sh # Android build script
 ├── Cargo.toml           # Rust dependencies
 ├── Dioxus.toml          # Dioxus configuration
 └── README.md            # This file

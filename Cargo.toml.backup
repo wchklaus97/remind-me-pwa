@@ -1,0 +1,108 @@
+[package]
+name = "remind-me-pwa"
+version = "0.0.1"
+edition = "2021"
+
+[[bin]]
+name = "server"
+path = "src/bin/server.rs"
+required-features = ["server"]
+
+[features]
+# Default is the client-side (WASM) SPA build used for GitHub Pages.
+default = ["web"]
+
+# Client-side web build (WASM).
+web = []
+
+# Server-side rendering for landing/legal pages (native binary).
+# This is intended for self-hosting (e.g. on a VPS) or a host that can run Rust servers.
+server = ["dep:axum", "dep:tokio", "dep:tower-http", "dep:dioxus-ssr"]
+
+[dependencies]
+# Dioxus 0.7 - All packages compatible with 0.7.x
+dioxus = { version = "0.7", default-features = false, features = ["web", "macro", "signals", "html", "hooks", "asset", "launch"] }
+dioxus-router = "0.7"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+# Minimize web-sys features - only include what's absolutely necessary
+# Dioxus already provides most web APIs through wasm-bindgen, but we need web-sys
+# for DOM manipulation (removing Google Fonts links) and localStorage access
+web-sys = { version = "0.3", features = ["Window", "Storage", "Location", "Document", "HtmlElement", "Element", "Node", "History", "Event", "Blob", "Url", "ScrollIntoViewOptions", "ScrollBehavior", "ScrollLogicalPosition", "DomRect", "DomRectReadOnly"] }
+
+# js-sys for JavaScript interop (used for History API push_state)
+js-sys = "0.3"
+
+# wasm-bindgen for closures and JavaScript interop
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+
+# UI Component Library
+remind-me-ui = { path = "./crates/ui" }
+
+# Panic hook for better error messages in WASM
+# Note: it's only *used* in debug builds (see `src/main.rs`), so it won't bloat release WASM.
+console_error_panic_hook = "0.1"
+
+# Mobile support (iOS and Android)
+dioxus-mobile = { version = "0.7", features = ["ios", "android"] }
+
+# --- Server-only deps (SSR) ---------------------------------------------------
+# These are optional and only enabled with `--features server`.
+axum = { version = "0.7", optional = true }
+tokio = { version = "1", features = ["rt-multi-thread", "macros"], optional = true }
+tower-http = { version = "0.5", features = ["fs"], optional = true }
+dioxus-ssr = { version = "0.7", optional = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Keep `chrono` available for non-WASM targets (tests/tools), but do not ship it in WASM builds.
+chrono = { version = "0.4", features = ["serde", "clock"] }
+
+[profile.release]
+opt-level = "z"
+lto = "thin"  # Use thin LTO instead of full LTO for faster builds and WASM compatibility
+codegen-units = 1
+panic = "abort"
+# Note: strip is disabled for WASM builds (handled by wasm-release profile)
+# strip = true  # Disabled - WASM doesn't support strip the same way
+
+[profile.dev]
+incremental = true
+opt-level = 0
+debug = true
+split-debuginfo = "unpacked"
+
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+incremental = true
+codegen-units = 16  # More units = faster compilation, slightly larger binary
+lto = false                        # Disable for dev builds
+
+# WASM release profile - optimized for size and performance.
+# Notes:
+# - LCP is strongly influenced by WASM download + instantiation time, so smaller is better.
+# - If you ever see Dioxus `asset!()` URLs turning into placeholder error strings at runtime,
+#   try `debug = 1` here (smallest amount of debuginfo) and rebuild.
+# - Enabling debuginfo can increase WASM size and may make `wasm-opt` more fragile (DWARF).
+# - panic = "unwind" is required for proper error handling in WASM (prevents "unreachable" errors)
+[profile.wasm-release]
+inherits = "release"
+opt-level = "z"                    # Optimize for *smallest* size (best for download/LCP)
+lto = "thin"                       # Thin LTO for WASM
+codegen-units = 1                  # Better optimization
+strip = false                      # WASM handles stripping differently
+debug = false                      # Keep WASM small; enable only if you need debuginfo/sourcemaps
+panic = "unwind"                   # Required for WASM error handling (prevents "unreachable" runtime errors)
+overflow-checks = false            # Better performance
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
+

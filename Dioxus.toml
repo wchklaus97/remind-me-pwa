@@ -14,4 +14,11 @@ enabled = true
 manifest = "assets/manifest.json"
 service_worker = "assets/sw.js"
 
+[mobile.ios]
+bundle_id = "com.remindme.app"
+display_name = "Remind Me"
+
+[mobile.android]
+package_name = "com.remindme.app"
+app_name = "Remind Me"
 
