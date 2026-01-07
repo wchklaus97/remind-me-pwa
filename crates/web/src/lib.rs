@@ -7,6 +7,7 @@ pub mod i18n;
 pub mod router;
 pub mod deployment;
 pub mod app;
+pub mod services;
 
 // Re-export storage functions for convenience
 pub use storage::{load_reminders, save_reminders, load_tags, save_tags};
@@ -22,4 +23,7 @@ pub use deployment::{get_base_path, get_base_url, is_github_pages};
 
 // Re-export App component
 pub use app::App;
+
+// Re-export services
+pub use services::*;
 

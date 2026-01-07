@@ -37,7 +37,7 @@ impl MediaCacheManager {
         spawn(async move {
             #[cfg(target_arch = "wasm32")]
             {
-                let result = crate::services::media_cache::ensure_cached(_cache_name, &key).await;
+                let result = ensure_cached_impl(_cache_name, &key).await;
                 states.with_mut(|m| {
                     m.insert(
                         key.clone(),
