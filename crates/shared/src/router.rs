@@ -248,6 +248,7 @@ pub fn update_url(route: &Route, locale: &str) {
 /// 
 /// On web platform, updates browser history.
 /// On other platforms, does nothing.
+#[allow(unused_variables)]
 pub fn push_landing_section_url(locale: &str, section: Option<&str>) {
     #[cfg(target_arch = "wasm32")]
     {
@@ -267,6 +268,7 @@ pub fn push_landing_section_url(locale: &str, section: Option<&str>) {
 /// 
 /// On web platform, updates browser history without adding new entry.
 /// On other platforms, does nothing.
+#[allow(unused_variables)]
 pub fn replace_landing_section_url(locale: &str, section: Option<&str>) {
     #[cfg(target_arch = "wasm32")]
     {

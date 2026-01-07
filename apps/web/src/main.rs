@@ -1,5 +1,8 @@
-// Web app entry point
-use remind_me_web::*;
+//! Web app entry point
+//! 
+//! This is the main entry point for the web/WASM build of Remind Me PWA.
+
+use remind_me_web::App;
 
 #[cfg(all(target_arch = "wasm32", debug_assertions))]
 fn set_panic_hook() {
@@ -10,7 +13,6 @@ fn main() {
     #[cfg(all(target_arch = "wasm32", debug_assertions))]
     set_panic_hook();
     
-    // TODO: Launch web app
-    // dioxus::launch(App);
+    dioxus::launch(App);
 }
 

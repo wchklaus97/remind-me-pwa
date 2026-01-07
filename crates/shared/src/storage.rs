@@ -137,3 +137,125 @@ fn save_tags_impl<S: PlatformStorage>(tags: &[Tag]) {
         }
     }
 }
+
+// Platform-specific implementations
+// On web, these will be re-exported from crates/web/src/storage.rs
+// On mobile, these will be re-exported from crates/mobile/src/storage.rs
+// For components crate, we provide a default implementation using conditional compilation
+
+#[cfg(target_arch = "wasm32")]
+mod web_storage_impl {
+    use super::*;
+    
+    struct WebStorageImpl;
+    
+    impl PlatformStorage for WebStorageImpl {
+        fn get(key: &str) -> Option<String> {
+            if let Some(window) = web_sys::window() {
+                if let Some(storage) = window.local_storage().ok().flatten() {
+                    if let Ok(Some(data)) = storage.get_item(key) {
+                        return Some(data);
+                    }
+                }
+            }
+            None
+        }
+        
+        fn set(key: &str, value: &str) -> Result<(), StorageError> {
+            if let Some(window) = web_sys::window() {
+                if let Some(storage) = window.local_storage().ok().flatten() {
+                    if let Err(_) = storage.set_item(key, value) {
+                        return Err(StorageError::SaveFailed);
+                    }
+                    return Ok(());
+                }
+            }
+            Err(StorageError::Unavailable)
+        }
+    }
+    
+    pub fn load_reminders() -> Vec<Reminder> {
+        load_reminders_impl::<WebStorageImpl>()
+    }
+    
+    pub fn save_reminders(reminders: &[Reminder]) {
+        save_reminders_impl::<WebStorageImpl>(reminders);
+    }
+    
+    pub fn load_tags() -> Vec<Tag> {
+        load_tags_impl::<WebStorageImpl>()
+    }
+    
+    pub fn save_tags(tags: &[Tag]) {
+        save_tags_impl::<WebStorageImpl>(tags);
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+pub use web_storage_impl::{load_reminders, save_reminders, load_tags, save_tags};
+
+#[cfg(not(target_arch = "wasm32"))]
+mod mobile_storage_impl {
+    use super::*;
+    use std::path::PathBuf;
+    use std::fs;
+    
+    struct MobileStorageImpl;
+    
+    impl PlatformStorage for MobileStorageImpl {
+        fn get(key: &str) -> Option<String> {
+            if let Some(data_dir) = get_app_data_dir() {
+                let file_path = data_dir.join(format!("{}.json", key));
+                if let Ok(content) = fs::read_to_string(&file_path) {
+                    return Some(content);
+                }
+            }
+            None
+        }
+        
+        fn set(key: &str, value: &str) -> Result<(), StorageError> {
+            if let Some(data_dir) = get_app_data_dir() {
+                if let Err(_) = fs::create_dir_all(&data_dir) {
+                    return Err(StorageError::Unavailable);
+                }
+                
+                let file_path = data_dir.join(format!("{}.json", key));
+                if let Err(_) = fs::write(&file_path, value) {
+                    return Err(StorageError::SaveFailed);
+                }
+                return Ok(());
+            }
+            Err(StorageError::Unavailable)
+        }
+    }
+    
+    fn get_app_data_dir() -> Option<PathBuf> {
+        if let Ok(exe) = std::env::current_exe() {
+            if let Some(parent) = exe.parent() {
+                let mut path = parent.to_path_buf();
+                path.push("data");
+                return Some(path);
+            }
+        }
+        Some(PathBuf::from("data"))
+    }
+    
+    pub fn load_reminders() -> Vec<Reminder> {
+        load_reminders_impl::<MobileStorageImpl>()
+    }
+    
+    pub fn save_reminders(reminders: &[Reminder]) {
+        save_reminders_impl::<MobileStorageImpl>(reminders);
+    }
+    
+    pub fn load_tags() -> Vec<Tag> {
+        load_tags_impl::<MobileStorageImpl>()
+    }
+    
+    pub fn save_tags(tags: &[Tag]) {
+        save_tags_impl::<MobileStorageImpl>(tags);
+    }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+pub use mobile_storage_impl::{load_reminders, save_reminders, load_tags, save_tags};

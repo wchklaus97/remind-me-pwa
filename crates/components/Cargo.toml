@@ -12,7 +12,7 @@ remind-me-ui = { path = "../ui" }
 # i18n hooks will be provided via feature flags or platform-specific implementations
 
 # Dioxus
-dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks"] }
+dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks", "asset"] }
 dioxus-router = { workspace = true }
 
 # Serde

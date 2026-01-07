@@ -3860,6 +3860,8 @@ dependencies = [
 name = "remind-me-web-app"
 version = "0.0.1"
 dependencies = [
+ "console_error_panic_hook",
+ "dioxus",
  "remind-me-web",
 ]
 

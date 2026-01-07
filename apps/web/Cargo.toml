@@ -9,4 +9,6 @@ path = "src/main.rs"
 
 [dependencies]
 remind-me-web = { path = "../../crates/web" }
+dioxus = { workspace = true, features = ["web", "launch"] }
+console_error_panic_hook = { workspace = true }
 

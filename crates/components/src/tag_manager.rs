@@ -7,7 +7,7 @@ use remind_me_ui::{
 };
 use remind_me_shared::models::Tag;
 use remind_me_shared::storage::{load_tags, save_tags};
-use super::TagForm;
+use crate::TagForm;
 use crate::i18n::use_t;
 
 #[component]
@@ -88,6 +88,7 @@ pub fn TagManager(
                         div {
                             class: "tag-list",
                             for tag in tags().iter() {
+                                let tag: &Tag = tag;
                                 TagItem {
                                     tag: tag.clone(),
                                     delete_confirm_id: delete_confirm_id,
