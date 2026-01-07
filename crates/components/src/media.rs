@@ -256,4 +256,46 @@ pub fn ManagedCachedImage(
     }
 }
 
+/// Ensure a single URL is stored in Cache Storage (WASM only).
+///
+/// This is used by the shared cache manager to:
+/// - Deduplicate in-flight downloads (only one fetch per URL)
+/// - Notify all subscribers when ready
+#[cfg(target_arch = "wasm32")]
+async fn ensure_cached_impl(cache_name: &str, url: &str) -> Result<(), wasm_bindgen::JsValue> {
+    use js_sys::{Function, Reflect};
+    use js_sys::Promise;
+    use wasm_bindgen::JsCast;
+    use wasm_bindgen::JsValue;
+    use wasm_bindgen_futures::JsFuture;
+
+    let Some(window) = web_sys::window() else {
+        return Ok(());
+    };
+
+    let caches = Reflect::get(&window, &JsValue::from_str("caches"))?;
+    let open = Reflect::get(&caches, &JsValue::from_str("open"))?
+        .dyn_into::<Function>()?;
+
+    let open_promise: Promise =
+        open.call1(&caches, &JsValue::from_str(cache_name))?.dyn_into()?;
+    let cache = JsFuture::from(open_promise).await?;
+
+    // cache.match(url)
+    let match_fn = Reflect::get(&cache, &JsValue::from_str("match"))?
+        .dyn_into::<Function>()?;
+    let match_promise: Promise = match_fn.call1(&cache, &JsValue::from_str(url))?.dyn_into()?;
+    let matched = JsFuture::from(match_promise).await?;
+
+    if !matched.is_null() && !matched.is_undefined() {
+        return Ok(());
+    }
+
+    // cache.add(url)
+    let add_fn = Reflect::get(&cache, &JsValue::from_str("add"))?
+        .dyn_into::<Function>()?;
+    let add_promise: Promise = add_fn.call1(&cache, &JsValue::from_str(url))?.dyn_into()?;
+    let _ = JsFuture::from(add_promise).await?;
+    Ok(())
+}
 
