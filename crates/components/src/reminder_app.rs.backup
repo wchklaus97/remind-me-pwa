@@ -7,11 +7,11 @@ use remind_me_ui::{
     Button, ButtonVariant, Input, Select, SelectOption,
     EmptyState, Toast, ToastPosition, ToastVariant,
 };
-use remind_me_shared::models::{Reminder, ReminderFilter, ReminderSort};
-use remind_me_shared::storage::{load_reminders, save_reminders, load_tags};
-use remind_me_shared::utils::get_filtered_and_sorted_reminders;
+use crate::models::{Reminder, ReminderFilter, ReminderSort};
+use crate::storage::{load_reminders, save_reminders, load_tags};
+use crate::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
-use super::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
+use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
 use crate::i18n::use_t;
 
 #[component]

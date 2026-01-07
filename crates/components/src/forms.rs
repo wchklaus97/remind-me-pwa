@@ -5,8 +5,7 @@ use remind_me_ui::{
     FormField, Input, Textarea, Checkbox,
 };
 use remind_me_shared::models::{Reminder, Tag};
-// TODO: Update i18n imports when platform-specific implementations are ready
-// use remind_me_shared::i18n::Locale;
+use crate::i18n::use_t;
 use remind_me_shared::utils::{now_rfc3339, now_timestamp_millis, to_datetime_local_value};
 
 #[component]

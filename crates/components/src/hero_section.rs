@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 use super::ManagedCachedVideo;
 

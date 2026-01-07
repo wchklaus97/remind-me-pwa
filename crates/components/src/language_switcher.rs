@@ -1,5 +1,4 @@
 use dioxus::prelude::*;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::{use_i18n, use_t, Locale};
 #[allow(unused_imports)]
 use remind_me_shared::router::{update_url, get_initial_route};

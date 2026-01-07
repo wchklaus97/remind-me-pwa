@@ -3786,10 +3786,13 @@ version = "0.0.1"
 dependencies = [
  "dioxus",
  "dioxus-router",
+ "js-sys",
  "remind-me-shared",
  "remind-me-ui",
  "serde",
  "serde_json",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]

@@ -5,7 +5,6 @@ use remind_me_ui::{
     FormField, Input,
 };
 use remind_me_shared::models::Tag;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 use remind_me_shared::utils::now_timestamp_millis;
 

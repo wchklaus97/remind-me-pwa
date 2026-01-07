@@ -1,9 +1,9 @@
 use dioxus::prelude::*;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_current_locale;
 use remind_me_shared::router::Route;
-// Router functions are platform-specific and will be provided by web/mobile crates
-// For now, we'll need to handle this differently - these functions are in web crate
+use remind_me_shared::router::push_landing_section_url;
+#[cfg(target_arch = "wasm32")]
+use remind_me_shared::router::{get_landing_section_from_url, replace_landing_section_url};
 use super::landing_layout::{LandingFooter, LandingNavbar};
 use super::FeaturesSection;
 use super::HeroSection;
@@ -65,7 +65,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     let mut jump_to_nav = move |section: &'static str| {
         active_section_nav.set(section.to_string());
         let section_param = if section == "features" { None } else { Some(section) };
-        // TODO: push_landing_section_url(&locale_for_jump_nav, section_param);
+        push_landing_section_url(&locale_for_jump_nav, section_param);
         #[cfg(target_arch = "wasm32")]
         scroll_to_section(section);
     };
@@ -75,7 +75,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     let mut jump_to_footer = move |section: &'static str| {
         active_section_footer.set(section.to_string());
         let section_param = if section == "features" { None } else { Some(section) };
-        // TODO: push_landing_section_url(&locale_for_jump_footer, section_param);
+        push_landing_section_url(&locale_for_jump_footer, section_param);
         #[cfg(target_arch = "wasm32")]
         scroll_to_section(section);
     };
@@ -139,7 +139,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
                                 active_section_signal.set(id.to_string());
                                 // Keep URL in sync with scroll position (no hash fragments).
                                 let section_param = if id == "features" { None } else { Some(id) };
-                                // TODO: replace_landing_section_url(&locale_for_url, section_param);
+                                replace_landing_section_url(&locale_for_url, section_param);
                             }
                         }
                     }) as Box<dyn FnMut(_)>));
@@ -175,15 +175,15 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     use_effect(move || {
         #[cfg(target_arch = "wasm32")]
         {
-            // TODO: Get section from URL when router functions are available
-            // let locale_for_url = locale_mount.clone();
-            // if let Some(section) = get_landing_section_from_url() {
-            //     let section_param = if section == "features" { None } else { Some(section.as_str()) };
-            //     replace_landing_section_url(&locale_for_url, section_param);
-            //     let mut active_section_signal = active_section;
-            //     active_section_signal.set(section.clone());
-            //     scroll_to_section(&section);
-            // }
+            let locale_for_url = locale_mount.clone();
+            if let Some(section) = get_landing_section_from_url() {
+                // If section is "features", keep the clean base URL.
+                let section_param = if section == "features" { None } else { Some(section.as_str()) };
+                replace_landing_section_url(&locale_for_url, section_param);
+                let mut active_section_signal = active_section;
+                active_section_signal.set(section.clone());
+                scroll_to_section(&section);
+            }
         }
     });
 

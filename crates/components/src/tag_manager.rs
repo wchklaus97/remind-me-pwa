@@ -8,7 +8,6 @@ use remind_me_ui::{
 use remind_me_shared::models::Tag;
 use remind_me_shared::storage::{load_tags, save_tags};
 use super::TagForm;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 
 #[component]

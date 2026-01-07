@@ -1,8 +1,3 @@
-//! Application-specific components
-//! 
-//! This crate contains all application-specific Dioxus components that are
-//! shared between web and mobile platforms.
-
 pub mod landing;
 pub mod features_section;
 pub mod landing_layout;
@@ -24,7 +19,7 @@ pub mod pricing_section;
 pub mod faq_section;
 pub mod final_cta_section;
 pub mod app_views;
-pub mod i18n;
+
 pub use landing::LandingPage;
 pub use features_section::FeaturesSection;
 pub use legal::{PrivacyPolicyPage, TermsOfUsePage};
@@ -45,3 +40,4 @@ pub use pricing_section::PricingSection;
 pub use faq_section::FAQSection;
 pub use final_cta_section::FinalCTASection;
 pub use app_views::{ListView, CardView, FolderView, CalendarView};
+

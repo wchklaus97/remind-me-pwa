@@ -19,3 +19,9 @@ dioxus-router = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
+# Web APIs (for components that use web_sys)
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { workspace = true }
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+

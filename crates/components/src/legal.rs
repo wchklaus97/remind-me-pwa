@@ -2,7 +2,6 @@ use dioxus::prelude::*;
 
 use remind_me_shared::router::Route;
 use super::page_template::PublicPageTemplate;
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 
 #[component]

@@ -7,7 +7,6 @@ use remind_me_ui::{
 };
 use remind_me_shared::models::{Reminder, Tag};
 use remind_me_shared::utils::{format_date, is_overdue};
-#[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 
 #[component]
