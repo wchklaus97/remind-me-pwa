@@ -52,19 +52,19 @@ pub fn load_translations() -> HashMap<String, Value> {
     let mut translations = HashMap::new();
 
     // Load English translations
-    let en_json: Value = serde_json::from_str(include_str!("../../assets/i18n/en.json"))
+    let en_json: Value = serde_json::from_str(include_str!("../../../assets/i18n/en.json"))
         .expect("Failed to parse English translations");
     translations.insert("en".to_string(), en_json);
 
     // Load Simplified Chinese translations (zh-Hans)
-    let zh_hans_json: Value = serde_json::from_str(include_str!("../../assets/i18n/zh-Hans.json"))
+    let zh_hans_json: Value = serde_json::from_str(include_str!("../../../assets/i18n/zh-Hans.json"))
         .expect("Failed to parse Simplified Chinese translations");
     translations.insert("zh-Hans".to_string(), zh_hans_json.clone());
     // Default "zh" to Simplified Chinese
     translations.insert("zh".to_string(), zh_hans_json);
 
     // Load Traditional Chinese translations (zh-Hant)
-    let zh_hant_json: Value = serde_json::from_str(include_str!("../../assets/i18n/zh-Hant.json"))
+    let zh_hant_json: Value = serde_json::from_str(include_str!("../../../assets/i18n/zh-Hant.json"))
         .expect("Failed to parse Traditional Chinese translations");
     translations.insert("zh-Hant".to_string(), zh_hant_json.clone());
     // Also support zh-TW for Traditional Chinese
