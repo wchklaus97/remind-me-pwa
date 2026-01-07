@@ -6,4 +6,5 @@ pub mod models;
 pub mod storage;
 pub mod utils;
 pub mod i18n;
+pub mod router;
 
