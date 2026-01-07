@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use remind_me_shared::models::{Reminder, Tag};
-use super::ReminderCard;
+use crate::ReminderCard;
 #[cfg(target_arch = "wasm32")]
 use crate::i18n::use_t;
 

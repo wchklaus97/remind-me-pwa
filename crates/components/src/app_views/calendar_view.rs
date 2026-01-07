@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 use remind_me_ui::{Button, ButtonVariant};
 use remind_me_shared::models::{Reminder, Tag, ReminderFilter, ReminderSort};
-use super::ReminderCard;
+use crate::ReminderCard;
 use remind_me_shared::utils::{
     get_current_date, get_days_in_month, get_first_day_of_week,
     format_month_year, group_reminders_by_date, get_filtered_and_sorted_reminders,

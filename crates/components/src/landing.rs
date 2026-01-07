@@ -175,15 +175,15 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     use_effect(move || {
         #[cfg(target_arch = "wasm32")]
         {
-            let locale_for_url = locale_mount.clone();
-            if let Some(section) = // TODO: get_landing_section_from_url() {
-                // If section is "features", keep the clean base URL.
-                let section_param = if section == "features" { None } else { Some(section.as_str()) };
-                // TODO: replace_landing_section_url(&locale_for_url, section_param);
-                let mut active_section_signal = active_section;
-                active_section_signal.set(section.clone());
-                scroll_to_section(&section);
-            }
+            // TODO: Get section from URL when router functions are available
+            // let locale_for_url = locale_mount.clone();
+            // if let Some(section) = get_landing_section_from_url() {
+            //     let section_param = if section == "features" { None } else { Some(section.as_str()) };
+            //     replace_landing_section_url(&locale_for_url, section_param);
+            //     let mut active_section_signal = active_section;
+            //     active_section_signal.set(section.clone());
+            //     scroll_to_section(&section);
+            // }
         }
     });
 

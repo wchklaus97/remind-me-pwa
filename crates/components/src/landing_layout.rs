@@ -5,7 +5,7 @@ use crate::i18n::use_t;
 #[cfg(target_arch = "wasm32")]
 use crate::i18n::use_current_locale;
 use remind_me_shared::router::Route;
-use remind_me_shared::router::landing_section_href;
+use // TODO: landing_section_href;
 use super::{ManagedCachedVideo, LanguageSwitcher};
 use super::ManagedCachedImage;
 
