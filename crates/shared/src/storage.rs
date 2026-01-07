@@ -36,6 +36,7 @@ pub const REMINDERS_V1_KEY: &str = "reminders"; // Legacy key
 pub const TAGS_V1_KEY: &str = "tags_v1";
 
 // Legacy Reminder structure (v1) for migration
+#[allow(dead_code)]
 #[derive(serde::Deserialize)]
 struct LegacyReminder {
     id: String,
@@ -46,15 +47,9 @@ struct LegacyReminder {
     created_at: String,
 }
 
-/// Load reminders from storage
-/// 
-/// This function handles version migration automatically:
-/// - First tries to load v2 format (with tag_ids)
-/// - Falls back to v1 format and migrates to v2
-/// - Returns empty vector if no data is found
-/// 
-/// Platform-specific implementation is selected via conditional compilation.
-pub fn load_reminders<S: PlatformStorage>() -> Vec<Reminder> {
+/// Internal implementation with generic PlatformStorage
+#[allow(dead_code)]
+fn load_reminders_impl<S: PlatformStorage>() -> Vec<Reminder> {
     // Try to load v2 first
     if let Some(data) = S::get(REMINDERS_V2_KEY) {
         if let Ok(reminders) = serde_json::from_str::<Vec<Reminder>>(&data) {
@@ -94,10 +89,9 @@ pub fn load_reminders<S: PlatformStorage>() -> Vec<Reminder> {
     Vec::new()
 }
 
-/// Save reminders to storage
-/// 
-/// Platform-specific implementation is selected via conditional compilation.
-pub fn save_reminders<S: PlatformStorage>(reminders: &[Reminder]) {
+/// Internal implementation with generic PlatformStorage
+#[allow(dead_code)]
+fn save_reminders_impl<S: PlatformStorage>(reminders: &[Reminder]) {
     match serde_json::to_string(reminders) {
         Ok(json) => {
             if let Err(_) = S::set(REMINDERS_V2_KEY, &json) {
@@ -114,10 +108,9 @@ pub fn save_reminders<S: PlatformStorage>(reminders: &[Reminder]) {
     }
 }
 
-/// Load tags from storage
-/// 
-/// Platform-specific implementation is selected via conditional compilation.
-pub fn load_tags<S: PlatformStorage>() -> Vec<Tag> {
+/// Internal implementation with generic PlatformStorage
+#[allow(dead_code)]
+fn load_tags_impl<S: PlatformStorage>() -> Vec<Tag> {
     if let Some(data) = S::get(TAGS_V1_KEY) {
         if let Ok(tags) = serde_json::from_str::<Vec<Tag>>(&data) {
             return tags;
@@ -126,10 +119,9 @@ pub fn load_tags<S: PlatformStorage>() -> Vec<Tag> {
     Vec::new()
 }
 
-/// Save tags to storage
-/// 
-/// Platform-specific implementation is selected via conditional compilation.
-pub fn save_tags<S: PlatformStorage>(tags: &[Tag]) {
+/// Internal implementation with generic PlatformStorage
+#[allow(dead_code)]
+fn save_tags_impl<S: PlatformStorage>(tags: &[Tag]) {
     match serde_json::to_string(tags) {
         Ok(json) => {
             if let Err(_) = S::set(TAGS_V1_KEY, &json) {
