@@ -88,7 +88,6 @@ pub fn TagManager(
                         div {
                             class: "tag-list",
                             for tag in tags().iter() {
-                                let tag: &Tag = tag;
                                 TagItem {
                                     tag: tag.clone(),
                                     delete_confirm_id: delete_confirm_id,

@@ -214,7 +214,6 @@ pub fn ReminderApp() -> Element {
                 if show_add_form() || editing_id().is_some() {
                     if let Some(edit_id) = editing_id() {
                         if let Some(reminder) = reminders().iter().find(|r| r.id == edit_id) {
-                            let reminder: &Reminder = reminder;
                             EditReminderForm {
                                 reminder: reminder.clone(),
                                 tags: tags(),
