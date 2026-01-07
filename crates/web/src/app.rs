@@ -9,7 +9,8 @@ use std::rc::Rc;
 use remind_me_shared::router::Route;
 use remind_me_components::{LandingPage, ReminderApp, PrivacyPolicyPage, TermsOfUsePage, MediaCacheProvider};
 use crate::router::{get_initial_route, update_url};
-use crate::i18n::{use_init_i18n, use_i18n, Locale};
+use crate::i18n::{use_init_i18n, use_i18n};
+use remind_me_shared::i18n::Locale;
 use crate::deployment::{get_base_path, get_base_url};
 
 
