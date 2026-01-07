@@ -1,3 +1,9 @@
+//! Utility functions for the Remind Me application
+//! 
+//! This module contains helper functions for date formatting, statistics calculation,
+//! and reminder filtering/sorting. Some functions have platform-specific implementations
+//! using conditional compilation.
+
 use crate::models::{Reminder, Statistics, ReminderFilter, ReminderSort};
 
 #[cfg(not(target_arch = "wasm32"))]
