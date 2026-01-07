@@ -24,7 +24,8 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
 
     #[cfg(target_arch = "wasm32")]
     fn base_prefix() -> String {
-        remind_me_web::get_base_path()
+        // Use empty string for now - base_path is handled by web app
+        String::new()
     }
 
     #[cfg(not(target_arch = "wasm32"))]
