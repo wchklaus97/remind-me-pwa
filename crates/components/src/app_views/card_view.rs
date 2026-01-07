@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 use remind_me_shared::models::{Reminder, Tag};
-use crate::components::ReminderCard;
+use super::ReminderCard;
 
 #[component]
 pub fn CardView(

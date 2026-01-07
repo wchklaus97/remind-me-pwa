@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
-use remind_me_web::i18n::use_t;
-use crate::components::ManagedCachedVideo;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
+use super::ManagedCachedVideo;
 
 static HERO_LOADING_MP4_120: Asset = asset!("/assets/videos/optimized/clay_crab_loading_peek_120.mp4");
 static HERO_LOADING_POSTER_160: Asset =

@@ -1,7 +1,8 @@
 use dioxus::prelude::*;
 use remind_me_shared::models::{Reminder, Tag};
-use crate::components::ReminderCard;
-use remind_me_web::i18n::use_t;
+use super::ReminderCard;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
 
 #[component]
 pub fn FolderView(

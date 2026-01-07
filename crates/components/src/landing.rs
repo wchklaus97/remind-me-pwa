@@ -1,17 +1,17 @@
 use dioxus::prelude::*;
-use remind_me_web::i18n::use_current_locale;
-use remind_me_shared::router::Route;
-use remind_me_shared::router::push_landing_section_url;
 #[cfg(target_arch = "wasm32")]
-use remind_me_shared::router::{get_landing_section_from_url, replace_landing_section_url};
-use crate::components::landing_layout::{LandingFooter, LandingNavbar};
-use crate::components::FeaturesSection;
-use crate::components::HeroSection;
-use crate::components::WorkflowSection;
-use crate::components::TestimonialsSection;
-use crate::components::PricingSection;
-use crate::components::FAQSection;
-use crate::components::FinalCTASection;
+use crate::i18n::use_current_locale;
+use remind_me_shared::router::Route;
+// Router functions are platform-specific and will be provided by web/mobile crates
+// For now, we'll need to handle this differently - these functions are in web crate
+use super::landing_layout::{LandingFooter, LandingNavbar};
+use super::FeaturesSection;
+use super::HeroSection;
+use super::WorkflowSection;
+use super::TestimonialsSection;
+use super::PricingSection;
+use super::FAQSection;
+use super::FinalCTASection;
 #[cfg(target_arch = "wasm32")]
 use dioxus::dioxus_core::use_hook_with_cleanup;
 #[cfg(target_arch = "wasm32")]
@@ -65,7 +65,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     let mut jump_to_nav = move |section: &'static str| {
         active_section_nav.set(section.to_string());
         let section_param = if section == "features" { None } else { Some(section) };
-        push_landing_section_url(&locale_for_jump_nav, section_param);
+        // TODO: push_landing_section_url(&locale_for_jump_nav, section_param);
         #[cfg(target_arch = "wasm32")]
         scroll_to_section(section);
     };
@@ -75,7 +75,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
     let mut jump_to_footer = move |section: &'static str| {
         active_section_footer.set(section.to_string());
         let section_param = if section == "features" { None } else { Some(section) };
-        push_landing_section_url(&locale_for_jump_footer, section_param);
+        // TODO: push_landing_section_url(&locale_for_jump_footer, section_param);
         #[cfg(target_arch = "wasm32")]
         scroll_to_section(section);
     };
@@ -139,7 +139,7 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
                                 active_section_signal.set(id.to_string());
                                 // Keep URL in sync with scroll position (no hash fragments).
                                 let section_param = if id == "features" { None } else { Some(id) };
-                                replace_landing_section_url(&locale_for_url, section_param);
+                                // TODO: replace_landing_section_url(&locale_for_url, section_param);
                             }
                         }
                     }) as Box<dyn FnMut(_)>));
@@ -176,10 +176,10 @@ pub fn LandingPage(on_enter_app: EventHandler<()>, on_navigate: EventHandler<Rou
         #[cfg(target_arch = "wasm32")]
         {
             let locale_for_url = locale_mount.clone();
-            if let Some(section) = get_landing_section_from_url() {
+            if let Some(section) = // TODO: get_landing_section_from_url() {
                 // If section is "features", keep the clean base URL.
                 let section_param = if section == "features" { None } else { Some(section.as_str()) };
-                replace_landing_section_url(&locale_for_url, section_param);
+                // TODO: replace_landing_section_url(&locale_for_url, section_param);
                 let mut active_section_signal = active_section;
                 active_section_signal.set(section.clone());
                 scroll_to_section(&section);

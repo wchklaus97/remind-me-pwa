@@ -11,8 +11,9 @@ use remind_me_shared::models::{Reminder, ReminderFilter, ReminderSort};
 use remind_me_shared::storage::{load_reminders, save_reminders, load_tags};
 use remind_me_shared::utils::get_filtered_and_sorted_reminders;
 // Use re-exports from mod.rs to avoid clippy warnings
-use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
-use remind_me_web::i18n::use_t;
+use super::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
 
 #[component]
 pub fn ReminderApp() -> Element {

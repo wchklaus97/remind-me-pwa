@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
-use remind_me_web::i18n::use_t;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
 
 #[component]
 pub fn FeaturesSection() -> Element {

@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
-use remind_me_web::i18n::use_t;
-use crate::components::ManagedCachedVideo;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
+use super::ManagedCachedVideo;
 
 static FAVICON_32: Asset = asset!("/assets/favicon-32x32.avif");
 #[allow(dead_code)]

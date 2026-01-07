@@ -24,6 +24,7 @@ pub mod pricing_section;
 pub mod faq_section;
 pub mod final_cta_section;
 pub mod app_views;
+pub mod i18n;
 
 pub use landing::LandingPage;
 pub use features_section::FeaturesSection;

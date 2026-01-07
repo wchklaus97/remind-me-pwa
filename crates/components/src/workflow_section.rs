@@ -1,7 +1,8 @@
 use dioxus::prelude::*;
 use remind_me_ui::{Button, ButtonVariant, ButtonSize};
-use remind_me_web::i18n::use_t;
-use crate::components::ManagedCachedVideo;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
+use super::ManagedCachedVideo;
 
 #[allow(dead_code)]
 static BRAND_LOADING_MP4_48: Asset = asset!("/assets/videos/optimized/clay_crab_loading_peek_48.mp4");

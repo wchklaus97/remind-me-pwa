@@ -1,8 +1,9 @@
 use dioxus::prelude::*;
 
 use remind_me_shared::router::Route;
-use crate::components::page_template::PublicPageTemplate;
-use remind_me_web::i18n::use_t;
+use super::page_template::PublicPageTemplate;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
 
 #[component]
 pub fn PrivacyPolicyPage(

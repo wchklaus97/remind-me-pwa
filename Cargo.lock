@@ -3781,6 +3781,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "remind-me-components"
+version = "0.0.1"
+dependencies = [
+ "dioxus",
+ "dioxus-router",
+ "remind-me-shared",
+ "remind-me-ui",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "remind-me-mobile"
 version = "0.0.1"
 dependencies = [
@@ -3806,8 +3818,10 @@ name = "remind-me-shared"
 version = "0.0.1"
 dependencies = [
  "chrono",
+ "js-sys",
  "serde",
  "serde_json",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -3828,6 +3842,7 @@ dependencies = [
  "dioxus",
  "dioxus-router",
  "js-sys",
+ "remind-me-components",
  "remind-me-shared",
  "remind-me-ui",
  "serde",

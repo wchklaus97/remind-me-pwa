@@ -1,7 +1,7 @@
 use dioxus::prelude::*;
 
 use remind_me_shared::router::Route;
-use crate::components::landing_layout::{LandingFooter, LandingNavbar};
+use super::landing_layout::{LandingFooter, LandingNavbar};
 
 #[component]
 pub fn PublicPageTemplate(

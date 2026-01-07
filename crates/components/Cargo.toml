@@ -8,9 +8,8 @@ edition.workspace = true
 remind-me-shared = { path = "../shared" }
 remind-me-ui = { path = "../ui" }
 
-# Platform-specific (will be provided by web/mobile crates)
-# For now, components depend on web for i18n hooks
-remind-me-web = { path = "../web" }
+# Dioxus for hooks (components need Dioxus for hooks)
+# i18n hooks will be provided via feature flags or platform-specific implementations
 
 # Dioxus
 dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks"] }

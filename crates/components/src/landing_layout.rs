@@ -1,11 +1,13 @@
 use dioxus::prelude::*;
 
-use remind_me_web::i18n::use_t;
-use remind_me_web::i18n::use_current_locale;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_t;
+#[cfg(target_arch = "wasm32")]
+use crate::i18n::use_current_locale;
 use remind_me_shared::router::Route;
 use remind_me_shared::router::landing_section_href;
-use crate::components::{ManagedCachedVideo, LanguageSwitcher};
-use crate::components::ManagedCachedImage;
+use super::{ManagedCachedVideo, LanguageSwitcher};
+use super::ManagedCachedImage;
 
 static FAVICON_32: Asset = asset!("/assets/favicon-32x32.avif");
 
@@ -73,7 +75,7 @@ pub fn LandingNavbar(
                     aria_label: "Landing navigation",
                     class: "nav-links",
                     a {
-                        href: "{landing_section_href(&use_current_locale(), Some(\"features\"))}",
+                        href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"features\"))}",
                         class: if is_features { "active" } else { "" },
                         aria_label: "Go to Features section",
                         onclick: move |evt| {
@@ -83,7 +85,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.features")}
                     }
                     a {
-                        href: "{landing_section_href(&use_current_locale(), Some(\"how\"))}",
+                        href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"how\"))}",
                         class: if is_how { "active" } else { "" },
                         aria_label: "Go to How it works section",
                         onclick: move |evt| {
@@ -93,7 +95,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.how")}
                     }
                     a {
-                        href: "{landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
+                        href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
                         class: if is_pricing { "active" } else { "" },
                         aria_label: "Go to Pricing section",
                         onclick: move |evt| {
@@ -103,7 +105,7 @@ pub fn LandingNavbar(
                         {use_t("landing.nav.pricing")}
                     }
                     a {
-                        href: "{landing_section_href(&use_current_locale(), Some(\"faq\"))}",
+                        href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"faq\"))}",
                         class: if is_faq { "active" } else { "" },
                         aria_label: "Go to FAQ section",
                         onclick: move |evt| {
@@ -310,7 +312,7 @@ pub fn LandingFooter(
                         ul { class: "footer-links",
                             li {
                                 a {
-                                    href: "{landing_section_href(&use_current_locale(), Some(\"features\"))}",
+                                    href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"features\"))}",
                                     class: if is_features { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.features\")}",
                                     onclick: move |evt| {
@@ -322,7 +324,7 @@ pub fn LandingFooter(
                             }
                             li {
                                 a {
-                                    href: "{landing_section_href(&use_current_locale(), Some(\"how\"))}",
+                                    href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"how\"))}",
                                     class: if is_how { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.how\")}",
                                     onclick: move |evt| {
@@ -334,7 +336,7 @@ pub fn LandingFooter(
                             }
                             li {
                                 a {
-                                    href: "{landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
+                                    href: "{// TODO: landing_section_href(&use_current_locale(), Some(\"pricing\"))}",
                                     class: if is_pricing { "active" } else { "" },
                                     aria_label: "{use_t(\"landing.footer.aria.pricing\")}",
                                     onclick: move |evt| {
