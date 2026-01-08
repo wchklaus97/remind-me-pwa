@@ -1,16 +1,16 @@
 use remind_me_pwa::app::App;
 
-#[cfg(all(target_arch = "wasm32", debug_assertions))]
+// In WASM release builds, Rust panics show up as `RuntimeError: unreachable`
+// unless we install a panic hook. Enable it for all wasm32 builds.
+#[cfg(target_arch = "wasm32")]
 fn set_panic_hook() {
-    // Set a panic hook that logs to console instead of just aborting
-    // This helps debug "unreachable" errors in WASM
     console_error_panic_hook::set_once();
 }
 
 // Web (WASM) launch
 #[cfg(target_arch = "wasm32")]
 fn main() {
-    #[cfg(debug_assertions)]
+    #[cfg(target_arch = "wasm32")]
     set_panic_hook();
     
     dioxus::launch(App);

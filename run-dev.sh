@@ -24,6 +24,16 @@ fi
 echo "✅ Dioxus CLI found"
 echo "✅ Project files found"
 
+# Dioxus workspace: explicitly select the binary package to build/serve.
+# Override if needed, e.g.:
+#   DX_PACKAGE=remind-me-mobile-app ./run-dev.sh
+DX_PACKAGE="${DX_PACKAGE:-remind-me-web-app}"
+
+# For dev builds, keep debug symbols enabled by default (better error messages/source maps).
+# Override if needed:
+#   DX_DEBUG_SYMBOLS=false ./run-dev.sh
+DX_DEBUG_SYMBOLS="${DX_DEBUG_SYMBOLS:-true}"
+
 # Check for version mismatch
 DX_VERSION=$(dx --version 2>&1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
 DIOXUS_VERSION=$(grep -E '^dioxus = ' Cargo.toml | grep -oE '[0-9]+\.[0-9]+' | head -1)
@@ -45,7 +55,7 @@ if [ -d "target/dx" ] && [ ! -f "target/dx/remind-me-pwa/debug/web/public/wasm-b
     rm -rf target/dx/remind-me-pwa/debug/web/public/wasm-bindgen 2>/dev/null || true
 fi
 
-dx build > /dev/null 2>&1
+dx build --platform web --package "$DX_PACKAGE" --debug-symbols "$DX_DEBUG_SYMBOLS" > /dev/null 2>&1
 if [ $? -eq 0 ]; then
     echo "✅ Build completed successfully"
 else
@@ -59,5 +69,5 @@ echo "   Press Ctrl+C to stop the server"
 echo ""
 
 # Start the development server
-dx serve
+dx serve --package "$DX_PACKAGE" --debug-symbols "$DX_DEBUG_SYMBOLS"
 

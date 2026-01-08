@@ -398,10 +398,29 @@ pub fn App() -> Element {
                                 }
                             }
 
-                            // Get base URL and base path for absolute image URLs (Open Graph, Twitter Cards)
-                            // Use utility functions for consistency across the app
+                            // Get base URL and base path for absolute URLs (Open Graph, Twitter Cards, Manifest)
+                            // Use utility functions for consistency across the app.
                             let base_url = get_base_url();
                             let base_path = get_base_path();
+
+                            // Build an absolute base like:
+                            // - dev:  http://127.0.0.1:8080
+                            // - ghp:  https://<user>.github.io/remind-me-pwa
+                            let app_base_url = format!(
+                                "{}{}",
+                                base_url.trim_end_matches('/'),
+                                base_path
+                            );
+
+                            // When we generate a manifest as a blob: URL, Chrome may treat path-only URLs as
+                            // invalid. Use fully-qualified absolute URLs for manifest fields.
+                            let to_absolute_url = |href: &str| -> String {
+                                if href.starts_with("http://") || href.starts_with("https://") {
+                                    href.to_string()
+                                } else {
+                                    format!("{}{}", base_url.trim_end_matches('/'), href)
+                                }
+                            };
                             
                             // IMPORTANT:
                             // We must NOT append duplicate <link> tags on every re-render, or the browser will
@@ -718,36 +737,46 @@ pub fn App() -> Element {
                             {
                                 use wasm_bindgen::JsValue;
 
+                                let start_url = format!("{}/", app_base_url.trim_end_matches('/'));
+
+                                // Absolute icon URLs (required to avoid "URL is invalid" warnings when the
+                                // manifest is served via blob:).
+                                let icon_192_abs = to_absolute_url(&icon_192_href);
+                                let icon_192_png_abs = to_absolute_url(&icon_192_png_href);
+                                let icon_512_abs = to_absolute_url(&icon_512_href);
+                                let icon_512_png_abs = to_absolute_url(&icon_512_png_href);
+
                                 let manifest_json = serde_json::json!({
                                     "name": "Remind Me PWA",
                                     "short_name": "Remind Me",
                                     "description": description,
-                                    "start_url": format!("{}/", base_path.trim_end_matches('/')),
+                                    "start_url": start_url,
+                                    "scope": start_url,
                                     "display": "standalone",
                                     "background_color": "#5e5eb4",
                                     "theme_color": "#5e5eb4",
                                     "orientation": "portrait-primary",
                                     "icons": [
                                         {
-                                            "src": icon_192_href,
+                                            "src": icon_192_abs,
                                             "sizes": "192x192",
                                             "type": "image/avif",
                                             "purpose": "any maskable"
                                         },
                                         {
-                                            "src": icon_192_png_href,
+                                            "src": icon_192_png_abs,
                                             "sizes": "192x192",
                                             "type": "image/png",
                                             "purpose": "any maskable"
                                         },
                                         {
-                                            "src": icon_512_href,
+                                            "src": icon_512_abs,
                                             "sizes": "512x512",
                                             "type": "image/avif",
                                             "purpose": "any maskable"
                                         },
                                         {
-                                            "src": icon_512_png_href,
+                                            "src": icon_512_png_abs,
                                             "sizes": "512x512",
                                             "type": "image/png",
                                             "purpose": "any maskable"
