@@ -131,7 +131,8 @@ jobs:
           # Build for production
           # Note: debug symbols are enabled in Cargo.toml (wasm-release profile)
           # This is REQUIRED for Dioxus asset! macro to work correctly
-          dx build --release --platform web 2>&1 | tee build.log
+          # In workspace, must specify package name with -package flag
+          dx build --release --platform web --package remind-me-web-app 2>&1 | tee build.log
           DX_EXIT="${PIPESTATUS[0]}"
           set -e
           echo "dx exit code: ${DX_EXIT}"

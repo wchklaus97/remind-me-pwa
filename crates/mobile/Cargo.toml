@@ -1,0 +1,23 @@
+[package]
+name = "remind-me-mobile"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+# Shared code
+remind-me-shared = { path = "../shared" }
+remind-me-ui = { path = "../ui" }
+remind-me-components = { path = "../components" }
+
+# Dioxus
+dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks"] }
+dioxus-router = { workspace = true }
+
+# Mobile (features may vary by version)
+dioxus-mobile = { workspace = true }
+
+# Serde
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+

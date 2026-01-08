@@ -1,0 +1,28 @@
+[package]
+name = "remind-me-components"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+# Shared code
+remind-me-shared = { path = "../shared" }
+remind-me-ui = { path = "../ui" }
+
+# Dioxus for hooks (components need Dioxus for hooks)
+# i18n hooks will be provided via feature flags or platform-specific implementations
+
+# Dioxus
+dioxus = { workspace = true, features = ["macro", "signals", "html", "hooks", "asset"] }
+dioxus-router = { workspace = true }
+
+# Serde
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# Web APIs (for components that use web_sys)
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+web-sys = { workspace = true }
+wasm-bindgen = { workspace = true }
+js-sys = { workspace = true }
+wasm-bindgen-futures = { workspace = true }
+

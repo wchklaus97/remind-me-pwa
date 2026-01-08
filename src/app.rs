@@ -108,58 +108,71 @@ pub fn App() -> Element {
     // Get access to i18n context
     let mut i18n = use_i18n();
 
-    // Get current locale from URL first, then localStorage, then default to "en"
+    // Get current locale from URL first, then storage, then default to "en"
     // This ensures the locale matches the URL path (e.g., /en/app -> "en", /zh/app -> "zh")
     let mut current_locale = use_signal(|| {
         // Try to get locale from URL first (path-based or hash-based routing)
         let (_, url_locale) = get_initial_route();
 
-        // If URL has an explicit locale in the path OR hash, use it.
-        // This is important for GitHub Pages hash routing (e.g. "#/zh/app"),
-        // and also ensures <html lang> is correct on the very first render.
-        if let Some(window) = web_sys::window() {
-            let location = window.location();
+        #[cfg(target_arch = "wasm32")]
+        {
+            // If URL has an explicit locale in the path OR hash, use it.
+            // This is important for GitHub Pages hash routing (e.g. "#/zh/app"),
+            // and also ensures <html lang> is correct on the very first render.
+            if let Some(window) = web_sys::window() {
+                let location = window.location();
 
-            // Check hash first (GitHub Pages style)
-            if let Ok(hash) = location.hash() {
-                let hash_path = hash.trim_start_matches('#');
-                let first = hash_path
-                    .trim_start_matches('/')
-                    .split('/')
-                    .find(|p| !p.is_empty())
-                    .unwrap_or("");
-                if first == "en" || first == "zh" || first.starts_with("zh-") {
-                    return url_locale;
+                // Check hash first (GitHub Pages style)
+                if let Ok(hash) = location.hash() {
+                    let hash_path = hash.trim_start_matches('#');
+                    let first = hash_path
+                        .trim_start_matches('/')
+                        .split('/')
+                        .find(|p| !p.is_empty())
+                        .unwrap_or("");
+                    if first == "en" || first == "zh" || first.starts_with("zh-") {
+                        return url_locale;
+                    }
+                }
+
+                // Then check pathname (normal deployments)
+                if let Ok(pathname) = location.pathname() {
+                    let base_path = get_base_path();
+                    let path = if base_path.is_empty() {
+                        pathname.as_str()
+                    } else {
+                        pathname.strip_prefix(&base_path).unwrap_or(pathname.as_str())
+                    };
+                    let first = path
+                        .trim_start_matches('/')
+                        .split('/')
+                        .find(|p| !p.is_empty())
+                        .unwrap_or("");
+                    if first == "en" || first == "zh" || first.starts_with("zh-") {
+                        return url_locale;
+                    }
                 }
             }
 
-            // Then check pathname (normal deployments)
-            if let Ok(pathname) = location.pathname() {
-                let base_path = get_base_path();
-                let path = if base_path.is_empty() {
-                    pathname.as_str()
-                } else {
-                    pathname.strip_prefix(&base_path).unwrap_or(pathname.as_str())
-                };
-                let first = path
-                    .trim_start_matches('/')
-                    .split('/')
-                    .find(|p| !p.is_empty())
-                    .unwrap_or("");
-                if first == "en" || first == "zh" || first.starts_with("zh-") {
-                    return url_locale;
+            // Fallback to localStorage if URL doesn't have locale
+            if let Some(window) = web_sys::window() {
+                if let Ok(Some(storage)) = window.local_storage() {
+                    if let Ok(Some(locale)) = storage.get_item("remind-me-locale") {
+                        return locale;
+                    }
                 }
             }
         }
 
-        // Fallback to localStorage if URL doesn't have locale
-        if let Some(window) = web_sys::window() {
-            if let Ok(Some(storage)) = window.local_storage() {
-                if let Ok(Some(locale)) = storage.get_item("remind-me-locale") {
-                    return locale;
-                }
+        #[cfg(any(target_os = "ios", target_os = "android"))]
+        {
+            // On mobile, try to load locale from platform storage
+            use crate::storage_platform::{PlatformStorage, PlatformStorageImpl};
+            if let Some(locale) = PlatformStorageImpl::get("remind-me-locale") {
+                return locale;
             }
         }
+
         "en".to_string()
     });
     

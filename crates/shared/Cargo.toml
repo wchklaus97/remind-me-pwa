@@ -1,0 +1,16 @@
+[package]
+name = "remind-me-shared"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+
+# Platform-specific dependencies (for utils.rs, router.rs, and storage.rs)
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+js-sys = { workspace = true }
+wasm-bindgen = { workspace = true }
+web-sys = { workspace = true, features = ["Window", "Location", "Storage", "History"] }
+
