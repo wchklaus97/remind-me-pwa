@@ -30,8 +30,20 @@ echo "🔨 Building project in RELEASE mode (this may take a few minutes)..."
 echo "   This will create optimized, smaller WASM files (~1-2 MB instead of ~25 MB)"
 echo ""
 
+# Dioxus workspace: explicitly select the binary package to build/serve.
+# Override if needed, e.g.:
+#   DX_PACKAGE=remind-me-mobile-app ./run-release.sh
+DX_PACKAGE="${DX_PACKAGE:-remind-me-web-app}"
+
+# Workaround: dx currently runs wasm-opt as part of web builds. With debug symbols
+# enabled, wasm-opt may crash on some toolchain combos (DWARF incompatibility).
+# Disable debug symbols by default for release runs to avoid noisy wasm-opt crashes.
+# Override if you explicitly want symbols/source maps:
+#   DX_DEBUG_SYMBOLS=true ./run-release.sh
+DX_DEBUG_SYMBOLS="${DX_DEBUG_SYMBOLS:-false}"
+
 # Build in release mode
-dx build --release --platform web
+dx build --release --platform web --package "$DX_PACKAGE" --debug-symbols "$DX_DEBUG_SYMBOLS"
 
 if [ $? -eq 0 ]; then
     echo ""
@@ -98,7 +110,7 @@ if [ $? -eq 0 ]; then
     echo ""
     
     # Start the server with release build
-    dx serve --release
+    dx serve --release --package "$DX_PACKAGE" --debug-symbols "$DX_DEBUG_SYMBOLS"
 else
     echo ""
     echo "❌ Build failed. Check the errors above."

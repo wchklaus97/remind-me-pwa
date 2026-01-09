@@ -100,10 +100,10 @@ fn save_reminders_impl<S: PlatformStorage>(reminders: &[Reminder]) {
                 eprintln!("Failed to save reminders");
             }
         }
-        Err(e) => {
+        Err(_e) => {
             // Log serialization error but don't block UI
             #[cfg(debug_assertions)]
-            eprintln!("Failed to serialize reminders: {}", e);
+            eprintln!("Failed to serialize reminders: {}", _e);
         }
     }
 }
@@ -130,10 +130,10 @@ fn save_tags_impl<S: PlatformStorage>(tags: &[Tag]) {
                 eprintln!("Failed to save tags");
             }
         }
-        Err(e) => {
+        Err(_e) => {
             // Log serialization error but don't block UI
             #[cfg(debug_assertions)]
-            eprintln!("Failed to serialize tags: {}", e);
+            eprintln!("Failed to serialize tags: {}", _e);
         }
     }
 }
