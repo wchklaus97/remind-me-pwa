@@ -49,10 +49,9 @@ html {
     --radius-lg: 24px;
     --radius-xl: 32px;
     
-    /* WCAG 2.2 AA: Touch target standards (minimum 24x24px with spacing) */
-    /* We use 48x48px for better UX, but ensure at least 24x24px with 8px spacing */
-    --touch-target-min: 24px;  /* WCAG 2.2 AA minimum */
-    --touch-target-min-preferred: 48px;  /* Better UX (Lighthouse recommendation) */
+    /* Lighthouse 100%: Touch target standards (minimum 48x48px) */
+    /* MANDATORY: All interactive elements must be at least 48x48px */
+    --touch-target-min: 48px;  /* Lighthouse requirement (not negotiable) */
     --touch-target-spacing: 8px;  /* Minimum spacing between targets */
     
     /* Shared horizontal padding for landing navbar + footer */

@@ -259,17 +259,70 @@ let t = use_t();
 
 ---
 
+## Design System
+
+### Bell Crab Theme
+
+The application uses a warm, friendly design system with soft rounded corners and a carefully selected color palette.
+
+### Color Palette
+
+- **Primary Color**: `#FA8A59` (Crab Coral) - Primary actions and CTAs
+- **Secondary Color**: `#F4D273` (Bell Gold) - Success states and highlights
+- **Brand Blue**: `#6A7CED` (Clay Blue) - Links and accents
+- **Brand Purple**: `#9E75E9` (Soft Amethyst) - Hover states and gradients
+- **Danger Color**: `#FF6B6B` - Errors and destructive actions
+- **Text Primary**: `#33334D` (Deep Slate) - Main text
+- **Text Secondary**: `#5F5F7A` (Medium Slate) - Secondary text
+- **Background**: `#F9F9FC` (Off-White) - Main background
+- **Card Background**: `#FFFFFF` - Card surfaces
+
+### Spacing System
+
+Uses an 8px base scale:
+- `xs`: 4px
+- `sm`: 8px
+- `md`: 16px
+- `lg`: 24px
+- `xl`: 32px
+- `2xl`: 48px
+
+### Border Radius Tokens
+
+Soft, rounded corners for a friendly aesthetic:
+- `sm`: 12px - Small elements
+- `md`: 16px - Default radius
+- `lg`: 24px - Large elements
+- `xl`: 32px - Extra large elements
+- `pill`: 999px - Pill-shaped elements
+
+### Shadow Hierarchy
+
+Three levels of elevation:
+- `shadow`: Base shadow for cards
+- `shadow-lg`: Elevated shadow for hover states
+- `shadow-soft`: Soft shadow with coral tint
+
+### Typography
+
+System font stack for optimal performance:
+```css
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+```
+
+---
+
 ## Critical Requirements
 
 ### Lighthouse 100% Scores (MANDATORY)
 
 **Zero tolerance rules - any violation causes PR rejection:**
 
-1. **Touch Targets**: ALL interactive elements MUST be ≥ 48x48px
+1. **Touch Targets**: ALL interactive elements MUST be ≥ 48x48px (NOT 24px!)
    ```css
    button, .btn, .tab {
-       min-width: 48px !important;
-       min-height: 48px !important;
+       min-width: 48px !important;  /* Lighthouse requirement */
+       min-height: 48px !important; /* MANDATORY - not negotiable */
    }
    ```
 
@@ -496,6 +549,40 @@ wasm-opt -Oz target/dx/remind-me-pwa/release/web/*.wasm -o optimized.wasm
 - Verify CSS paths match `base_path` in `Dioxus.toml`
 - Check service worker cache URLs
 - Clear browser cache
+
+---
+
+## Known Issues
+
+### Build Issues with Dioxus 0.7.0-alpha.3
+
+**Issue**: Compilation errors with `Context` and `SuspenseExtension`
+```
+error[E0432]: unresolved imports `dioxus_core::Context`, `dioxus_core::SuspenseExtension`
+```
+
+**Solution**: 
+```bash
+# Clean and rebuild
+cargo clean
+cargo update
+cargo build
+```
+
+### Current Project State (as of 2026-01-15)
+
+- **Design System**: Fully implemented Bell Crab theme
+- **Touch Targets**: Updated to 48px minimum (was 24px)
+- **Accessibility**: 
+  - ✅ ARIA labels on all interactive elements
+  - ✅ Skip navigation link implemented
+  - ✅ HTML lang attribute automatically set
+  - ✅ Meta descriptions dynamically updated
+- **Performance**: 
+  - ✅ Animations use transform/opacity only
+  - ✅ will-change properties added
+  - ✅ 60fps animations with cubic-bezier easing
+- **Responsive**: Comprehensive mobile styles for all breakpoints
 
 ---
 

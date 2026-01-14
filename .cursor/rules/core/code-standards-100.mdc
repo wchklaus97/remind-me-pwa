@@ -10,17 +10,23 @@ description: Strict code standards to achieve and maintain 100% Lighthouse score
 
 These rules are **MANDATORY** and **NON-NEGOTIABLE**. Any violation will cause PR rejection.
 
-## 1. Touch Targets (MANDATORY)
+## 1. Touch Targets (MANDATORY - 48px NOT 24px!)
 
-**ALL interactive elements MUST be ≥ 48x48px:**
+**ALL interactive elements MUST be ≥ 48x48px (Lighthouse requirement):**
+
+⚠️ **CRITICAL**: The touch target MUST be 48px, NOT 24px! This is a Lighthouse 100% requirement.
 
 ```css
 /* MANDATORY: Use !important to enforce */
+:root {
+    --touch-target-min: 48px;  /* Lighthouse requirement - NOT 24px! */
+}
+
 button, .btn, .tab, a[role="button"], label[for] {
-    min-width: 48px !important;
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 48px !important;  /* Fallback */
     min-height: 48px !important;
-    min-width: 3rem !important;  /* Fallback */
-    min-height: 3rem !important;
     box-sizing: border-box;  /* Include padding in size */
 }
 

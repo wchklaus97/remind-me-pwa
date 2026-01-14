@@ -695,6 +695,151 @@ rsx! {
 }
 ```
 
+#### 11. **Design System Implementation**
+
+**Purpose**: Implement consistent UI/UX following Bell Crab design system.
+
+**Key Patterns**:
+- Use CSS variables for all colors and spacing
+- Enforce 48px touch targets with `!important`
+- Apply consistent border-radius tokens
+- Use shadow hierarchy for depth
+- Follow Bell Crab warm, friendly aesthetic
+
+**CSS Variables**:
+```css
+:root {
+    --touch-target-min: 48px;  /* Lighthouse requirement - NOT 24px! */
+    --primary-color: #FA8A59;  /* Crab Coral */
+    --brand-blue: #6A7CED;     /* Clay Blue */
+    --brand-purple: #9E75E9;   /* Soft Amethyst */
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-xl: 32px;
+}
+```
+
+**Touch Target Enforcement**:
+```css
+button, .btn, .tab, a[role="button"], label[for] {
+    min-width: 48px !important;
+    min-height: 48px !important;
+    box-sizing: border-box;
+}
+```
+
+#### 12. **Accessibility Patterns**
+
+**Skip Navigation**:
+```rust
+a {
+    href: "#main-content",
+    class: "skip-nav",
+    aria_label: "Skip to main content",
+    {use_t("accessibility.skip_to_content")}
+}
+
+main {
+    role: "main",
+    id: "main-content",
+    // Content...
+}
+```
+
+**ARIA Labels**:
+```rust
+Button {
+    aria_label: Some(use_t("button.action.description")),
+    onclick: move |_| { /* action */ },
+    {use_t("button.label")}
+}
+
+Input {
+    aria_label: Some(use_t("input.description")),
+    aria_required: Some("true"),
+    // ...
+}
+```
+
+**Focus Management**:
+```css
+button:focus-visible,
+.tab:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
+}
+```
+
+#### 13. **Performance Optimization**
+
+**Animation Best Practices**:
+- Use `transform` and `opacity` only (GPU-accelerated)
+- Add `will-change` to animated elements
+- Use cubic-bezier easing functions
+- Avoid properties that trigger layout (width, height, top, left)
+
+**CSS Optimization**:
+```css
+.reminder-card {
+    will-change: transform, box-shadow;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reminder-card:hover {
+    transform: translateY(-4px);  /* Use transform, not top */
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+```
+
+**Render Optimization**:
+```rust
+// Use keys for list items to optimize re-renders
+for reminder in reminders().iter() {
+    ReminderCard {
+        key: "{reminder.id}",
+        reminder: reminder.clone(),
+        // ...
+    }
+}
+```
+
+#### 14. **Lighthouse 100% Compliance**
+
+**Critical Requirements**:
+1. **Touch Targets**: ≥ 48x48px (measure in DevTools)
+2. **HTML Lang**: Automatically set in app.rs
+3. **Meta Description**: Dynamically updated per route
+4. **Source Maps**: Enable in Cargo.toml
+5. **ARIA Labels**: On ALL interactive elements
+6. **Semantic HTML**: Use proper elements (main, nav, header)
+7. **Skip Navigation**: Required for keyboard users
+
+**Verification**:
+```bash
+# Run Lighthouse audit
+# Must achieve 100% in all categories:
+# - Performance
+# - Accessibility
+# - Best Practices
+# - SEO
+
+# Check touch targets in DevTools
+# Elements tab → Select element → Computed → Check box model
+# Must be ≥ 48x48px
+```
+
 ---
 
 ## 🎯 Best Practices
@@ -751,7 +896,9 @@ remind-me-pwa/
 
 ---
 
-**Last Updated**: 2026-01-14  
-**Dioxus Version**: 0.6  
-**Rust Edition**: 2021
+**Last Updated**: 2026-01-15  
+**Dioxus Version**: 0.7  
+**Rust Edition**: 2021  
+**Design System**: Bell Crab Theme v1.0  
+**Touch Targets**: 48px minimum (Lighthouse requirement)
 

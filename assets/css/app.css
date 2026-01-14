@@ -1,11 +1,34 @@
+.skip-nav {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 14px 24px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 100;
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skip-nav:focus {
+    top: 20px;
+    left: 20px;
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: var(--shadow-lg);
+}
+
 .app-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background: transparent !important; /* Ensure it's transparent to show body background */
-    min-height: 100vh; /* Ensure it covers full height */
+    background: transparent !important;
+    min-height: 100vh;
     width: 100%;
-    box-sizing: border-box; /* Ensure padding is included in width */
+    box-sizing: border-box;
+    position: relative;
 }
 
 .app-header {
@@ -20,6 +43,7 @@
     color: white;
     position: relative;
     overflow: hidden;
+    animation: headerSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Add subtle glow effect to header */
@@ -273,6 +297,20 @@ button:focus-visible {
     opacity: 0.7;
 }
 
+.form-input.error {
+    border-color: var(--danger-color);
+    background: rgba(255, 107, 107, 0.05);
+}
+
+.form-error {
+    display: block;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    font-size: 0.875rem;
+    color: var(--danger-color);
+    font-weight: 500;
+}
+
 textarea.form-input {
     min-height: 100px;
     resize: vertical;
@@ -302,6 +340,17 @@ textarea.form-input {
     }
 }
 
+@keyframes headerSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .reminder-card {
     background: var(--card-bg);
     padding: 24px;
@@ -313,6 +362,7 @@ textarea.form-input {
     position: relative;
     overflow: hidden;
     animation: slideIn 0.3s ease-out;
+    will-change: transform, box-shadow;
 }
 
 @keyframes slideIn {
@@ -351,9 +401,9 @@ textarea.form-input {
 }
 
 .reminder-card.completed {
-    opacity: 0.75;
-    border-left-color: var(--secondary-color); /* Bell Gold */
-    background: linear-gradient(to right, rgba(244, 210, 115, 0.05), var(--card-bg));
+    opacity: 0.85;
+    border-left-color: var(--secondary-color);
+    background: linear-gradient(to right, rgba(244, 210, 115, 0.08), var(--card-bg));
 }
 
 .reminder-card.overdue {
@@ -520,9 +570,46 @@ textarea.form-input {
 
 .empty-state {
     text-align: center;
-    padding: 60px 20px;
+    padding: 80px 20px;
     color: var(--text-secondary);
     font-size: 1.125rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.empty-state::before {
+    content: "📝";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 6rem;
+    opacity: 0.05;
+    z-index: 0;
+}
+
+.empty-state > * {
+    position: relative;
+    z-index: 1;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+
+.empty-state p {
+    margin-bottom: 24px;
+    line-height: 1.6;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Calendar View */
@@ -910,11 +997,13 @@ textarea.form-input {
     display: flex;
     gap: 12px;
     align-items: stretch;
+    flex-wrap: wrap;
 }
 
 .controls input[type="text"],
 .controls select {
     flex: 1;
+    min-width: 200px;
     padding: 14px 16px;
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
@@ -922,6 +1011,7 @@ textarea.form-input {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--card-bg);
     color: var(--text-primary);
+    position: relative;
 }
 
 .controls input[type="text"]:hover,
