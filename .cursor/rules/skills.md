@@ -1,8 +1,8 @@
 # Dioxus PWA Development Skills & Capabilities
 
-**Last Updated**: 2026-01-03  
+**Last Updated**: 2026-01-14  
 **Project Type**: Frontend PWA (Progressive Web App)  
-**Framework**: Dioxus 0.6 (Rust Web Framework)  
+**Framework**: Dioxus 0.7 (Rust Web Framework)  
 **Target Platform**: Web (WASM)
 
 ---
@@ -751,7 +751,7 @@ remind-me-pwa/
 
 ---
 
-**Last Updated**: 2026-01-03  
+**Last Updated**: 2026-01-14  
 **Dioxus Version**: 0.6  
 **Rust Edition**: 2021
 

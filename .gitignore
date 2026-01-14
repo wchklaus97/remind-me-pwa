@@ -16,6 +16,10 @@ target
 # Dioxus
 .dioxus
 
+# OpenCode
+.opencode
+.opencode/*
+
 # Node modules
 node_modules
 
