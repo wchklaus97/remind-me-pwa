@@ -18,7 +18,13 @@ assets/
 ├── css/             # Stylesheets (split for better maintainability)
 │   ├── base.css     # Reset, variables, base HTML/body styles
 │   ├── components.css # Reusable components (buttons, forms, tabs)
-│   ├── app.css      # App-specific styles (reminder app)
+│   ├── app-base.css # App layout, buttons, forms, tabs
+│   ├── app-reminders.css # Reminder cards and list styles
+│   ├── app-view-variants.css # Card/folder views + empty state
+│   ├── app-calendar.css # Calendar view styles
+│   ├── app-tags.css # Tag management + tag selection styles
+│   ├── app-extras.css # Stats, search, header actions
+│   ├── app.css      # Legacy stub (styles split into app-*.css)
 │   ├── landing.css  # Landing page styles
 │   ├── layout.css   # Navbar, footer, menu styles
 │   ├── utilities.css # Utility classes

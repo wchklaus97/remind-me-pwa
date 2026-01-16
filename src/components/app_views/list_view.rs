@@ -13,6 +13,7 @@ pub fn ListView(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
+    on_open: EventHandler<String>,
     on_new_reminder: EventHandler<()>,
 ) -> Element {
     rsx! {
@@ -53,6 +54,7 @@ pub fn ListView(
                     } else {
                         use_t("empty.clear_search")
                     },
+                    class: "empty-state",
                     on_action: move |_| on_new_reminder.call(()),
                 }
             } else {
@@ -67,6 +69,7 @@ pub fn ListView(
                             on_toggle: move |id: String| on_toggle.call(id),
                             on_edit: move |id: String| on_edit.call(id),
                             on_delete: move |id: String| on_delete.call(id),
+                            on_open: move |id: String| on_open.call(id),
                         }
                     }
                 }

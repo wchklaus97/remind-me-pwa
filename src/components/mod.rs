@@ -29,7 +29,7 @@ pub use forms::{AddReminderForm, EditReminderForm};
 pub use cards::ReminderCard;
 pub use modals::DeleteConfirmModal;
 pub use tag_form::TagForm;
-pub use tag_manager::TagManager;
+pub use tag_manager::{TagManager, TagManagerPanel};
 #[allow(unused_imports)]
 pub use media::{CachedImage, CachedVideo, MediaCacheProvider, ManagedCachedImage, ManagedCachedVideo};
 pub use language_switcher::LanguageSwitcher;

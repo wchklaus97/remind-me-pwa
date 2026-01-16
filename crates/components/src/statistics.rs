@@ -9,28 +9,50 @@ pub fn StatisticsDisplay(reminders: Vec<Reminder>) -> Element {
     
     rsx! {
         section {
-            class: "statistics mb-4",
+            class: "summary-row",
             div {
-                class: "stats-grid",
+                class: "summary-card",
                 div {
-                    class: "stat-item",
-                    span { class: "stat-value", "{stats.total}" }
-                    span { class: "stat-label", {use_t("stats.total")} }
+                    class: "summary-icon done-icon",
+                    "✓"
                 }
                 div {
-                    class: "stat-item",
-                    span { class: "stat-value", "{stats.active}" }
-                    span { class: "stat-label", {use_t("stats.active")} }
+                    class: "summary-value",
+                    "{stats.completed}"
                 }
                 div {
-                    class: "stat-item",
-                    span { class: "stat-value", "{stats.completed}" }
-                    span { class: "stat-label", {use_t("stats.completed")} }
+                    class: "summary-label",
+                    "DONE TODAY"
+                }
+            }
+            div {
+                class: "summary-card",
+                div {
+                    class: "summary-icon pending-icon",
+                    "🕒"
                 }
                 div {
-                    class: "stat-item",
-                    span { class: "stat-value", "{stats.overdue}" }
-                    span { class: "stat-label", {use_t("stats.overdue")} }
+                    class: "summary-value",
+                    "{stats.active}"
+                }
+                div {
+                    class: "summary-label",
+                    "PENDING"
+                }
+            }
+            div {
+                class: "summary-card",
+                div {
+                    class: "summary-icon total-icon",
+                    "📋"
+                }
+                div {
+                    class: "summary-value",
+                    "{stats.total}"
+                }
+                div {
+                    class: "summary-label",
+                    "TOTAL"
                 }
             }
         }

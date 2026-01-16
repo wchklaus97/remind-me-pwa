@@ -9,6 +9,7 @@ pub fn CardView(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
+    on_open: EventHandler<String>,
 ) -> Element {
     rsx! {
         section {
@@ -27,6 +28,7 @@ pub fn CardView(
                             on_toggle: move |id: String| on_toggle.call(id),
                             on_edit: move |id: String| on_edit.call(id),
                             on_delete: move |id: String| on_delete.call(id),
+                            on_open: move |id: String| on_open.call(id),
                         }
                     }
                 }
