@@ -1,0 +1,265 @@
+.reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Animation for reminder items */
+.reminder-item {
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reminder-card {
+    background: var(--card-bg);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 5px solid var(--brand-blue);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+    will-change: transform, box-shadow;
+}
+
+.reminder-card-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.reminder-card-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.reminder-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.reminder-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    word-break: break-word;
+}
+
+.reminder-title.is-completed {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.reminder-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.reminder-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.reminder-due {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.reminder-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.reminder-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.reminder-actions .btn-icon {
+    background: rgba(106, 124, 237, 0.08);
+}
+
+.reminder-actions .btn-icon:hover {
+    background: rgba(106, 124, 237, 0.18);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Add subtle gradient overlay */
+.reminder-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.reminder-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px) scale(1.004); /* Subtle scale for depth */
+    border-color: rgba(250, 138, 89, 0.4);
+    border-left-width: 6px; /* Slightly thicker on hover */
+}
+
+.reminder-card:focus-within {
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2), var(--shadow-lg);
+    border-color: rgba(106, 124, 237, 0.5);
+}
+
+.reminder-card:hover::before {
+    opacity: 1;
+}
+
+.reminder-card::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(106, 124, 237, 0.08);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.reminder-card:hover::after {
+    opacity: 1;
+}
+
+.reminder-card:hover .reminder-title {
+    color: var(--brand-blue);
+}
+
+.reminder-card.completed {
+    opacity: 0.75;
+    border-left-color: var(--secondary-color); /* Bell Gold */
+    background: linear-gradient(to right, rgba(244, 210, 115, 0.05), var(--card-bg));
+}
+
+.reminder-card.overdue {
+    border-left-color: var(--danger-color);
+    background: linear-gradient(to right, rgba(255, 107, 107, 0.05), var(--card-bg));
+}
+
+/* Tag chips styling */
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+}
+
+.reminder-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    min-width: 3rem !important;  /* Fallback in rem */
+    min-height: 3rem !important;  /* Fallback in rem */
+    padding: 12px;  /* Ensures total size is at least 48px */
+    cursor: pointer;
+    margin: var(--touch-target-spacing);
+    box-sizing: border-box;  /* Ensure padding is included in size */
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    /* Lighthouse: Increase checkbox size for better accessibility */
+}
+
+.reminder-content {
+    flex: 1;
+}
+
+.reminder-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.reminder-content p {
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.strikethrough {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.due-date {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.badge {
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.badge.overdue {
+    background: rgba(255, 107, 107, 0.15);
+    color: var(--danger-color);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}

@@ -1,3 +1,4 @@
+/* App styles are split across app-*.css files. */
 .app-container {
     max-width: 800px;
     margin: 0 auto;
@@ -50,6 +51,25 @@
     margin: 0;
 }
 
+.app-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.app-header-subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.01em;
+}
+
+.app-main {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .btn {
     /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
     min-width: var(--touch-target-min) !important;
@@ -73,14 +93,30 @@
     box-shadow: var(--shadow-soft);
 }
 
+.icon-button {
+    padding: 0;
+    width: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border-radius: 50%;
+}
+
+.btn-icon {
+    padding: 0;
+    width: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+}
+
 .btn:hover {
     background: var(--primary-dark);
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.01);
     box-shadow: var(--shadow-lg);
 }
 
 .btn:active {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     box-shadow: var(--shadow);
 }
 
@@ -170,6 +206,38 @@ button:focus-visible {
     border: 1px solid var(--border-color);
 }
 
+.view-switcher .tab,
+.filter-tabs .tab {
+    letter-spacing: 0.01em;
+}
+
+.view-switcher .tab.active,
+.filter-tabs .tab.active {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    box-shadow: 0 6px 14px rgba(250, 138, 89, 0.25);
+}
+
+.view-switcher .tab:hover,
+.filter-tabs .tab:hover {
+    color: var(--text-primary);
+}
+
+.view-switcher .tab.active::after,
+.filter-tabs .tab.active::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.5), transparent 65%);
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.view-switcher .tab.active::before,
+.filter-tabs .tab.active::before {
+    background: transparent;
+}
+
 .tab {
     flex: 1;
     /* Lighthouse 100%: MANDATORY - touch targets must be at least 48x48px */
@@ -194,6 +262,18 @@ button:focus-visible {
     position: relative;
 }
 
+.tab::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 999px;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), transparent 55%);
+    opacity: 0;
+    transform: translateX(-20%);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+
 .tab::before {
     content: "";
     position: absolute;
@@ -208,6 +288,10 @@ button:focus-visible {
     background: rgba(31, 31, 58, 0.06);
 }
 
+.tab:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
 .tab:hover {
     color: var(--text-primary);
 }
@@ -250,6 +334,16 @@ button:focus-visible {
     font-weight: 700;
 }
 
+.add-form .card-title,
+.add-form h2 {
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+}
+
+.add-form .space-y-2 label {
+    letter-spacing: 0.01em;
+}
+
 .form-input {
     width: 100%;
     padding: 14px 16px;
@@ -257,6 +351,7 @@ button:focus-visible {
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 1rem;
+    min-height: var(--touch-target-min);
     transition: all 0.2s;
     background: var(--card-bg);
     color: var(--text-primary);
@@ -266,6 +361,26 @@ button:focus-visible {
     outline: none;
     border-color: var(--brand-blue);
     box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.1);
+}
+
+.form-input[aria-invalid="true"] {
+    border-color: var(--danger-color);
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+}
+
+.add-form .text-red-600 {
+    animation: errorPop 0.2s ease;
+}
+
+@keyframes errorPop {
+    0% {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .form-input::placeholder {
@@ -313,6 +428,82 @@ textarea.form-input {
     position: relative;
     overflow: hidden;
     animation: slideIn 0.3s ease-out;
+    will-change: transform, box-shadow;
+}
+
+.reminder-card-layout {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.reminder-card-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.reminder-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.reminder-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    word-break: break-word;
+}
+
+.reminder-title.is-completed {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.reminder-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.reminder-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.reminder-due {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.reminder-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.reminder-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.reminder-actions .btn-icon {
+    background: rgba(106, 124, 237, 0.08);
+}
+
+.reminder-actions .btn-icon:hover {
+    background: rgba(106, 124, 237, 0.18);
 }
 
 @keyframes slideIn {
@@ -341,13 +532,37 @@ textarea.form-input {
 
 .reminder-card:hover {
     box-shadow: var(--shadow-lg);
-    transform: translateY(-4px); /* Increased from -3px for more pronounced effect */
+    transform: translateY(-4px) scale(1.004); /* Subtle scale for depth */
     border-color: rgba(250, 138, 89, 0.4);
     border-left-width: 6px; /* Slightly thicker on hover */
 }
 
+.reminder-card:focus-within {
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2), var(--shadow-lg);
+    border-color: rgba(106, 124, 237, 0.5);
+}
+
 .reminder-card:hover::before {
     opacity: 1;
+}
+
+.reminder-card::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(106, 124, 237, 0.08);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.reminder-card:hover::after {
+    opacity: 1;
+}
+
+.reminder-card:hover .reminder-title {
+    color: var(--brand-blue);
 }
 
 .reminder-card.completed {
@@ -478,6 +693,40 @@ textarea.form-input {
     border-radius: var(--radius-lg);
     padding: 20px;
     box-shadow: var(--shadow);
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.folder-group.is-drop-target {
+    border-color: rgba(106, 124, 237, 0.45);
+    box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.12);
+}
+
+.folder-group.is-drop-target::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-purple));
+    border-radius: 999px;
+    top: -6px;
+    animation: dragPulse 1.2s ease-in-out infinite;
+}
+
+.folder-group.is-dragging {
+    opacity: 0.6;
+    transform: translateY(-4px) scale(0.99);
+    box-shadow: 0 16px 32px rgba(106, 124, 237, 0.2);
+}
+
+@keyframes dragPulse {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
 }
 
 .folder-group-header {
@@ -487,6 +736,21 @@ textarea.form-input {
     margin-bottom: 16px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--border-color);
+}
+
+.folder-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    background: rgba(106, 124, 237, 0.08);
+    border: 1px dashed rgba(106, 124, 237, 0.25);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
 }
 
 .folder-group-icon {
@@ -523,6 +787,41 @@ textarea.form-input {
     padding: 60px 20px;
     color: var(--text-secondary);
     font-size: 1.125rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--border-color);
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+
+.empty-state button {
+    margin-top: 8px;
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-weight: 600;
+    box-shadow: var(--shadow-soft);
+}
+
+.empty-state button:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
+}
+
+.empty-state button:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
 }
 
 /* Calendar View */
@@ -543,6 +842,13 @@ textarea.form-input {
     box-shadow: var(--shadow);
 }
 
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
 .calendar-month-year {
     flex: 1;
     text-align: center;
@@ -553,6 +859,11 @@ textarea.form-input {
     font-weight: 600;
     color: var(--text-primary);
     margin: 0;
+}
+
+.calendar-today {
+    min-width: 120px;
+    font-weight: 600;
 }
 
 .calendar-grid {
@@ -571,6 +882,8 @@ textarea.form-input {
     font-size: 0.875rem;
     color: var(--text-secondary);
     padding: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
 
 .calendar-day {
@@ -589,9 +902,24 @@ textarea.form-input {
     position: relative;
 }
 
+.calendar-day::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: var(--radius-md);
+    border: 1px dashed transparent;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
 .calendar-day:hover {
     background: var(--bg-color);
     border-color: var(--border-color);
+}
+
+.calendar-day:hover::after {
+    opacity: 1;
+    border-color: rgba(106, 124, 237, 0.25);
 }
 
 .calendar-day-today {
@@ -635,7 +963,7 @@ textarea.form-input {
     font-size: 0.75rem;
     margin-top: 4px;
     padding: 2px 6px;
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.08);
     border-radius: 10px;
     font-weight: 600;
     min-width: 20px;
@@ -660,6 +988,12 @@ textarea.form-input {
     font-weight: 600;
     color: var(--text-primary);
     margin: 0 0 16px 0;
+}
+
+.calendar-reminders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .calendar-unscheduled {
@@ -702,8 +1036,8 @@ textarea.form-input {
 }
 
 .color-option {
-    width: 40px;
-    height: 40px;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
     border-radius: 8px;
     border: 2px solid transparent;
     cursor: pointer;
@@ -712,6 +1046,7 @@ textarea.form-input {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .color-option:hover {
@@ -722,6 +1057,7 @@ textarea.form-input {
 .color-option.selected {
     border-color: var(--text-primary);
     border-width: 3px;
+    box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.2);
 }
 
 .color-check {
@@ -743,6 +1079,26 @@ textarea.form-input {
     gap: 20px;
 }
 
+.tag-manager-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 0;
+}
+
+.tag-manager-subtitle {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.tag-manager-hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
 .tag-manager-header {
     display: flex;
     justify-content: flex-end;
@@ -757,10 +1113,163 @@ textarea.form-input {
 
 .tag-item-wrapper {
     margin-bottom: 0;
+    outline: none;
+}
+
+.tag-item-wrapper:focus-visible .tag-item-card {
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2), var(--shadow-lg);
+    border-color: rgba(106, 124, 237, 0.5);
+}
+
+.tag-item-wrapper.is-dragging {
+    opacity: 0.6;
+    transform: scale(0.98);
+}
+
+.tag-item-wrapper.is-dragging .tag-item-card {
+    box-shadow: 0 12px 30px rgba(106, 124, 237, 0.25);
+    transform: translateY(-4px);
+}
+
+.tag-item-wrapper.is-drop-target .tag-item-card {
+    border-color: rgba(106, 124, 237, 0.5);
+    box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.15);
+}
+
+.tag-item-wrapper.is-drop-target::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-purple));
+    border-radius: 999px;
+    top: -6px;
+    animation: dragPulse 1.2s ease-in-out infinite;
+}
+
+.tag-item-wrapper {
+    position: relative;
+}
+
+
+.toast-container {
+    position: fixed;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast-top-left { top: 16px; left: 16px; }
+.toast-top-right { top: 16px; right: 16px; }
+.toast-top-center { top: 16px; left: 50%; transform: translateX(-50%); }
+.toast-bottom-left { bottom: 16px; left: 16px; }
+.toast-bottom-right { bottom: 16px; right: 16px; }
+.toast-bottom-center { bottom: 16px; left: 50%; transform: translateX(-50%); }
+
+.toast-card {
+    min-width: 280px;
+    max-width: 420px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.25s ease-out;
+}
+
+.toast-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    margin: 0 0 4px 0;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.toast-message {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast-close:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.toast {
+    background: var(--card-bg);
+}
+
+.toast-success {
+    border-color: rgba(81, 207, 102, 0.35);
+    background: rgba(81, 207, 102, 0.08);
+    color: #2f7a45;
+}
+
+.toast-error {
+    border-color: rgba(255, 107, 107, 0.35);
+    background: rgba(255, 107, 107, 0.08);
+    color: #b43b3b;
+}
+
+.toast-warning {
+    border-color: rgba(244, 210, 115, 0.45);
+    background: rgba(244, 210, 115, 0.12);
+    color: #8b6b1b;
+}
+
+.toast-info {
+    border-color: rgba(106, 124, 237, 0.35);
+    background: rgba(106, 124, 237, 0.08);
+    color: #3a4bc5;
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .tag-item {
     margin-bottom: 0;
+}
+
+.tag-item-card {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.tag-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    border-color: rgba(106, 124, 237, 0.25);
 }
 
 .tag-item-content {
@@ -768,6 +1277,29 @@ textarea.form-input {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
+}
+
+.tag-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    background: rgba(106, 124, 237, 0.08);
+    border: 1px dashed rgba(106, 124, 237, 0.25);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+    cursor: grab;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.tag-drag-handle:hover {
+    color: var(--text-primary);
+    background: rgba(106, 124, 237, 0.16);
+    border-color: rgba(106, 124, 237, 0.4);
 }
 
 .tag-preview {
@@ -813,10 +1345,16 @@ textarea.form-input {
     cursor: pointer;
     transition: background-color 0.2s ease;
     min-height: 48px; /* Touch target requirement */
+    border: 1px solid transparent;
 }
 
 .tag-checkbox-label:hover {
     background-color: var(--bg-secondary);
+}
+
+.tag-checkbox-label.is-selected {
+    background: rgba(106, 124, 237, 0.1);
+    border-color: rgba(106, 124, 237, 0.3);
 }
 
 .tag-checkbox-text {
@@ -837,6 +1375,14 @@ textarea.form-input {
     margin-bottom: 24px;
 }
 
+.statistics-title {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -855,6 +1401,34 @@ textarea.form-input {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+}
+
+.stat-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+    opacity: 0.25;
+}
+
+.stat-item:nth-child(1)::after {
+    background: linear-gradient(135deg, var(--primary-color), var(--brand-purple));
+}
+
+.stat-item:nth-child(2)::after {
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+}
+
+.stat-item:nth-child(3)::after {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+.stat-item:nth-child(4)::after {
+    background: linear-gradient(135deg, var(--danger-color), var(--primary-color));
 }
 
 /* Add subtle gradient overlay on hover */
@@ -906,7 +1480,18 @@ textarea.form-input {
     margin-bottom: 24px;
 }
 
-.controls .flex {
+.controls-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.controls-row {
     display: flex;
     gap: 12px;
     align-items: stretch;
@@ -919,9 +1504,131 @@ textarea.form-input {
     border: 2px solid var(--border-color);
     border-radius: var(--radius-md);
     font-size: 1rem;
+    min-height: var(--touch-target-min);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--card-bg);
     color: var(--text-primary);
+}
+
+.search-field {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-field .form-input,
+.search-field input[type="text"] {
+    padding-left: 44px;
+    padding-right: 56px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.search-kbd {
+    position: absolute;
+    right: 12px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    background: #fff;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.search-kbd.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: kbdPulse 2.6s ease-in-out infinite;
+}
+
+.search-clear {
+    position: absolute;
+    right: 40px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(106, 124, 237, 0.12);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.search-clear:hover {
+    background: rgba(106, 124, 237, 0.22);
+    transform: scale(1.05);
+}
+
+.search-clear:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+}
+
+.search-clear.is-visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.search-field:focus-within .search-icon {
+    color: var(--brand-blue);
+    transform: scale(1.1);
+}
+
+.search-field:focus-within .search-kbd {
+    opacity: 0.6;
+    transform: translateY(-1px);
+    animation: none;
+}
+
+@keyframes kbdPulse {
+    0%, 100% {
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-kbd {
+        animation: none;
+    }
+}
+
+.controls input[type="text"] {
+    background-image: linear-gradient(transparent, transparent);
+}
+
+.controls select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+        linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 38px;
 }
 
 .controls input[type="text"]:hover,
@@ -937,3 +1644,16 @@ textarea.form-input {
     transform: translateY(-1px);
 }
 
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reminder-actions .btn-icon {
+    background: rgba(106, 124, 237, 0.08);
+}
+
+.reminder-actions .btn-icon:hover {
+    background: rgba(106, 124, 237, 0.18);
+}

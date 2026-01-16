@@ -5,8 +5,20 @@
     "tagline": "您的個人提醒助手",
     "header": {
       "title": "🔔 提醒我",
+      "subtitle": "重要事項一目了然",
       "new_reminder": "新建提醒",
       "cancel": "取消"
+    },
+    "skip_to_main": "跳到主要內容",
+    "fab": {
+      "new": "新增提醒"
+    },
+    "bottom_nav": {
+      "label": "應用導航",
+      "home": "首頁",
+      "calendar": "行事曆",
+      "groups": "分類",
+      "settings": "設定"
     },
     "views": {
       "list": "列表",
@@ -18,7 +30,13 @@
     "calendar": {
       "today": "今天",
       "selected_date": "選中日期",
-      "unscheduled": "未排程提醒"
+      "unscheduled": "未排程提醒",
+      "prev_month": "上個月",
+      "next_month": "下個月",
+      "month_view": "月",
+      "week_view": "週",
+      "day_label": "行事曆日期",
+      "drag_reminder": "拖曳提醒以重新排程"
     }
   },
   "landing": {
@@ -367,6 +385,7 @@
     }
   },
   "stats": {
+    "title": "概覽",
     "total": "總計",
     "active": "進行中",
     "completed": "已完成",
@@ -378,9 +397,11 @@
     "completed": "已完成"
   },
   "search": {
-    "placeholder": "搜索提醒..."
+    "placeholder": "搜索提醒...",
+    "clear": "清除搜尋"
   },
   "sort": {
+    "label": "排序提醒",
     "date": "按日期排序",
     "title": "按標題排序",
     "status": "按狀態排序"
@@ -394,7 +415,8 @@
     },
     "title": {
       "label": "標題",
-      "placeholder": "輸入提醒標題"
+      "placeholder": "輸入提醒標題",
+      "error_required": "標題不能為空"
     },
     "description": {
       "label": "描述（可選）",
@@ -443,6 +465,9 @@
   "tags": {
     "manage": "管理標籤",
     "title": "標籤管理",
+    "description": "使用顏色標籤來整理提醒。",
+    "reorder_hint": "提示：長按拖動可調整順序。",
+    "drag_handle": "拖動以排序",
     "new_tag": "新建標籤",
     "edit_tag": "編輯標籤",
     "name": {
@@ -464,8 +489,26 @@
     }
   },
   "reminder": {
+    "toggle": "切換提醒狀態",
     "overdue": "⚠️ 已逾期",
-    "due": "到期："
+    "due": "到期：",
+    "details": "查看提醒詳情",
+    "detail_title": "提醒詳情",
+    "detail_due": "到期：",
+    "detail_created": "建立：",
+    "detail_notes": "備註",
+    "detail_edit": "編輯",
+    "detail_toggle": "切換狀態",
+    "detail_mark_done": "標記完成",
+    "detail_mark_active": "標記未完成",
+    "detail_delete": "刪除"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "自訂提醒體驗",
+    "notifications": "啟用通知",
+    "week_start": "每週從週一開始",
+    "time_format": "使用 24 小時制"
   },
   "language": {
     "switch": "切換語言",

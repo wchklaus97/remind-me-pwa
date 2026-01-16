@@ -69,27 +69,20 @@ pub struct InputProps {
 /// ```
 #[component]
 pub fn Input(props: InputProps) -> Element {
-    let base_classes = "flex h-10 w-full rounded-md border bg-white px-3 py-2 \
-                        text-sm ring-offset-white \
-                        file:border-0 file:bg-transparent file:text-sm file:font-medium \
-                        placeholder:text-gray-500 \
-                        focus-visible:outline-none focus-visible:ring-2 \
-                        focus-visible:ring-offset-2 \
-                        disabled:cursor-not-allowed disabled:opacity-50";
-    
-    let border_classes = if props.error {
-        "border-red-500 focus-visible:ring-red-500"
-    } else {
-        "border-gray-300 focus-visible:ring-blue-500"
-    };
+    let mut class_string = "form-input".to_string();
+    if props.error {
+        class_string.push_str(" form-input-error");
+    }
+    if !props.class.is_empty() {
+        class_string.push_str(&format!(" {}", props.class));
+    }
     
     rsx! {
         div {
-            class: "space-y-2",
             input {
                 id: if !props.id.is_empty() { Some(props.id.as_str()) } else { None },
                 name: if !props.name.is_empty() { Some(props.name.as_str()) } else { None },
-                class: "{base_classes} {border_classes} {props.class}",
+                class: "{class_string}",
                 r#type: "{props.r#type}",
                 placeholder: "{props.placeholder}",
                 value: "{props.value}",
@@ -110,7 +103,7 @@ pub fn Input(props: InputProps) -> Element {
             
             if props.error && !props.error_message.is_empty() {
                 p {
-                    class: "text-sm text-red-600",
+                    class: "form-error-message",
                     "{props.error_message}"
                 }
             }

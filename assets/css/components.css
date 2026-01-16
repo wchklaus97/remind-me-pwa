@@ -47,6 +47,42 @@
     box-shadow: var(--shadow-lg);
 }
 
+.btn-secondary {
+    background: var(--brand-blue);
+    color: white;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn-secondary:hover {
+    background: var(--brand-purple);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--brand-blue);
+    color: var(--brand-blue);
+    box-shadow: none;
+}
+
+.btn-outline:hover {
+    background: rgba(106, 124, 237, 0.1);
+    border-color: var(--brand-purple);
+    color: var(--brand-purple);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-primary);
+    box-shadow: none;
+    border: 1px solid transparent;
+}
+
+.btn-ghost:hover {
+    background: rgba(106, 124, 237, 0.05);
+    color: var(--text-primary);
+}
+
 .btn-danger {
     background: var(--danger-color);
     box-shadow: 0 2px 8px 0 rgba(255, 107, 107, 0.25);

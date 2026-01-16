@@ -92,11 +92,13 @@ pub fn TagForm(
                     class: "mt-4 flex justify-end gap-2",
                     Button {
                         variant: ButtonVariant::Ghost,
+                        class: "btn btn-ghost".to_string(),
                         onclick: move |_| on_cancel.call(()),
                         {use_t("tags.cancel")}
                     }
                     Button {
                         variant: ButtonVariant::Primary,
+                        class: "btn btn-primary".to_string(),
                         disabled: name().is_empty(),
                         onclick: {
                             let tag_id_clone = tag_id.clone();

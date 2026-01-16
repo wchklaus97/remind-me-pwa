@@ -17,6 +17,8 @@ pub fn AddReminderForm(
     let mut description = use_signal(String::new);
     let mut due_date = use_signal(String::new);
     let mut selected_tag_ids = use_signal(|| Vec::<String>::new());
+    let mut show_errors = use_signal(|| false);
+    let mut title_touched = use_signal(|| false);
 
     rsx! {
         Card {
@@ -27,18 +29,30 @@ pub fn AddReminderForm(
                 }
             },
             CardContent {
+                div {
+                    class: "form-content",
                 FormField {
                     id: "reminder_title".to_string(),
                     name: "title".to_string(),
                     label: use_t("form.title.label"),
                     required: true,
+                    error: if (show_errors() || title_touched()) && title().is_empty() {
+                        Some(use_t("form.title.error_required"))
+                    } else {
+                        None
+                    },
                     Input {
                         id: "reminder_title".to_string(),
                         name: "title".to_string(),
                         r#type: "text",
                         placeholder: use_t("form.title.placeholder"),
                         value: "{title()}",
-                        oninput: move |value| title.set(value),
+                        class: "form-input".to_string(),
+                        error: (show_errors() || title_touched()) && title().is_empty(),
+                        oninput: move |value| {
+                            title_touched.set(true);
+                            title.set(value);
+                        },
                     }
                 }
 
@@ -52,6 +66,7 @@ pub fn AddReminderForm(
                         placeholder: use_t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
+                        class: "form-input".to_string(),
                         oninput: move |value| description.set(value),
                     }
                 }
@@ -65,6 +80,7 @@ pub fn AddReminderForm(
                         name: "due_date".to_string(),
                         r#type: "datetime-local",
                         value: "{due_date()}",
+                        class: "form-input".to_string(),
                         oninput: move |value| due_date.set(value),
                     }
                 }
@@ -88,8 +104,12 @@ pub fn AddReminderForm(
                                         let tag_id = tag.id.clone();
                                         let is_checked = selected_tag_ids().contains(&tag_id);
                                         rsx! {
-                                            div {
-                                                class: "tag-checkbox-label",
+                                    div {
+                                        class: if is_checked {
+                                            "tag-checkbox-label is-selected"
+                                        } else {
+                                            "tag-checkbox-label"
+                                        },
                                                 Checkbox {
                                                     checked: is_checked,
                                                     onchange: move |_| {
@@ -120,28 +140,33 @@ pub fn AddReminderForm(
                     class: "mt-4 flex justify-end",
                     Button {
                         variant: ButtonVariant::Primary,
+                        class: "btn btn-primary".to_string(),
                         disabled: title().is_empty(),
                         aria_label: Some(use_t("form.add")),
                         onclick: move |_| {
-                            if !title().is_empty() {
-                                let reminder = Reminder {
-                                    id: format!("reminder_{}", now_timestamp_millis()),
-                                    title: title(),
-                                    description: description(),
-                                    due_date: due_date(),
-                                    completed: false,
-                                    created_at: now_rfc3339(),
-                                    tag_ids: selected_tag_ids(),
-                                };
-                                on_add.call(reminder);
-                                title.set(String::new());
-                                description.set(String::new());
-                                due_date.set(String::new());
-                                selected_tag_ids.set(Vec::new());
+                            if title().is_empty() {
+                                show_errors.set(true);
+                                return;
                             }
+                            let reminder = Reminder {
+                                id: format!("reminder_{}", now_timestamp_millis()),
+                                title: title(),
+                                description: description(),
+                                due_date: due_date(),
+                                completed: false,
+                                created_at: now_rfc3339(),
+                                tag_ids: selected_tag_ids(),
+                            };
+                            on_add.call(reminder);
+                            show_errors.set(false);
+                            title.set(String::new());
+                            description.set(String::new());
+                            due_date.set(String::new());
+                            selected_tag_ids.set(Vec::new());
                         },
                         {use_t("form.add")}
                     }
+                }
                 }
             }
         }
@@ -161,6 +186,8 @@ pub fn EditReminderForm(
         to_datetime_local_value(&reminder.due_date)
     });
     let mut selected_tag_ids = use_signal(|| reminder.tag_ids.clone());
+    let mut show_errors = use_signal(|| false);
+    let mut title_touched = use_signal(|| false);
 
     rsx! {
         Card {
@@ -171,18 +198,30 @@ pub fn EditReminderForm(
                 }
             },
             CardContent {
+                div {
+                    class: "form-content",
                 FormField {
                     id: "edit_reminder_title".to_string(),
                     name: "title".to_string(),
                     label: use_t("form.title.label"),
                     required: true,
+                    error: if (show_errors() || title_touched()) && title().is_empty() {
+                        Some(use_t("form.title.error_required"))
+                    } else {
+                        None
+                    },
                     Input {
                         id: "edit_reminder_title".to_string(),
                         name: "title".to_string(),
                         r#type: "text",
                         placeholder: use_t("form.title.placeholder"),
                         value: "{title()}",
-                        oninput: move |value| title.set(value),
+                        class: "form-input".to_string(),
+                        error: (show_errors() || title_touched()) && title().is_empty(),
+                        oninput: move |value| {
+                            title_touched.set(true);
+                            title.set(value);
+                        },
                     }
                 }
 
@@ -196,6 +235,7 @@ pub fn EditReminderForm(
                         placeholder: use_t("form.description.placeholder"),
                         value: "{description()}",
                         rows: 4,
+                        class: "form-input".to_string(),
                         oninput: move |value| description.set(value),
                     }
                 }
@@ -209,6 +249,7 @@ pub fn EditReminderForm(
                         name: "due_date".to_string(),
                         r#type: "datetime-local",
                         value: "{due_date()}",
+                        class: "form-input".to_string(),
                         oninput: move |value| due_date.set(value),
                     }
                 }
@@ -232,8 +273,12 @@ pub fn EditReminderForm(
                                         let tag_id = tag.id.clone();
                                         let is_checked = selected_tag_ids().contains(&tag_id);
                                         rsx! {
-                                            div {
-                                                class: "tag-checkbox-label",
+                                    div {
+                                        class: if is_checked {
+                                            "tag-checkbox-label is-selected"
+                                        } else {
+                                            "tag-checkbox-label"
+                                        },
                                                 Checkbox {
                                                     checked: is_checked,
                                                     onchange: move |_| {
@@ -264,33 +309,39 @@ pub fn EditReminderForm(
                     class: "mt-4 flex justify-end gap-2",
                     Button {
                         variant: ButtonVariant::Ghost,
+                        class: "btn btn-ghost".to_string(),
                         aria_label: Some(use_t("form.cancel")),
                         onclick: move |_| on_cancel.call(()),
                         {use_t("form.cancel")}
                     }
                     Button {
                         variant: ButtonVariant::Primary,
+                        class: "btn btn-primary".to_string(),
                         disabled: title().is_empty(),
                         aria_label: Some(use_t("form.save")),
                         onclick: move |_| {
-                            if !title().is_empty() {
-                                let updated = Reminder {
-                                    id: reminder.id.clone(),
-                                    title: title(),
-                                    description: description(),
-                                    due_date: due_date(),
-                                    completed: reminder.completed,
-                                    created_at: reminder.created_at.clone(),
-                                    tag_ids: selected_tag_ids(),
-                                };
-                                on_save.call(updated);
-                                title.set(String::new());
-                                description.set(String::new());
-                                due_date.set(String::new());
+                            if title().is_empty() {
+                                show_errors.set(true);
+                                return;
                             }
+                            let updated = Reminder {
+                                id: reminder.id.clone(),
+                                title: title(),
+                                description: description(),
+                                due_date: due_date(),
+                                completed: reminder.completed,
+                                created_at: reminder.created_at.clone(),
+                                tag_ids: selected_tag_ids(),
+                            };
+                            on_save.call(updated);
+                            show_errors.set(false);
+                            title.set(String::new());
+                            description.set(String::new());
+                            due_date.set(String::new());
                         },
                         {use_t("form.save")}
                     }
+                }
                 }
             }
         }

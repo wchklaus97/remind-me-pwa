@@ -71,7 +71,17 @@ static BASE_CSS: Asset = asset!("/assets/css/base.css");
 #[allow(dead_code)]
 static COMPONENTS_CSS: Asset = asset!("/assets/css/components.css");
 #[allow(dead_code)]
-static APP_CSS: Asset = asset!("/assets/css/app.css");
+static APP_BASE_CSS: Asset = asset!("/assets/css/app-base.css");
+#[allow(dead_code)]
+static APP_REMINDERS_CSS: Asset = asset!("/assets/css/app-reminders.css");
+#[allow(dead_code)]
+static APP_VIEW_VARIANTS_CSS: Asset = asset!("/assets/css/app-view-variants.css");
+#[allow(dead_code)]
+static APP_CALENDAR_CSS: Asset = asset!("/assets/css/app-calendar.css");
+#[allow(dead_code)]
+static APP_TAGS_CSS: Asset = asset!("/assets/css/app-tags.css");
+#[allow(dead_code)]
+static APP_EXTRAS_CSS: Asset = asset!("/assets/css/app-extras.css");
 #[allow(dead_code)]
 static LANDING_CSS: Asset = asset!("/assets/css/landing.css");
 #[allow(dead_code)]
@@ -519,7 +529,12 @@ pub fn App() -> Element {
                             // Preload CSS files for faster loading
                             let base_css_href = with_base_path(BASE_CSS.to_string());
                             let components_css_href = with_base_path(COMPONENTS_CSS.to_string());
-                            let app_css_href = with_base_path(APP_CSS.to_string());
+                            let app_base_css_href = with_base_path(APP_BASE_CSS.to_string());
+                            let app_reminders_css_href = with_base_path(APP_REMINDERS_CSS.to_string());
+                            let app_view_variants_css_href = with_base_path(APP_VIEW_VARIANTS_CSS.to_string());
+                            let app_calendar_css_href = with_base_path(APP_CALENDAR_CSS.to_string());
+                            let app_tags_css_href = with_base_path(APP_TAGS_CSS.to_string());
+                            let app_extras_css_href = with_base_path(APP_EXTRAS_CSS.to_string());
                             let landing_css_href = with_base_path(LANDING_CSS.to_string());
                             let layout_css_href = with_base_path(LAYOUT_CSS.to_string());
                             let utilities_css_href = with_base_path(UTILITIES_CSS.to_string());
@@ -543,9 +558,49 @@ pub fn App() -> Element {
                                 Some("style"),
                             );
                             upsert_link_tag(
-                                "rm-preload-app-css",
+                                "rm-preload-app-base-css",
                                 "preload",
-                                &app_css_href,
+                                &app_base_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-reminders-css",
+                                "preload",
+                                &app_reminders_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-view-variants-css",
+                                "preload",
+                                &app_view_variants_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-calendar-css",
+                                "preload",
+                                &app_calendar_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-tags-css",
+                                "preload",
+                                &app_tags_css_href,
+                                None,
+                                Some("text/css"),
+                                Some("style"),
+                            );
+                            upsert_link_tag(
+                                "rm-preload-app-extras-css",
+                                "preload",
+                                &app_extras_css_href,
                                 None,
                                 Some("text/css"),
                                 Some("style"),
@@ -602,9 +657,49 @@ pub fn App() -> Element {
                                 None,
                             );
                             upsert_link_tag(
-                                "rm-css-app",
+                                "rm-css-app-base",
                                 "stylesheet",
-                                &app_css_href,
+                                &app_base_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app-reminders",
+                                "stylesheet",
+                                &app_reminders_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app-view-variants",
+                                "stylesheet",
+                                &app_view_variants_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app-calendar",
+                                "stylesheet",
+                                &app_calendar_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app-tags",
+                                "stylesheet",
+                                &app_tags_css_href,
+                                None,
+                                Some("text/css"),
+                                None,
+                            );
+                            upsert_link_tag(
+                                "rm-css-app-extras",
+                                "stylesheet",
+                                &app_extras_css_href,
                                 None,
                                 Some("text/css"),
                                 None,
