@@ -599,10 +599,18 @@ input[type="checkbox"]:checked {
         margin-bottom: 1rem;
     }
 
-    .controls .flex {
+    .controls-row {
         flex-direction: column;
         align-items: stretch;
         gap: 12px;
+    }
+
+    .search-kbd {
+        display: none;
+    }
+
+    .search-clear {
+        right: 12px;
     }
 
     .controls input[type="text"],
@@ -651,19 +659,19 @@ input[type="checkbox"]:checked {
     }
 
     /* Reminder card content layout - stack buttons on mobile */
-    .reminder-card .flex.items-start.justify-between {
+    .reminder-card-layout {
         flex-direction: column;
         gap: 16px;
     }
 
-    .reminder-card .flex.gap-2 {
+    .reminder-actions {
         width: 100%;
         display: flex;
         flex-direction: column;
         gap: 8px;
     }
 
-    .reminder-card .flex.gap-2 button {
+    .reminder-actions button {
         width: 100%;
         min-height: 48px; /* Ensure touch target */
     }
@@ -736,6 +744,11 @@ input[type="checkbox"]:checked {
         gap: 12px;
     }
 
+    .calendar-nav {
+        width: 100%;
+        justify-content: space-between;
+    }
+
     .calendar-month-year h2 {
         font-size: 1.25rem;
     }
@@ -751,8 +764,12 @@ input[type="checkbox"]:checked {
     }
 
     .calendar-day {
-        min-height: 40px;
+        min-height: 48px;
         padding: 4px;
+    }
+
+    .calendar-today {
+        width: 100%;
     }
 
     .calendar-day-number {
@@ -780,6 +797,10 @@ input[type="checkbox"]:checked {
         padding: 16px;
     }
 
+    .tag-manager-intro {
+        gap: 4px;
+    }
+
     .tag-list {
         grid-template-columns: 1fr; /* Single column on mobile */
     }
@@ -789,8 +810,8 @@ input[type="checkbox"]:checked {
     }
 
     .color-option {
-        width: 36px;
-        height: 36px;
+        width: var(--touch-target-min);
+        height: var(--touch-target-min);
     }
 
     .tag-item-content {

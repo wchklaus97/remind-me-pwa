@@ -10,6 +10,10 @@ pub fn StatisticsDisplay(reminders: Vec<Reminder>) -> Element {
     rsx! {
         section {
             class: "statistics mb-4",
+            h2 {
+                class: "statistics-title",
+                {use_t("stats.title")}
+            }
             div {
                 class: "stats-grid",
                 div {

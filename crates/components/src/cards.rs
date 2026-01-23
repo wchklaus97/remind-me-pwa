@@ -16,6 +16,7 @@ pub fn ReminderCard(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
+    on_open: EventHandler<String>,
 ) -> Element {
     let is_overdue = !reminder.completed
         && !reminder.due_date.is_empty()
@@ -32,6 +33,7 @@ pub fn ReminderCard(
     let reminder_id_toggle = reminder.id.clone();
     let reminder_id_edit = reminder.id.clone();
     let reminder_id_delete = reminder.id.clone();
+    let reminder_id_open = reminder.id.clone();
 
     rsx! {
         Card {
@@ -95,6 +97,15 @@ pub fn ReminderCard(
                     }
                     div {
                         class: "flex gap-2",
+                        Button {
+                            variant: ButtonVariant::Ghost,
+                            size: ButtonSize::Small,
+                            aria_label: Some(format!("{} {}", use_t("reminder.details"), reminder.title.clone())),
+                            onclick: move |_| {
+                                on_open.call(reminder_id_open.clone());
+                            },
+                            "ℹ️"
+                        }
                         Button {
                             variant: ButtonVariant::Ghost,
                             size: ButtonSize::Small,

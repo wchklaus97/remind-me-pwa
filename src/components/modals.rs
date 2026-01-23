@@ -35,11 +35,13 @@ pub fn DeleteConfirmModal(
                 class: "flex justify-end gap-2",
                 Button {
                     variant: ButtonVariant::Ghost,
+                    class: "btn btn-ghost".to_string(),
                     onclick: move |_| on_cancel.call(()),
                     {use_t("delete.cancel")}
                 }
                 Button {
                     variant: ButtonVariant::Danger,
+                    class: "btn btn-danger".to_string(),
                     onclick: move |_| on_confirm.call(reminder_id.clone()),
                     {use_t("delete.confirm")}
                 }

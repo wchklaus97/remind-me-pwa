@@ -1,0 +1,163 @@
+/* Card View Styles */
+.reminders-card-view {
+    width: 100%;
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.card-view-item {
+    width: 100%;
+    animation: fadeInUp 0.4s ease-out forwards;
+    opacity: 0;
+}
+
+/* Folder View Styles */
+.reminders-folder-view {
+    width: 100%;
+}
+
+.folder-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.folder-group {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid transparent;
+    position: relative;
+}
+
+.folder-group.is-drop-target {
+    border-color: rgba(106, 124, 237, 0.45);
+    box-shadow: 0 0 0 3px rgba(106, 124, 237, 0.12);
+}
+
+.folder-group.is-drop-target::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--brand-blue), var(--brand-purple));
+    border-radius: 999px;
+    top: -6px;
+    animation: dragPulse 1.2s ease-in-out infinite;
+}
+
+.folder-group.is-dragging {
+    opacity: 0.6;
+    transform: translateY(-4px) scale(0.99);
+    box-shadow: 0 16px 32px rgba(106, 124, 237, 0.2);
+}
+
+@keyframes dragPulse {
+    0%, 100% {
+        opacity: 0.4;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.folder-group-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.folder-drag-handle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    background: rgba(106, 124, 237, 0.08);
+    border: 1px dashed rgba(106, 124, 237, 0.25);
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+}
+
+.folder-group-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.folder-group-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.folder-group-count {
+    font-size: 0.875rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.folder-group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    border: 2px dashed var(--border-color);
+}
+
+.empty-state h3 {
+    color: var(--text-primary);
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+
+.empty-state button {
+    margin-top: 8px;
+    min-height: var(--touch-target-min);
+    border-radius: var(--radius-md);
+    background: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    font-weight: 600;
+    box-shadow: var(--shadow-soft);
+}
+
+.empty-state button:hover {
+    background: var(--primary-dark);
+    box-shadow: var(--shadow-lg);
+}
+
+.empty-state button:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
+}

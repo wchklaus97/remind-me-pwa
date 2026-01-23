@@ -1,4 +1,5 @@
 use dioxus::prelude::*;
+use remind_me_ui::EmptyState;
 use remind_me_shared::models::{Reminder, Tag};
 use super::super::ReminderCard;
 use crate::i18n::use_t;
@@ -10,6 +11,8 @@ pub fn FolderView(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
+    on_open: EventHandler<String>,
+    on_new_reminder: EventHandler<()>,
 ) -> Element {
     // Group reminders by tag
     let tag_groups: Vec<(Tag, Vec<Reminder>)> = tags
@@ -32,12 +35,23 @@ pub fn FolderView(
         .cloned()
         .collect();
 
+    let has_reminders = !tag_groups.is_empty() || !untagged.is_empty();
+
     rsx! {
         section {
             class: "reminders-folder-view",
             aria_label: "Folder view of reminders grouped by tags",
-            div {
-                class: "folder-groups",
+            if !has_reminders {
+                EmptyState {
+                    icon: "📝",
+                    title: use_t("empty.title"),
+                    description: use_t("empty.description"),
+                    action_text: use_t("empty.action"),
+                    on_action: move |_| on_new_reminder.call(()),
+                }
+            } else {
+                div {
+                    class: "folder-groups",
                 // Render tag groups
                 for (tag, tag_reminders) in tag_groups {
                     div {
@@ -70,6 +84,7 @@ pub fn FolderView(
                                         on_toggle: move |id: String| on_toggle.call(id),
                                         on_edit: move |id: String| on_edit.call(id),
                                         on_delete: move |id: String| on_delete.call(id),
+                                        on_open: move |id: String| on_open.call(id),
                                     }
                                 }
                             }
@@ -106,12 +121,14 @@ pub fn FolderView(
                                         on_toggle: move |id: String| on_toggle.call(id),
                                         on_edit: move |id: String| on_edit.call(id),
                                         on_delete: move |id: String| on_delete.call(id),
+                                        on_open: move |id: String| on_open.call(id),
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
             }
         }
     }

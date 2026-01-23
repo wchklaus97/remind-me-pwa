@@ -1,0 +1,515 @@
+/* App Header Title and Icon */
+.app-header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-header-icon {
+    font-size: 1.75rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+/* App Header Actions */
+.app-header-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.new-reminder-btn {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white !important;
+}
+
+.new-reminder-btn:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.new-reminder-icon {
+    font-size: 1.125rem;
+}
+
+/* Ghost button in header should be white/transparent */
+.app-header .btn-ghost {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+    backdrop-filter: blur(10px);
+}
+
+.app-header .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: white !important;
+}
+
+/* Statistics Display */
+.statistics {
+    margin-bottom: 24px;
+}
+
+.statistics-title {
+    margin: 0 0 12px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.01em;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1.25rem;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg); /* Increased from md for softer look */
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+    opacity: 0.25;
+}
+
+.stat-item:nth-child(1)::after {
+    background: linear-gradient(135deg, var(--primary-color), var(--brand-purple));
+}
+
+.stat-item:nth-child(2)::after {
+    background: linear-gradient(135deg, var(--brand-blue), var(--brand-purple));
+}
+
+.stat-item:nth-child(3)::after {
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+}
+
+.stat-item:nth-child(4)::after {
+    background: linear-gradient(135deg, var(--danger-color), var(--primary-color));
+}
+
+/* Add subtle gradient overlay on hover */
+.stat-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(106, 124, 237, 0.03) 0%, rgba(158, 117, 233, 0.03) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.stat-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-3px);
+    border-color: rgba(106, 124, 237, 0.2);
+}
+
+.stat-item:hover::before {
+    opacity: 1;
+}
+
+.stat-value {
+    font-size: 2rem; /* Increased from 1.75rem for better visibility */
+    font-weight: 800; /* Increased from 700 */
+    margin-bottom: 0.5rem; /* Increased spacing */
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--brand-purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em; /* Increased from 0.05em */
+    font-weight: 600; /* Added weight for better readability */
+}
+
+/* Search and Sort Controls */
+.controls {
+    margin-bottom: 24px;
+}
+
+.controls-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.controls-row {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+}
+
+.controls input[type="text"],
+.controls select {
+    flex: 1;
+    padding: 14px 16px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    min-height: var(--touch-target-min);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.search-field {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.search-field .form-input,
+.search-field input[type="text"] {
+    padding-left: 44px;
+    padding-right: 56px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    font-size: 1rem;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.search-kbd {
+    position: absolute;
+    right: 12px;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    background: #fff;
+    font-weight: 600;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(2px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.search-kbd.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+    animation: kbdPulse 2.6s ease-in-out infinite;
+}
+
+.search-clear {
+    position: absolute;
+    right: 40px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(106, 124, 237, 0.12);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.search-clear:hover {
+    background: rgba(106, 124, 237, 0.22);
+    transform: scale(1.05);
+}
+
+.search-clear:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+}
+
+.search-clear.is-visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.search-field:focus-within .search-icon {
+    color: var(--brand-blue);
+    transform: scale(1.1);
+}
+
+.search-field:focus-within .search-kbd {
+    opacity: 0.6;
+    transform: translateY(-1px);
+    animation: none;
+}
+
+@keyframes kbdPulse {
+    0%, 100% {
+        opacity: 0.85;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .search-kbd {
+        animation: none;
+    }
+}
+
+.controls input[type="text"] {
+    background-image: linear-gradient(transparent, transparent);
+}
+
+.controls select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+        linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% - 3px), calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 38px;
+}
+
+.controls input[type="text"]:hover,
+.controls select:hover {
+    border-color: rgba(106, 124, 237, 0.3);
+}
+
+.controls input[type="text"]:focus,
+.controls select:focus {
+    outline: none;
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.15);
+    transform: translateY(-1px);
+}
+
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reminder-actions .btn-icon {
+    background: rgba(106, 124, 237, 0.08);
+}
+
+.reminder-actions .btn-icon:hover {
+    background: rgba(106, 124, 237, 0.18);
+}
+
+.fab {
+    position: fixed;
+    right: 24px;
+    bottom: 88px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary-color);
+    color: #fff;
+    font-size: 2rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 16px 32px rgba(250, 138, 89, 0.35);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    z-index: 40;
+}
+
+.fab:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 20px 36px rgba(250, 138, 89, 0.4);
+    background: var(--primary-dark);
+}
+
+.bottom-tab-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 16px calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    gap: 6px;
+    z-index: 30;
+}
+
+.bottom-tab-button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    color: var(--text-secondary);
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.bottom-tab-button.active {
+    background: rgba(106, 124, 237, 0.12);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.bottom-tab-icon {
+    font-size: 1.2rem;
+}
+
+.bottom-tab-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.settings-view {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    padding: 24px;
+}
+
+.settings-title {
+    margin: 0 0 6px;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.settings-subtitle {
+    margin: 0 0 20px;
+    color: var(--text-secondary);
+}
+
+.settings-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+}
+
+.settings-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.settings-row input[type="checkbox"] {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    cursor: pointer;
+    accent-color: var(--brand-blue);
+}
+
+.reminder-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.reminder-detail-title {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.reminder-detail-meta {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.reminder-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.reminder-detail-notes {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+}
+
+.reminder-detail-section {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.reminder-detail-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tag-manager-panel {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}

@@ -88,35 +88,34 @@ pub struct ButtonProps {
 /// ```
 #[component]
 pub fn Button(props: ButtonProps) -> Element {
-    let base_classes = "inline-flex items-center justify-center font-medium \
-                        transition-colors focus-visible:outline-none \
-                        focus-visible:ring-2 focus-visible:ring-offset-2 \
-                        disabled:pointer-events-none disabled:opacity-50 \
-                        rounded-lg";
+    // Use custom CSS classes instead of Tailwind
+    let base_class = "btn";
     
-    let variant_classes = match props.variant {
-        ButtonVariant::Primary => "bg-blue-600 text-white hover:bg-blue-700 \
-                                  focus-visible:ring-blue-500",
-        ButtonVariant::Secondary => "bg-gray-200 text-gray-900 hover:bg-gray-300 \
-                                     focus-visible:ring-gray-500",
-        ButtonVariant::Outline => "border-2 border-gray-300 bg-transparent \
-                                  text-gray-700 hover:bg-gray-50 \
-                                  focus-visible:ring-gray-500",
-        ButtonVariant::Ghost => "bg-transparent text-gray-700 hover:bg-gray-100 \
-                                focus-visible:ring-gray-500",
-        ButtonVariant::Danger => "bg-red-600 text-white hover:bg-red-700 \
-                                 focus-visible:ring-red-500",
+    let variant_class = match props.variant {
+        ButtonVariant::Primary => "btn-primary",
+        ButtonVariant::Secondary => "btn-secondary",
+        ButtonVariant::Outline => "btn-outline",
+        ButtonVariant::Ghost => "btn-ghost",
+        ButtonVariant::Danger => "btn-danger",
     };
     
-    let size_classes = match props.size {
-        ButtonSize::Small => "h-8 px-3 text-sm",
-        ButtonSize::Medium => "h-10 px-4 py-2 text-base",
-        ButtonSize::Large => "h-12 px-6 text-lg",
+    let size_class = match props.size {
+        ButtonSize::Small => "btn-small",
+        ButtonSize::Medium => "",
+        ButtonSize::Large => "btn-large",
     };
+    
+    let mut class_string = format!("{} {}", base_class, variant_class);
+    if !size_class.is_empty() {
+        class_string.push_str(&format!(" {}", size_class));
+    }
+    if !props.class.is_empty() {
+        class_string.push_str(&format!(" {}", props.class));
+    }
     
     rsx! {
         button {
-            class: "{base_classes} {variant_classes} {size_classes} {props.class}",
+            class: "{class_string}",
             r#type: "{props.r#type}",
             disabled: props.disabled || props.loading,
             aria_label: props.aria_label.as_deref(),
@@ -129,25 +128,7 @@ pub fn Button(props: ButtonProps) -> Element {
             },
             
             if props.loading {
-                svg {
-                    class: "mr-2 h-4 w-4 animate-spin",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    view_box: "0 0 24 24",
-                    circle {
-                        class: "opacity-25",
-                        cx: "12",
-                        cy: "12",
-                        r: "10",
-                        stroke: "currentColor",
-                        stroke_width: "4"
-                    }
-                    path {
-                        class: "opacity-75",
-                        fill: "currentColor",
-                        d: "M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    }
-                }
+                span { "Loading..." }
             }
             
             {props.children}

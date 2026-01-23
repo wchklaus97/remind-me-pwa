@@ -16,6 +16,7 @@ pub fn ReminderCard(
     on_toggle: EventHandler<String>,
     on_edit: EventHandler<String>,
     on_delete: EventHandler<String>,
+    on_open: EventHandler<String>,
 ) -> Element {
     let is_overdue = !reminder.completed
         && !reminder.due_date.is_empty()
@@ -32,6 +33,7 @@ pub fn ReminderCard(
     let reminder_id_toggle = reminder.id.clone();
     let reminder_id_edit = reminder.id.clone();
     let reminder_id_delete = reminder.id.clone();
+    let reminder_id_open = reminder.id.clone();
 
     rsx! {
         Card {
@@ -39,30 +41,31 @@ pub fn ReminderCard(
             class: "{card_class}",
             CardContent {
                 div {
-                    class: "flex items-start justify-between gap-4",
+                    class: "reminder-card-layout",
                     div {
-                        class: "flex items-start gap-3 flex-1",
+                        class: "reminder-card-info",
                         Checkbox {
                             checked: reminder.completed,
+                            aria_label: format!("{} {}", use_t("reminder.toggle"), reminder.title),
                             onchange: move |_| {
                                 on_toggle.call(reminder_id_toggle.clone());
                             },
                         }
                         div {
-                            class: "flex-1",
+                            class: "reminder-card-body",
                             h3 {
-                                class: if reminder.completed { "line-through text-gray-500" } else { "font-semibold" },
+                                class: if reminder.completed { "reminder-title is-completed" } else { "reminder-title" },
                                 "{reminder.title}"
                             }
                             if !reminder.description.is_empty() {
                                 p {
-                                    class: "text-sm text-gray-600 mt-1",
+                                    class: "reminder-description",
                                     "{reminder.description}"
                                 }
                             }
                             if !reminder.due_date.is_empty() {
                                 div {
-                                    class: "mt-2 flex items-center gap-2",
+                                    class: "reminder-meta",
                                     if is_overdue {
                                         Badge {
                                             variant: BadgeVariant::Danger,
@@ -70,7 +73,7 @@ pub fn ReminderCard(
                                         }
                                     }
                                     span {
-                                        class: "text-sm text-gray-500",
+                                        class: "reminder-due",
                                         {
                                             format!("{} {}", use_t("reminder.due"), format_date(&reminder.due_date))
                                         }
@@ -79,7 +82,7 @@ pub fn ReminderCard(
                             }
                             if !reminder.tag_ids.is_empty() {
                                 div {
-                                    class: "mt-2 flex flex-wrap gap-2",
+                                    class: "reminder-tags",
                                     for tag_id in reminder.tag_ids.iter() {
                                         if let Some(tag) = tags.iter().find(|t| t.id == *tag_id) {
                                             span {
@@ -94,10 +97,21 @@ pub fn ReminderCard(
                         }
                     }
                     div {
-                        class: "flex gap-2",
+                        class: "reminder-actions",
                         Button {
                             variant: ButtonVariant::Ghost,
                             size: ButtonSize::Small,
+                            class: "btn btn-ghost btn-icon".to_string(),
+                            aria_label: Some(format!("{} {}", use_t("reminder.details"), reminder.title.clone())),
+                            onclick: move |_| {
+                                on_open.call(reminder_id_open.clone());
+                            },
+                            "ℹ️"
+                        }
+                        Button {
+                            variant: ButtonVariant::Ghost,
+                            size: ButtonSize::Small,
+                            class: "btn btn-ghost btn-icon".to_string(),
                             aria_label: Some(format!("{} {}", use_t("tags.edit"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_edit.call(reminder_id_edit.clone());
@@ -107,6 +121,7 @@ pub fn ReminderCard(
                         Button {
                             variant: ButtonVariant::Danger,
                             size: ButtonSize::Small,
+                            class: "btn btn-danger btn-icon".to_string(),
                             aria_label: Some(format!("{} {}", use_t("tags.delete"), reminder.title.clone())),
                             onclick: move |_| {
                                 on_delete.call(reminder_id_delete.clone());

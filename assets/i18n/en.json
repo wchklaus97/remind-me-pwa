@@ -5,8 +5,20 @@
     "tagline": "Reminder Assistant",
     "header": {
       "title": "🔔 Remind Me",
+      "subtitle": "Stay on top of what matters",
       "new_reminder": "New Reminder",
       "cancel": "Cancel"
+    },
+    "skip_to_main": "Skip to main content",
+    "fab": {
+      "new": "Add new reminder"
+    },
+    "bottom_nav": {
+      "label": "App navigation",
+      "home": "Home",
+      "calendar": "Calendar",
+      "groups": "Groups",
+      "settings": "Settings"
     },
     "views": {
       "list": "List",
@@ -18,7 +30,13 @@
     "calendar": {
       "today": "Today",
       "selected_date": "Selected Date",
-      "unscheduled": "Unscheduled Reminders"
+      "unscheduled": "Unscheduled Reminders",
+      "prev_month": "Previous month",
+      "next_month": "Next month",
+      "month_view": "Month",
+      "week_view": "Week",
+      "day_label": "Calendar day",
+      "drag_reminder": "Drag reminder to reschedule"
     }
   },
   "landing": {
@@ -368,6 +386,7 @@
     }
   },
   "stats": {
+    "title": "Overview",
     "total": "Total",
     "active": "Active",
     "completed": "Completed",
@@ -379,9 +398,11 @@
     "completed": "Completed"
   },
   "search": {
-    "placeholder": "Search reminders..."
+    "placeholder": "Search reminders...",
+    "clear": "Clear search"
   },
   "sort": {
+    "label": "Sort reminders",
     "date": "Sort by Date",
     "title": "Sort by Title",
     "status": "Sort by Status"
@@ -395,7 +416,8 @@
     },
     "title": {
       "label": "Title",
-      "placeholder": "Enter reminder title"
+      "placeholder": "Enter reminder title",
+      "error_required": "Title is required"
     },
     "description": {
       "label": "Description (optional)",
@@ -444,6 +466,9 @@
   "tags": {
     "manage": "Manage Tags",
     "title": "Tag Management",
+    "description": "Organize your reminders with color-coded tags.",
+    "reorder_hint": "Tip: drag and drop to reorder tags.",
+    "drag_handle": "Drag to reorder",
     "new_tag": "New Tag",
     "edit_tag": "Edit Tag",
     "name": {
@@ -465,8 +490,26 @@
     }
   },
   "reminder": {
+    "toggle": "Toggle reminder",
     "overdue": "⚠️ Overdue",
-    "due": "Due:"
+    "due": "Due:",
+    "details": "View reminder details",
+    "detail_title": "Reminder Details",
+    "detail_due": "Due:",
+    "detail_created": "Created:",
+    "detail_notes": "Notes",
+    "detail_edit": "Edit",
+    "detail_toggle": "Toggle status",
+    "detail_mark_done": "Mark Done",
+    "detail_mark_active": "Mark Active",
+    "detail_delete": "Delete"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your reminder experience",
+    "notifications": "Enable notifications",
+    "week_start": "Week starts on Monday",
+    "time_format": "Use 24-hour time"
   },
   "language": {
     "switch": "Switch language",

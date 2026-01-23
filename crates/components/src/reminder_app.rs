@@ -9,7 +9,7 @@ use remind_me_ui::{
 };
 use remind_me_shared::models::{Reminder, ReminderFilter, ReminderSort};
 use remind_me_shared::storage::{load_reminders, save_reminders, load_tags};
-use remind_me_shared::utils::get_filtered_and_sorted_reminders;
+use remind_me_shared::utils::{get_filtered_and_sorted_reminders, to_datetime_local_value};
 // Use re-exports from mod.rs to avoid clippy warnings
 use super::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
 use crate::i18n::use_t;
@@ -23,6 +23,7 @@ pub fn ReminderApp() -> Element {
     let mut search_query = use_signal(String::new);
     let mut sort_by = use_signal(|| ReminderSort::Date);
     let mut editing_id = use_signal(|| None::<String>);
+    let mut detail_id = use_signal(|| None::<String>);
 
     // Toast notification state
     let mut show_toast = use_signal(|| false);
@@ -146,47 +147,32 @@ pub fn ReminderApp() -> Element {
     rsx! {
         div {
             class: "app-container",
+            // 1. Navbar (simple white header)
             header {
                 role: "banner",
-                class: "app-header",
-                h1 { {use_t("app.header.title")} }
+                class: "app-navbar",
                 div {
-                    class: "app-header-actions",
-                    Button {
-                        variant: ButtonVariant::Ghost,
-                        aria_label: Some(use_t("tags.manage")),
-                        onclick: move |_| show_tag_manager.set(true),
-                        "🏷️"
+                    class: "app-navbar-brand",
+                    div {
+                        class: "app-icon-square",
+                        "🔔"
                     }
-                    Button {
-                        variant: ButtonVariant::Primary,
-                        aria_label: Some(if show_add_form() {
-                            use_t("app.header.cancel")
-                        } else {
-                            use_t("app.header.new_reminder")
-                        }),
-                        onclick: move |_| show_add_form.set(!show_add_form()),
-                        {
-                            if show_add_form() {
-                                {use_t("app.header.cancel")}
-                            } else {
-                                {use_t("app.header.new_reminder")}
-                            }
-                        }
-                    }
+                    h1 { class: "app-title", {use_t("app.header.title")} }
+                }
+                div {
+                    class: "app-navbar-avatar",
+                    "👤" // Placeholder for user avatar
                 }
             }
 
             main {
                 role: "main",
-                // Statistics section
-                StatisticsDisplay { reminders: reminders() }
-
-                // Search and sort controls
+                // 2. Search bar
                 section {
-                    class: "controls mb-4",
+                    class: "search-section",
                     div {
-                        class: "flex gap-2 mb-2",
+                        class: "search-field",
+                        span { class: "search-icon", "🔍" }
                         Input {
                             id: "search_reminders".to_string(),
                             name: "search".to_string(),
@@ -194,22 +180,42 @@ pub fn ReminderApp() -> Element {
                             placeholder: use_t("search.placeholder"),
                             value: "{search_query()}",
                             oninput: move |value| search_query.set(value),
-                        }
-                        Select {
-                            id: "sort_reminders".to_string(),
-                            name: "sort_by".to_string(),
-                            value: sort_by().as_str().to_string(),
-                            onchange: move |value: String| {
-                                sort_by.set(ReminderSort::from_str(&value));
-                            },
-                            options: vec![
-                                SelectOption { value: "date".to_string(), label: use_t("sort.date") },
-                                SelectOption { value: "title".to_string(), label: use_t("sort.title") },
-                                SelectOption { value: "status".to_string(), label: use_t("sort.status") },
-                            ],
+                            class: "search-input".to_string(),
                         }
                     }
                 }
+
+                // 3. Status category buttons (All, Today, Upcoming)
+                nav {
+                    role: "navigation",
+                    aria_label: "Status filters",
+                    class: "status-category-buttons",
+                    Button {
+                        variant: if filter() == ReminderFilter::All { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some(use_t("filter.all")),
+                        onclick: move |_| filter.set(ReminderFilter::All),
+                        {use_t("filter.all")}
+                    }
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        aria_label: Some("Today".to_string()),
+                        onclick: move |_| {
+                            // TODO: Implement "Today" filter
+                        },
+                        "Today"
+                    }
+                    Button {
+                        variant: ButtonVariant::Ghost,
+                        aria_label: Some("Upcoming".to_string()),
+                        onclick: move |_| {
+                            // TODO: Implement "Upcoming" filter
+                        },
+                        "Upcoming"
+                    }
+                }
+
+                // 4. Summary row (horizontal statistics)
+                StatisticsDisplay { reminders: reminders() }
 
                 if show_add_form() || editing_id().is_some() {
                     if let Some(edit_id) = editing_id() {
@@ -251,54 +257,7 @@ pub fn ReminderApp() -> Element {
                     }
                 }
 
-                // View switcher
-                nav {
-                    role: "navigation",
-                    aria_label: "View switcher",
-                    class: "view-switcher",
-                    Button {
-                        variant: if current_view() == "list" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("app.views.list")),
-                        onclick: move |_| current_view.set("list".to_string()),
-                        {use_t("app.views.list")}
-                    }
-                    Button {
-                        variant: if current_view() == "card" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("app.views.card")),
-                        onclick: move |_| current_view.set("card".to_string()),
-                        {use_t("app.views.card")}
-                    }
-                    Button {
-                        variant: if current_view() == "folder" { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("app.views.folder")),
-                        onclick: move |_| current_view.set("folder".to_string()),
-                        {use_t("app.views.folder")}
-                    }
-                }
-
-                nav {
-                    role: "navigation",
-                    aria_label: "Filter reminders",
-                    class: "filter-tabs",
-                    Button {
-                        variant: if filter() == ReminderFilter::All { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("filter.all")),
-                        onclick: move |_| filter.set(ReminderFilter::All),
-                        {use_t("filter.all")}
-                    }
-                    Button {
-                        variant: if filter() == ReminderFilter::Active { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("filter.active")),
-                        onclick: move |_| filter.set(ReminderFilter::Active),
-                        {use_t("filter.active")}
-                    }
-                    Button {
-                        variant: if filter() == ReminderFilter::Completed { ButtonVariant::Primary } else { ButtonVariant::Ghost },
-                        aria_label: Some(use_t("filter.completed")),
-                        onclick: move |_| filter.set(ReminderFilter::Completed),
-                        {use_t("filter.completed")}
-                    }
-                }
+                // 5. Reminders list (rest of the content)
 
                 // Render view based on current_view state
                 {
@@ -336,6 +295,9 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_open: move |id: String| {
+                                    detail_id.set(Some(id));
+                                },
                                 on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
@@ -363,6 +325,10 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_open: move |id: String| {
+                                    detail_id.set(Some(id));
+                                },
+                                on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
                         "folder" => rsx! {
@@ -389,6 +355,10 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_open: move |id: String| {
+                                    detail_id.set(Some(id));
+                                },
+                                on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
                         "calendar" => rsx! {
@@ -418,6 +388,45 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_open: move |id: String| {
+                                    detail_id.set(Some(id));
+                                },
+                                on_reschedule: move |(id, new_date): (String, Option<String>)| {
+                                    let mut updated = reminders();
+                                    if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                        let Some(target_date) = new_date else {
+                                            r.due_date = String::new();
+                                            reminders.set(updated.clone());
+                                            save_reminders(&updated);
+                                            toast_message.set(use_t("toast.updated"));
+                                            toast_variant.set(ToastVariant::Success);
+                                            show_toast.set(true);
+                                            return;
+                                        };
+
+                                        let next_date = if r.due_date.is_empty() {
+                                            target_date.clone()
+                                        } else {
+                                            let local_value = to_datetime_local_value(&r.due_date);
+                                            if let Some((_, time)) = local_value.split_once('T') {
+                                                format!("{}T{}", target_date, time)
+                                            } else {
+                                                target_date.clone()
+                                            }
+                                        };
+
+                                        if r.due_date == next_date {
+                                            return;
+                                        }
+                                        r.due_date = next_date;
+                                        reminders.set(updated.clone());
+                                        save_reminders(&updated);
+
+                                        toast_message.set(use_t("toast.updated"));
+                                        toast_variant.set(ToastVariant::Success);
+                                        show_toast.set(true);
+                                    }
+                                },
                             }
                         },
                         _ => rsx! {
@@ -446,19 +455,12 @@ pub fn ReminderApp() -> Element {
                                 on_delete: move |id: String| {
                                     delete_confirm_id.set(Some(id));
                                 },
+                                on_open: move |id: String| {
+                                    detail_id.set(Some(id));
+                                },
                                 on_new_reminder: move |_| show_add_form.set(true),
                             }
                         },
-                    }
-                }
-
-                if reminders().is_empty() {
-                    EmptyState {
-                        icon: "📝",
-                        title: use_t("empty.title"),
-                        description: use_t("empty.description"),
-                        action_text: use_t("empty.action"),
-                        on_action: move |_| show_add_form.set(true),
                     }
                 }
             }
@@ -491,6 +493,14 @@ pub fn ReminderApp() -> Element {
                     // Reload tags after closing tag manager
                     tags.set(load_tags());
                 },
+            }
+
+            // Floating Action Button (FAB) for adding reminders
+            button {
+                class: "fab",
+                aria_label: Some(use_t("app.header.new_reminder")),
+                onclick: move |_| show_add_form.set(!show_add_form()),
+                "+"
             }
 
             // Toast notification

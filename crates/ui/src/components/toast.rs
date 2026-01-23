@@ -113,19 +113,19 @@ pub fn Toast(props: ToastProps) -> Element {
     });
     
     let variant_classes = match props.variant {
-        ToastVariant::Success => "bg-green-50 border-green-200 text-green-800",
-        ToastVariant::Error => "bg-red-50 border-red-200 text-red-800",
-        ToastVariant::Warning => "bg-yellow-50 border-yellow-200 text-yellow-800",
-        ToastVariant::Info => "bg-blue-50 border-blue-200 text-blue-800",
+        ToastVariant::Success => "toast toast-success",
+        ToastVariant::Error => "toast toast-error",
+        ToastVariant::Warning => "toast toast-warning",
+        ToastVariant::Info => "toast toast-info",
     };
     
     let position_classes = match props.position {
-        ToastPosition::TopLeft => "top-4 left-4",
-        ToastPosition::TopRight => "top-4 right-4",
-        ToastPosition::TopCenter => "top-4 left-1/2 -translate-x-1/2",
-        ToastPosition::BottomLeft => "bottom-4 left-4",
-        ToastPosition::BottomRight => "bottom-4 right-4",
-        ToastPosition::BottomCenter => "bottom-4 left-1/2 -translate-x-1/2",
+        ToastPosition::TopLeft => "toast-top-left",
+        ToastPosition::TopRight => "toast-top-right",
+        ToastPosition::TopCenter => "toast-top-center",
+        ToastPosition::BottomLeft => "toast-bottom-left",
+        ToastPosition::BottomRight => "toast-bottom-right",
+        ToastPosition::BottomCenter => "toast-bottom-center",
     };
     
     let mut open_signal = props.open;
@@ -140,28 +140,28 @@ pub fn Toast(props: ToastProps) -> Element {
     
     rsx! {
         div {
-            class: "fixed z-50 {position_classes} {props.class}",
+            class: "toast-container {position_classes} {props.class}",
             div {
-                class: "rounded-lg border p-4 shadow-lg {variant_classes} min-w-[300px] max-w-[500px]",
+                class: "toast-card {variant_classes}",
                 div {
-                    class: "flex items-start justify-between",
+                    class: "toast-body",
                     div {
-                        class: "flex-1",
+                        class: "toast-content",
                         if !props.title.is_empty() {
                             h4 {
-                                class: "font-semibold mb-1",
+                                class: "toast-title",
                                 "{props.title}"
                             }
                         }
                         p {
-                            class: "text-sm",
+                            class: "toast-message",
                             "{props.message}"
                         }
                     }
                     
                     if props.show_close {
                         button {
-                            class: "ml-4 text-gray-400 hover:text-gray-600 transition-colors",
+                            class: "toast-close",
                             onclick: close_toast,
                             "×"
                         }
