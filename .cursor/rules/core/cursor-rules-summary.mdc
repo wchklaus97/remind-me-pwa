@@ -22,12 +22,19 @@ This directory is the **authoritative operating manual** for this repo: how the 
 - **Framework**: Dioxus (React-like UI framework for Rust)
 - **Target**: Web (WASM) via `wasm32-unknown-unknown`
 - **Deployment**: GitHub Pages (static hosting)
+- **Design System**: Bell Crab theme with warm colors and soft corners
+- **Touch Targets**: 48px minimum (Lighthouse requirement - NOT 24px!)
+- **Accessibility**: Full ARIA labels, skip navigation, semantic HTML
+- **Performance**: Optimized animations with will-change, 60fps
+- **Responsive**: Mobile-first design with comprehensive breakpoints
 - **Non-negotiables**:
   - **Component-based**: All UI built with Dioxus components
   - **Signal-based state**: Use `use_signal()` for reactive state
   - **LocalStorage**: Persist data in browser localStorage
   - **PWA features**: Service worker, manifest, offline support
   - **WASM target**: All builds target `wasm32-unknown-unknown`
+  - **Lighthouse 100%**: Must maintain 100% scores in all categories
+  - **Touch targets 48px**: All interactive elements ≥ 48x48px
 
 ## 📁 Rule Index
 
@@ -59,6 +66,7 @@ This directory is the **authoritative operating manual** for this repo: how the 
 | `lighthouse-optimization.mdc` | Lighthouse optimization to achieve 95%+ scores | ⭐⭐⭐⭐⭐ |
 | `lighthouse-100-standards.mdc` | Strict standards for 100% Lighthouse scores | ⭐⭐⭐⭐⭐ |
 | `code-standards-100.mdc` | Code standards enforcement for 100% scores | ⭐⭐⭐⭐⭐ |
+| `ui-ux-design-system.mdc` | Bell Crab design system implementation | ⭐⭐⭐⭐⭐ |
 
 ### Skills Document
 
@@ -126,4 +134,4 @@ onclick: move |_| {
 - **Build output**: `docs/` directory for GitHub Pages
 - **Mobile responsive**: All landing sections properly constrained for mobile viewports
 
-**Last Updated**: 2026-01-14
+**Last Updated**: 2026-01-15

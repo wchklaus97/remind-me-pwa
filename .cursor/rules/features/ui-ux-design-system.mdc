@@ -1,0 +1,193 @@
+---
+alwaysApply: false
+description: Complete UI/UX design system with color patterns, responsive design, and style guidelines
+---
+
+# UI/UX Design System
+
+## 🎨 Color System
+
+### Primary Palette (Bell Crab Theme)
+
+**Warm & Friendly Color Palette**
+
+```css
+:root {
+    /* Primary Colors */
+    --primary-color: #FA8A59;      /* Crab Coral - Primary Actions */
+    --primary-dark: #E8774A;       /* Darker shade for hover states */
+    
+    /* Secondary Colors */
+    --secondary-color: #F4D273;    /* Bell Gold - Premium/Success */
+    
+    /* Brand Colors */
+    --brand-blue: #6A7CED;         /* Clay Blue - Brand Color A */
+    --brand-purple: #9E75E9;       /* Soft Amethyst - Brand Color B */
+    
+    /* Semantic Colors */
+    --danger-color: #FF6B6B;       /* Soft red for danger/errors */
+    --success-color: #F4D273;      /* Bell Gold for success */
+    
+    /* Background Colors */
+    --bg-color: #F9F9FC;           /* Off-White - Background UI */
+    --card-bg: #ffffff;            /* Pure White for cards */
+    --bg-gradient-top: #5e5eb4;   /* Deep blue-purple */
+    --bg-gradient-bottom: #8094ce; /* Light blue */
+    
+    /* Text Colors */
+    --text-primary: #33334D;       /* Deep Slate - Primary Text */
+    --text-secondary: #5F5F7A;     /* Medium Slate - Secondary Text */
+    
+    /* Border & Shadow */
+    --border-color: #E8E8F0;       /* Soft border */
+    --shadow: 0 2px 8px 0 rgba(106, 124, 237, 0.08), 0 1px 3px 0 rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 25px -5px rgba(106, 124, 237, 0.15), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
+    --shadow-soft: 0 4px 12px 0 rgba(250, 138, 89, 0.12);
+    
+    /* Gradients */
+    --gradient-brand: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-purple) 100%);
+}
+```
+
+### Color Usage Guidelines
+
+- **Primary Color**: Primary buttons, active states, main CTAs
+- **Secondary Color**: Success states, premium features, highlights
+- **Brand Blue**: Navigation, links, accents
+- **Brand Purple**: Hover states, gradients, premium elements
+- **Danger**: Delete actions, errors, warnings
+- **Success**: Completed states, success messages
+
+## 📐 Spacing System
+
+```css
+:root {
+    --spacing-xs: 4px;    /* 0.25rem */
+    --spacing-sm: 8px;    /* 0.5rem */
+    --spacing-md: 16px;   /* 1rem */
+    --spacing-lg: 24px;   /* 1.5rem */
+    --spacing-xl: 32px;   /* 2rem */
+    --spacing-2xl: 48px;  /* 3rem */
+}
+```
+
+## 🔲 Border Radius
+
+```css
+:root {
+    --radius-sm: 12px;   /* Small elements */
+    --radius-md: 16px;   /* Default */
+    --radius-lg: 24px;   /* Large elements */
+    --radius-xl: 32px;   /* Extra large */
+    --radius-pill: 999px; /* Pills */
+}
+```
+
+## 📱 Responsive Breakpoints
+
+- **Mobile**: < 521px (default styles)
+- **Tablet**: 521px - 768px
+- **Desktop**: 769px - 980px
+- **Large Desktop**: 981px+
+
+## 🎯 Touch Targets (MANDATORY)
+
+**ALL interactive elements MUST be ≥ 48x48px (Lighthouse requirement)**
+
+⚠️ **CRITICAL**: Touch targets MUST be 48px minimum, NOT 24px! This is mandatory for Lighthouse 100% scores.
+
+```css
+:root {
+    --touch-target-min: 48px;  /* Lighthouse requirement - NOT 24px! */
+    --touch-target-spacing: 8px;
+}
+
+/* Enforcement with !important */
+button, .btn, .tab, a[role="button"], label[for] {
+    min-width: var(--touch-target-min) !important;
+    min-height: var(--touch-target-min) !important;
+    box-sizing: border-box;
+}
+```
+
+## 🎨 Typography
+
+```css
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+```
+
+## 📱 Mobile-First Patterns
+
+- Use mobile-first CSS (default styles for mobile)
+- Stack vertically on mobile, horizontal on desktop
+- Single column grids on mobile, multi-column on desktop
+- Full-width containers on mobile, max-width on desktop
+
+## 🎯 Best Practices
+
+- ✅ Use CSS variables for all colors
+- ✅ Follow mobile-first responsive design
+- ✅ Ensure all touch targets ≥ 48x48px (NOT 24px!)
+- ✅ Use semantic HTML elements
+- ✅ Provide focus indicators with proper contrast
+- ✅ Optimize animations (use transform/opacity only)
+- ✅ Add will-change for animated elements
+- ✅ Include skip navigation link
+- ✅ Set HTML lang attribute
+- ✅ Include meta description
+
+## 🚀 Performance Optimization
+
+### Animation Guidelines
+
+```css
+/* Use GPU-accelerated properties only */
+.animated-element {
+    will-change: transform, opacity;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Avoid layout-triggering properties */
+/* ❌ Don't animate: width, height, top, left, margin, padding */
+/* ✅ Do animate: transform, opacity */
+```
+
+### Focus Indicators
+
+```css
+button:focus-visible,
+.tab:focus-visible {
+    outline: 2px solid var(--brand-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(106, 124, 237, 0.2);
+}
+```
+
+### Skip Navigation
+
+```css
+.skip-nav {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-color);
+    color: white;
+    padding: 14px 24px;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 100;
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.skip-nav:focus {
+    top: 20px;
+    left: 20px;
+}
+```
+
+---
+
+**Last Updated**: 2026-01-15  
+**Touch Target Requirement**: 48px minimum (Lighthouse 100%)  
+**Design System**: Bell Crab Theme v1.0

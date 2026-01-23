@@ -50,7 +50,8 @@ html {
     --radius-xl: 32px;
     
     /* Lighthouse 100%: Touch target standards (minimum 48x48px) */
-    --touch-target-min: 48px;  /* Lighthouse requirement - not negotiable */
+    /* MANDATORY: All interactive elements must be at least 48x48px */
+    --touch-target-min: 48px;  /* Lighthouse requirement (not negotiable) */
     --touch-target-spacing: 8px;  /* Minimum spacing between targets */
     
     /* Shared horizontal padding for landing navbar + footer */

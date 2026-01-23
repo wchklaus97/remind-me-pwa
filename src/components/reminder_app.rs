@@ -1,18 +1,20 @@
-use dioxus::prelude::*;
+use crate::models::{Reminder, ReminderFilter, ReminderSort};
+use crate::storage::{load_reminders, load_tags, save_reminders};
+use crate::utils::get_filtered_and_sorted_reminders;
 #[cfg(target_arch = "wasm32")]
 use dioxus::dioxus_core::use_hook_with_cleanup;
+use dioxus::prelude::*;
+use remind_me_ui::{
+    Button, ButtonVariant, EmptyState, Input, Select, SelectOption, Toast, ToastPosition,
+    ToastVariant,
+};
 #[cfg(target_arch = "wasm32")]
 use std::rc::Rc;
-use remind_me_ui::{
-    Button, ButtonVariant, Input, Select, SelectOption,
-    EmptyState, Toast, ToastPosition, ToastVariant,
-    Modal, ModalSize,
-};
-use crate::models::{Reminder, ReminderFilter, ReminderSort, Tag};
-use crate::storage::{load_reminders, save_reminders, load_tags, save_tags};
-use crate::utils::{get_filtered_and_sorted_reminders, to_datetime_local_value, format_date};
 // Use re-exports from mod.rs to avoid clippy warnings
-use crate::components::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager, TagManagerPanel};
+use crate::components::{
+    AddReminderForm, CalendarView, CardView, DeleteConfirmModal, EditReminderForm, FolderView,
+    ListView, StatisticsDisplay, TagManager,
+};
 use crate::i18n::use_t;
 
 #[component]
@@ -48,7 +50,10 @@ pub fn ReminderApp() -> Element {
             use wasm_bindgen::JsCast;
 
             let Some(window) = web_sys::window() else {
-                return None::<(web_sys::Window, Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>>)>;
+                return None::<(
+                    web_sys::Window,
+                    Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>>,
+                )>;
             };
 
             let Some(document) = window.document() else {
@@ -61,14 +66,16 @@ pub fn ReminderApp() -> Element {
             let mut show_tag_manager_signal = show_tag_manager;
             let mut detail_id_signal = detail_id;
 
-            let handler: Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>> = Rc::new(Closure::wrap(
-                Box::new(move |e: web_sys::KeyboardEvent| {
+            let handler: Rc<Closure<dyn FnMut(web_sys::KeyboardEvent)>> =
+                Rc::new(Closure::wrap(Box::new(move |e: web_sys::KeyboardEvent| {
                     let key = e.key();
-                    
+
                     // Check if user is typing in an input/textarea
                     // Don't trigger shortcuts when typing in inputs (except '/' for search)
                     let target = e.target();
-                    if let Some(element) = target.and_then(|t| t.dyn_into::<web_sys::Element>().ok()) {
+                    if let Some(element) =
+                        target.and_then(|t| t.dyn_into::<web_sys::Element>().ok())
+                    {
                         let tag_name = element.tag_name().to_lowercase();
                         if tag_name == "input" || tag_name == "textarea" {
                             // Only allow '/' to focus search when typing in other inputs
@@ -90,7 +97,11 @@ pub fn ReminderApp() -> Element {
                     match key.as_str() {
                         "n" | "N" => {
                             // Only if not already in a form and no modals open
-                            if !show_add_form_signal() && editing_id_signal().is_none() && delete_confirm_id_signal().is_none() && !show_tag_manager_signal() {
+                            if !show_add_form_signal()
+                                && editing_id_signal().is_none()
+                                && delete_confirm_id_signal().is_none()
+                                && !show_tag_manager_signal()
+                            {
                                 e.prevent_default();
                                 show_add_form_signal.set(true);
                             }
@@ -112,12 +123,22 @@ pub fn ReminderApp() -> Element {
                         }
                         "/" => {
                             // Only if not already in a form and not in search input
-                            if !show_add_form_signal() && editing_id_signal().is_none() && delete_confirm_id_signal().is_none() && !show_tag_manager_signal() {
+                            if !show_add_form_signal()
+                                && editing_id_signal().is_none()
+                                && delete_confirm_id_signal().is_none()
+                                && !show_tag_manager_signal()
+                            {
                                 e.prevent_default();
                                 // Focus search input
-                                if let Some(document) = web_sys::window().and_then(|w| w.document()) {
-                                    if let Ok(Some(search_input)) = document.query_selector("#search_reminders") {
-                                        if let Some(input) = search_input.dyn_into::<web_sys::HtmlInputElement>().ok() {
+                                if let Some(document) = web_sys::window().and_then(|w| w.document())
+                                {
+                                    if let Ok(Some(search_input)) =
+                                        document.query_selector("#search_reminders")
+                                    {
+                                        if let Some(input) = search_input
+                                            .dyn_into::<web_sys::HtmlInputElement>()
+                                            .ok()
+                                        {
                                             let _ = input.focus();
                                         }
                                     }
@@ -135,7 +156,10 @@ pub fn ReminderApp() -> Element {
 
             Some((window, handler))
         },
-        |state: Option<(web_sys::Window, Rc<wasm_bindgen::closure::Closure<dyn FnMut(web_sys::KeyboardEvent)>>)>| {
+        |state: Option<(
+            web_sys::Window,
+            Rc<wasm_bindgen::closure::Closure<dyn FnMut(web_sys::KeyboardEvent)>>,
+        )>| {
             use wasm_bindgen::JsCast;
 
             let Some((window, handler)) = state else {
@@ -150,14 +174,13 @@ pub fn ReminderApp() -> Element {
 
     rsx! {
         div {
-            class: "app-container has-bottom-nav",
+            class: "app-container",
             a {
+                href: "#main-content",
                 class: "skip-nav",
-                href: "#app-main",
-                {use_t("app.skip_to_main")}
+                {use_t("accessibility.skip_to_content")}
             }
             header {
-                role: "banner",
                 class: "app-header",
                 div {
                     class: "app-header-text",
@@ -198,11 +221,9 @@ pub fn ReminderApp() -> Element {
 
             main {
                 role: "main",
-                id: "app-main",
-                class: "app-main",
-                if ["list", "card", "folder"].contains(&current_view().as_str()) {
-                    StatisticsDisplay { reminders: reminders() }
-                }
+                id: "main-content",
+                // Statistics section
+                StatisticsDisplay { reminders: reminders() }
 
                 if !["tags", "settings"].contains(&current_view().as_str()) {
                     section {
