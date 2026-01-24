@@ -91,6 +91,20 @@ pub fn get_filtered_and_sorted_reminders(
                 ReminderFilter::Active => !r.completed,
                 ReminderFilter::Completed => r.completed,
                 ReminderFilter::All => true,
+                ReminderFilter::Today => {
+                    if r.completed || r.due_date.is_empty() {
+                        false
+                    } else {
+                        is_today(&r.due_date)
+                    }
+                },
+                ReminderFilter::Upcoming => {
+                    if r.completed || r.due_date.is_empty() {
+                        false
+                    } else {
+                        is_upcoming(&r.due_date)
+                    }
+                },
             };
 
             // Apply search
@@ -165,6 +179,56 @@ pub fn is_overdue(date_str: &str) -> bool {
         return false;
     };
     due_ms < now_timestamp_millis()
+}
+
+/// Check if a date is today
+pub fn is_today(date_str: &str) -> bool {
+    let Some(due_ms) = parse_date_to_epoch_ms(date_str) else {
+        return false;
+    };
+    let now_ms = now_timestamp_millis();
+    
+    #[cfg(target_arch = "wasm32")]
+    {
+        let due_date = js_sys::Date::new(&wasm_bindgen::JsValue::from_f64(due_ms as f64));
+        let now_date = js_sys::Date::new(&wasm_bindgen::JsValue::from_f64(now_ms as f64));
+        
+        due_date.get_full_year() == now_date.get_full_year() &&
+        due_date.get_month() == now_date.get_month() &&
+        due_date.get_date() == now_date.get_date()
+    }
+    
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        use chrono::{Datelike, TimeZone};
+        if let Some(due_dt) = chrono::Local.timestamp_millis_opt(due_ms).single() {
+            if let Some(now_dt) = chrono::Local.timestamp_millis_opt(now_ms).single() {
+                due_dt.year() == now_dt.year() &&
+                due_dt.month() == now_dt.month() &&
+                due_dt.day() == now_dt.day()
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+}
+
+/// Check if a date is upcoming (future, not today, not overdue)
+pub fn is_upcoming(date_str: &str) -> bool {
+    let Some(due_ms) = parse_date_to_epoch_ms(date_str) else {
+        return false;
+    };
+    let now_ms = now_timestamp_millis();
+    
+    // Upcoming means: future date, not today, not overdue
+    if due_ms <= now_ms {
+        return false; // Past or today
+    }
+    
+    // Check it's not today
+    !is_today(date_str)
 }
 
 pub fn to_datetime_local_value(date_str: &str) -> String {

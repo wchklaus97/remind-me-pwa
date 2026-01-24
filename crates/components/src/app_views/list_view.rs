@@ -26,6 +26,8 @@ pub fn ListView(
                         match filter {
                             ReminderFilter::Active => "✅",
                             ReminderFilter::Completed => "🎉",
+                            ReminderFilter::Today => "📅",
+                            ReminderFilter::Upcoming => "⏰",
                             ReminderFilter::All => "📝",
                         }
                     } else {
@@ -35,6 +37,8 @@ pub fn ListView(
                         match filter {
                             ReminderFilter::Active => use_t("empty.active_title"),
                             ReminderFilter::Completed => use_t("empty.completed_title"),
+                            ReminderFilter::Today => use_t("empty.title"), // TODO: Add specific translation
+                            ReminderFilter::Upcoming => use_t("empty.title"), // TODO: Add specific translation
                             ReminderFilter::All => use_t("empty.title"),
                         }
                     } else {
@@ -44,6 +48,8 @@ pub fn ListView(
                         match filter {
                             ReminderFilter::Active => use_t("empty.active_description"),
                             ReminderFilter::Completed => use_t("empty.completed_description"),
+                            ReminderFilter::Today => use_t("empty.description"), // TODO: Add specific translation
+                            ReminderFilter::Upcoming => use_t("empty.description"), // TODO: Add specific translation
                             ReminderFilter::All => use_t("empty.description"),
                         }
                     } else {

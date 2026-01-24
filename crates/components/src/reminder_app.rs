@@ -197,19 +197,15 @@ pub fn ReminderApp() -> Element {
                         {use_t("filter.all")}
                     }
                     Button {
-                        variant: ButtonVariant::Ghost,
+                        variant: if filter() == ReminderFilter::Today { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         aria_label: Some("Today".to_string()),
-                        onclick: move |_| {
-                            // TODO: Implement "Today" filter
-                        },
+                        onclick: move |_| filter.set(ReminderFilter::Today),
                         "Today"
                     }
                     Button {
-                        variant: ButtonVariant::Ghost,
+                        variant: if filter() == ReminderFilter::Upcoming { ButtonVariant::Primary } else { ButtonVariant::Ghost },
                         aria_label: Some("Upcoming".to_string()),
-                        onclick: move |_| {
-                            // TODO: Implement "Upcoming" filter
-                        },
+                        onclick: move |_| filter.set(ReminderFilter::Upcoming),
                         "Upcoming"
                     }
                 }
