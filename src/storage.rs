@@ -38,6 +38,7 @@ pub fn load_reminders() -> Vec<Reminder> {
                     completed: r.completed,
                     created_at: r.created_at,
                     tag_ids: Vec::new(), // Initialize with empty tags
+                    priority: crate::models::Priority::Medium, // Default priority for migrated reminders
                 })
                 .collect();
             

@@ -4,7 +4,7 @@ use remind_me_ui::{
     Card, CardContent, CardHeader, CardTitle,
     FormField, Input, Textarea, Checkbox,
 };
-use remind_me_shared::models::{Reminder, Tag};
+use remind_me_shared::models::{Reminder, Tag, Priority};
 use crate::i18n::use_t;
 use remind_me_shared::utils::{now_rfc3339, now_timestamp_millis, to_datetime_local_value};
 
@@ -17,6 +17,7 @@ pub fn AddReminderForm(
     let mut description = use_signal(String::new);
     let mut due_date = use_signal(String::new);
     let mut selected_tag_ids = use_signal(|| Vec::<String>::new());
+    let mut priority = use_signal(|| Priority::Medium);
 
     rsx! {
         Card {
@@ -66,6 +67,36 @@ pub fn AddReminderForm(
                         r#type: "datetime-local",
                         value: "{due_date()}",
                         oninput: move |value| due_date.set(value),
+                    }
+                }
+
+                FormField {
+                    id: "reminder_priority".to_string(),
+                    name: "priority".to_string(),
+                    label: "Priority",
+                    div {
+                        class: "priority-selection",
+                        div {
+                            class: "priority-buttons",
+                            Button {
+                                variant: if priority() == Priority::Low { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("Low Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::Low),
+                                "Low"
+                            }
+                            Button {
+                                variant: if priority() == Priority::Medium { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("Medium Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::Medium),
+                                "Med"
+                            }
+                            Button {
+                                variant: if priority() == Priority::High { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("High Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::High),
+                                "High"
+                            }
+                        }
                     }
                 }
 
@@ -132,6 +163,7 @@ pub fn AddReminderForm(
                                     completed: false,
                                     created_at: now_rfc3339(),
                                     tag_ids: selected_tag_ids(),
+                                    priority: priority(),
                                 };
                                 on_add.call(reminder);
                                 title.set(String::new());
@@ -161,6 +193,7 @@ pub fn EditReminderForm(
         to_datetime_local_value(&reminder.due_date)
     });
     let mut selected_tag_ids = use_signal(|| reminder.tag_ids.clone());
+    let mut priority = use_signal(|| reminder.priority.clone());
 
     rsx! {
         Card {
@@ -210,6 +243,36 @@ pub fn EditReminderForm(
                         r#type: "datetime-local",
                         value: "{due_date()}",
                         oninput: move |value| due_date.set(value),
+                    }
+                }
+
+                FormField {
+                    id: "edit_reminder_priority".to_string(),
+                    name: "priority".to_string(),
+                    label: "Priority",
+                    div {
+                        class: "priority-selection",
+                        div {
+                            class: "priority-buttons",
+                            Button {
+                                variant: if priority() == Priority::Low { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("Low Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::Low),
+                                "Low"
+                            }
+                            Button {
+                                variant: if priority() == Priority::Medium { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("Medium Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::Medium),
+                                "Med"
+                            }
+                            Button {
+                                variant: if priority() == Priority::High { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                aria_label: Some("High Priority".to_string()),
+                                onclick: move |_| priority.set(Priority::High),
+                                "High"
+                            }
+                        }
                     }
                 }
 
@@ -282,6 +345,7 @@ pub fn EditReminderForm(
                                     completed: reminder.completed,
                                     created_at: reminder.created_at.clone(),
                                     tag_ids: selected_tag_ids(),
+                                    priority: priority(),
                                 };
                                 on_save.call(updated);
                                 title.set(String::new());
