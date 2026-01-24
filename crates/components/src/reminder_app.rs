@@ -9,9 +9,10 @@ use remind_me_ui::{
 };
 use remind_me_shared::models::{Reminder, ReminderFilter, ReminderSort};
 use remind_me_shared::storage::{load_reminders, save_reminders, load_tags};
-use remind_me_shared::utils::{get_filtered_and_sorted_reminders, to_datetime_local_value};
+use remind_me_shared::models::Priority;
+use remind_me_shared::utils::{get_filtered_and_sorted_reminders_advanced, to_datetime_local_value};
 // Use re-exports from mod.rs to avoid clippy warnings
-use super::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ListView, CardView, FolderView, CalendarView, TagManager};
+use super::{StatisticsDisplay, AddReminderForm, EditReminderForm, DeleteConfirmModal, ReminderDetailModal, SettingsView, ListView, CardView, FolderView, CalendarView, TagManager};
 use crate::i18n::use_t;
 
 #[component]
@@ -24,6 +25,13 @@ pub fn ReminderApp() -> Element {
     let mut sort_by = use_signal(|| ReminderSort::Date);
     let mut editing_id = use_signal(|| None::<String>);
     let mut detail_id = use_signal(|| None::<String>);
+    
+    // Advanced filters
+    let mut selected_tag_ids = use_signal(|| Vec::<String>::new());
+    let mut selected_priority = use_signal(|| None::<Priority>);
+    let mut date_range_start = use_signal(|| String::new());
+    let mut date_range_end = use_signal(|| String::new());
+    let mut show_advanced_filters = use_signal(|| false);
 
     // Toast notification state
     let mut show_toast = use_signal(|| false);
@@ -33,11 +41,14 @@ pub fn ReminderApp() -> Element {
     // Delete confirmation state
     let mut delete_confirm_id = use_signal(|| None::<String>);
 
-    // View state (list, card, folder)
+    // View state (list, card, folder, settings)
     let mut current_view = use_signal(|| "list".to_string());
 
     // Tag manager modal state
     let mut show_tag_manager = use_signal(|| false);
+    
+    // Settings view state
+    let mut show_settings = use_signal(|| false);
 
     // Keyboard shortcuts (global event listener)
     #[cfg(target_arch = "wasm32")]
@@ -159,9 +170,13 @@ pub fn ReminderApp() -> Element {
                     }
                     h1 { class: "app-title", {use_t("app.header.title")} }
                 }
-                div {
+                button {
                     class: "app-navbar-avatar",
-                    "👤" // Placeholder for user avatar
+                    aria_label: Some("Settings".to_string()),
+                    onclick: move |_| {
+                        show_settings.set(true);
+                    },
+                    "⚙️"
                 }
             }
 
@@ -185,7 +200,7 @@ pub fn ReminderApp() -> Element {
                     }
                 }
 
-                // 3. Status category buttons (All, Today, Upcoming)
+                // 3. Status category buttons (All, Today, Upcoming) + Advanced Filters
                 nav {
                     role: "navigation",
                     aria_label: "Status filters",
@@ -207,6 +222,134 @@ pub fn ReminderApp() -> Element {
                         aria_label: Some("Upcoming".to_string()),
                         onclick: move |_| filter.set(ReminderFilter::Upcoming),
                         "Upcoming"
+                    }
+                    Button {
+                        variant: if show_advanced_filters() { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                        aria_label: Some("Advanced filters".to_string()),
+                        onclick: move |_| show_advanced_filters.set(!show_advanced_filters()),
+                        "🔍 Advanced"
+                    }
+                }
+                
+                // Advanced Filters Panel
+                if show_advanced_filters() {
+                    div {
+                        class: "advanced-filters-panel",
+                        // Tag filter
+                        div {
+                            class: "filter-group",
+                            label {
+                                "🏷️ Filter by Tags:"
+                            }
+                            div {
+                                class: "tag-filter-buttons",
+                                Button {
+                                    variant: if selected_tag_ids().is_empty() { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                    aria_label: Some("All tags".to_string()),
+                                    onclick: move |_| selected_tag_ids.set(Vec::new()),
+                                    "All"
+                                }
+                                for tag in tags().iter() {
+                                    {
+                                        let tag_id = tag.id.clone();
+                                        let tag_id_for_class = tag.id.clone();
+                                        let tag_name = tag.name.clone();
+                                        let is_selected = selected_tag_ids().contains(&tag_id);
+                                        rsx! {
+                                            Button {
+                                                variant: if is_selected { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                                aria_label: Some(format!("Filter by {}", tag_name)),
+                                                onclick: move |_| {
+                                                    let mut current = selected_tag_ids();
+                                                    if current.contains(&tag_id) {
+                                                        current.retain(|id| id != &tag_id);
+                                                    } else {
+                                                        current.push(tag_id.clone());
+                                                    }
+                                                    selected_tag_ids.set(current);
+                                                },
+                                                class: format!("tag-filter-btn tag-filter-btn-{}", tag_id_for_class),
+                                                {tag_name}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Priority filter
+                        div {
+                            class: "filter-group",
+                            label {
+                                "⚡ Filter by Priority:"
+                            }
+                            div {
+                                class: "priority-filter-buttons",
+                                Button {
+                                    variant: if selected_priority().is_none() { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                    aria_label: Some("All priorities".to_string()),
+                                    onclick: move |_| selected_priority.set(None),
+                                    "All"
+                                }
+                                Button {
+                                    variant: if selected_priority() == Some(Priority::Low) { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                    aria_label: Some("Low priority".to_string()),
+                                    onclick: move |_| selected_priority.set(Some(Priority::Low)),
+                                    "🔵 Low"
+                                }
+                                Button {
+                                    variant: if selected_priority() == Some(Priority::Medium) { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                    aria_label: Some("Medium priority".to_string()),
+                                    onclick: move |_| selected_priority.set(Some(Priority::Medium)),
+                                    "🟡 Med"
+                                }
+                                Button {
+                                    variant: if selected_priority() == Some(Priority::High) { ButtonVariant::Primary } else { ButtonVariant::Ghost },
+                                    aria_label: Some("High priority".to_string()),
+                                    onclick: move |_| selected_priority.set(Some(Priority::High)),
+                                    "🔴 High"
+                                }
+                            }
+                        }
+                        
+                        // Date range filter
+                        div {
+                            class: "filter-group",
+                            label {
+                                "📅 Filter by Date Range:"
+                            }
+                            div {
+                                class: "date-range-filters",
+                                Input {
+                                    id: "date_range_start".to_string(),
+                                    name: "date_range_start".to_string(),
+                                    r#type: "date",
+                                    placeholder: "Start date",
+                                    value: "{date_range_start()}",
+                                    oninput: move |value| date_range_start.set(value),
+                                    class: "date-input".to_string(),
+                                }
+                                span { "to" }
+                                Input {
+                                    id: "date_range_end".to_string(),
+                                    name: "date_range_end".to_string(),
+                                    r#type: "date",
+                                    placeholder: "End date",
+                                    value: "{date_range_end()}",
+                                    oninput: move |value| date_range_end.set(value),
+                                    class: "date-input".to_string(),
+                                }
+                                Button {
+                                    variant: ButtonVariant::Ghost,
+                                    aria_label: Some("Clear date range".to_string()),
+                                    onclick: move |_| {
+                                        date_range_start.set(String::new());
+                                        date_range_end.set(String::new());
+                                    },
+                                    "Clear"
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -256,15 +399,26 @@ pub fn ReminderApp() -> Element {
                 // 5. Reminders list (rest of the content)
 
                 // Render view based on current_view state
-                {
-                    let filtered_reminders = get_filtered_and_sorted_reminders(
-                        &reminders(),
-                        &filter(),
-                        &search_query(),
-                        &sort_by()
-                    );
+                if show_settings() {
+                    SettingsView {
+                        on_close: move |_| show_settings.set(false),
+                    }
+                } else {
+                    {
+                        let date_start = date_range_start();
+                        let date_end = date_range_end();
+                        let filtered_reminders = get_filtered_and_sorted_reminders_advanced(
+                            &reminders(),
+                            &filter(),
+                            &search_query(),
+                            &sort_by(),
+                            &selected_tag_ids(),
+                            selected_priority().as_ref(),
+                            if date_start.is_empty() { None } else { Some(&date_start) },
+                            if date_end.is_empty() { None } else { Some(&date_end) },
+                        );
 
-                    match current_view().as_str() {
+                        match current_view().as_str() {
                         "list" => rsx! {
                             ListView {
                                 reminders: filtered_reminders,
@@ -456,6 +610,41 @@ pub fn ReminderApp() -> Element {
                                 },
                                 on_new_reminder: move |_| show_add_form.set(true),
                             }
+                        },
+                        }
+                    }
+                }
+            }
+
+            // Reminder Detail Modal
+            if let Some(detail_id_value) = detail_id() {
+                if let Some(reminder_detail) = reminders().iter().find(|r| r.id == detail_id_value) {
+                    ReminderDetailModal {
+                        open: detail_id,
+                        reminder: Some(reminder_detail.clone()),
+                        tags: tags(),
+                        on_close: move |_| detail_id.set(None),
+                        on_edit: move |id: String| {
+                            detail_id.set(None);
+                            editing_id.set(Some(id));
+                            show_add_form.set(false);
+                        },
+                        on_toggle: move |id: String| {
+                            let mut updated = reminders();
+                            if let Some(r) = updated.iter_mut().find(|r| r.id == id) {
+                                r.completed = !r.completed;
+                                let status = if r.completed { use_t("toast.completed") } else { use_t("toast.marked_active") };
+                                reminders.set(updated);
+                                save_reminders(&reminders());
+
+                                toast_message.set(format!("{} {}", use_t("toast.info"), status));
+                                toast_variant.set(ToastVariant::Info);
+                                show_toast.set(true);
+                            }
+                        },
+                        on_delete: move |id: String| {
+                            detail_id.set(None);
+                            delete_confirm_id.set(Some(id));
                         },
                     }
                 }

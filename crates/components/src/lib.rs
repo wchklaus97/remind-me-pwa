@@ -13,6 +13,7 @@ pub mod statistics;
 pub mod forms;
 pub mod cards;
 pub mod modals;
+pub mod settings;
 pub mod tag_form;
 pub mod tag_manager;
 pub mod media;
@@ -32,7 +33,8 @@ pub use reminder_app::ReminderApp;
 pub use statistics::StatisticsDisplay;
 pub use forms::{AddReminderForm, EditReminderForm};
 pub use cards::ReminderCard;
-pub use modals::DeleteConfirmModal;
+pub use modals::{DeleteConfirmModal, ReminderDetailModal};
+pub use settings::SettingsView;
 pub use tag_form::TagForm;
 pub use tag_manager::TagManager;
 #[allow(unused_imports)]

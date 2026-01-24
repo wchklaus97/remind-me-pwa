@@ -155,6 +155,54 @@
     color: var(--danger-color);
 }
 
+/* Advanced Filters Panel */
+.advanced-filters-panel {
+    margin: 16px 0;
+    padding: 16px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.filter-group {
+    margin-bottom: 16px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.tag-filter-buttons,
+.priority-filter-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.date-range-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.date-input {
+    flex: 1;
+    min-width: 120px;
+}
+
+.tag-filter-btn {
+    border: 2px solid var(--border-color);
+    transition: border-color 0.2s ease;
+}
+
 /* Summary row (horizontal statistics) */
 .summary-row {
     display: flex;

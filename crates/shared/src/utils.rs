@@ -4,7 +4,7 @@
 //! and reminder filtering/sorting. Some functions have platform-specific implementations
 //! using conditional compilation.
 
-use crate::models::{Reminder, Statistics, ReminderFilter, ReminderSort};
+use crate::models::{Reminder, Statistics, ReminderFilter, ReminderSort, Priority};
 
 #[cfg(not(target_arch = "wasm32"))]
 use chrono::TimeZone;
@@ -83,10 +83,33 @@ pub fn get_filtered_and_sorted_reminders(
     search_query: &str,
     sort_by: &ReminderSort,
 ) -> Vec<Reminder> {
+    get_filtered_and_sorted_reminders_advanced(
+        reminders,
+        filter,
+        search_query,
+        sort_by,
+        &[],
+        None,
+        None,
+        None,
+    )
+}
+
+/// Advanced filter and sort with tag, priority, and date range filters.
+pub fn get_filtered_and_sorted_reminders_advanced(
+    reminders: &[Reminder],
+    filter: &ReminderFilter,
+    search_query: &str,
+    sort_by: &ReminderSort,
+    selected_tag_ids: &[String],
+    selected_priority: Option<&Priority>,
+    date_range_start: Option<&str>,
+    date_range_end: Option<&str>,
+) -> Vec<Reminder> {
     let mut filtered: Vec<Reminder> = reminders
         .iter()
         .filter(|r| {
-            // Apply filter
+            // Apply basic filter
             let matches_filter = match filter {
                 ReminderFilter::Active => !r.completed,
                 ReminderFilter::Completed => r.completed,
@@ -116,7 +139,33 @@ pub fn get_filtered_and_sorted_reminders(
                     .to_lowercase()
                     .contains(&search_query.to_lowercase());
 
-            matches_filter && matches_search
+            // Apply tag filter
+            let matches_tags = selected_tag_ids.is_empty()
+                || selected_tag_ids.iter().any(|tag_id| r.tag_ids.contains(tag_id));
+
+            // Apply priority filter
+            let matches_priority = selected_priority.is_none()
+                || selected_priority.map(|p| &r.priority == p).unwrap_or(true);
+
+            // Apply date range filter
+            let matches_date_range = if date_range_start.is_none() && date_range_end.is_none() {
+                true
+            } else if r.due_date.is_empty() {
+                false
+            } else {
+                let reminder_date_ms = parse_date_to_epoch_ms(&r.due_date);
+                let start_ok = date_range_start
+                    .and_then(|s| parse_date_to_epoch_ms(s))
+                    .map(|start_ms| reminder_date_ms.map(|rem_ms| rem_ms >= start_ms).unwrap_or(false))
+                    .unwrap_or(true);
+                let end_ok = date_range_end
+                    .and_then(|e| parse_date_to_epoch_ms(e))
+                    .map(|end_ms| reminder_date_ms.map(|rem_ms| rem_ms <= end_ms).unwrap_or(false))
+                    .unwrap_or(true);
+                start_ok && end_ok
+            };
+
+            matches_filter && matches_search && matches_tags && matches_priority && matches_date_range
         })
         .cloned()
         .collect();
@@ -263,7 +312,7 @@ pub fn to_datetime_local_value(date_str: &str) -> String {
     }
 }
 
-fn parse_date_to_epoch_ms(date_str: &str) -> Option<i64> {
+pub fn parse_date_to_epoch_ms(date_str: &str) -> Option<i64> {
     if date_str.trim().is_empty() {
         return None;
     }
