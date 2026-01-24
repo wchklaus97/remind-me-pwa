@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /wasm/
+
+Sitemap: https://wchklaus97.github.io/remind-me-pwa/sitemap.xml
